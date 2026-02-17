@@ -14,24 +14,11 @@ export interface GuessResult {
   points: number;
   label: string;
   emoji: string;
+  knowsBall: boolean;
 }
 
 export type GameMode = 'menu' | 'quick' | 'endless' | 'position';
 export type Position = 'WR' | 'RB' | 'TE' | 'QB';
-
-export interface GameState {
-  mode: GameMode;
-  positionFilter: Position | null;
-  players: Player[];
-  currentIndex: number;
-  score: number;
-  streak: number;
-  results: GuessResult[];
-  guess: number;
-  revealed: boolean;
-  timeLeft: number;
-  gameOver: boolean;
-}
 
 export interface HighScore {
   score: number;

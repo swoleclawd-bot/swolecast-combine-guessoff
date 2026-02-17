@@ -22,11 +22,12 @@ body {
   min-height: 100vh;
 }
 
+/* Slider - desktop sized */
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
-  height: 12px;
-  border-radius: 6px;
+  height: 20px;
+  border-radius: 10px;
   background: #1a1a2e;
   outline: none;
 }
@@ -34,40 +35,133 @@ input[type="range"] {
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 36px;
-  height: 36px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   background: #7C3AED;
   cursor: pointer;
-  border: 3px solid #EC4899;
+  border: 4px solid #EC4899;
+  box-shadow: 0 0 15px rgba(124, 58, 237, 0.5);
 }
 
 input[type="range"]::-moz-range-thumb {
-  width: 36px;
-  height: 36px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   background: #7C3AED;
   cursor: pointer;
-  border: 3px solid #EC4899;
+  border: 4px solid #EC4899;
+  box-shadow: 0 0 15px rgba(124, 58, 237, 0.5);
 }
 
+/* Animations */
 @keyframes reveal-swoosh {
   0% { transform: scale(0) rotate(-10deg); opacity: 0; }
-  60% { transform: scale(1.2) rotate(3deg); opacity: 1; }
+  50% { transform: scale(1.3) rotate(3deg); opacity: 1; }
+  70% { transform: scale(0.95); }
   100% { transform: scale(1) rotate(0deg); opacity: 1; }
 }
 
 @keyframes shake {
   0%, 100% { transform: translateX(0); }
-  25% { transform: translateX(-5px); }
-  75% { transform: translateX(5px); }
+  10% { transform: translateX(-8px); }
+  20% { transform: translateX(8px); }
+  30% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  50% { transform: translateX(-4px); }
+  60% { transform: translateX(4px); }
+  70% { transform: translateX(-2px); }
+  80% { transform: translateX(2px); }
 }
 
 @keyframes pulse-glow {
   0%, 100% { box-shadow: 0 0 5px #7C3AED; }
-  50% { box-shadow: 0 0 25px #7C3AED, 0 0 50px #EC4899; }
+  50% { box-shadow: 0 0 30px #7C3AED, 0 0 60px #EC4899; }
 }
 
-.animate-reveal { animation: reveal-swoosh 0.6s ease-out forwards; }
-.animate-shake { animation: shake 0.3s ease-in-out; }
+@keyframes knows-ball-glow {
+  0% { text-shadow: 0 0 10px #10B981; }
+  50% { text-shadow: 0 0 40px #10B981, 0 0 80px #10B981; }
+  100% { text-shadow: 0 0 10px #10B981; }
+}
+
+@keyframes learn-ball-shake {
+  0%, 100% { transform: translateX(0); color: #EF4444; }
+  15% { transform: translateX(-10px); }
+  30% { transform: translateX(10px); }
+  45% { transform: translateX(-8px); }
+  60% { transform: translateX(8px); }
+  75% { transform: translateX(-4px); }
+  90% { transform: translateX(4px); }
+}
+
+@keyframes confetti-burst {
+  0% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-120px) scale(0.5); }
+}
+
+@keyframes time-reveal {
+  0% { transform: scale(0); opacity: 0; filter: blur(10px); }
+  60% { transform: scale(1.15); opacity: 1; filter: blur(0); }
+  80% { transform: scale(0.95); }
+  100% { transform: scale(1); opacity: 1; filter: blur(0); }
+}
+
+@keyframes glow-pulse {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.4); }
+}
+
+.animate-reveal { animation: time-reveal 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+.animate-shake { animation: shake 0.5s ease-in-out; }
 .animate-pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+.animate-knows-ball { animation: knows-ball-glow 1.5s ease-in-out infinite; }
+.animate-learn-ball { animation: learn-ball-shake 0.6s ease-in-out; }
+.animate-glow-pulse { animation: glow-pulse 2s ease-in-out infinite; }
+
+/* Confetti particle */
+.confetti-particle {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  animation: confetti-burst 1.2s ease-out forwards;
+  pointer-events: none;
+}
+
+/* Slider tick marks */
+.slider-container {
+  position: relative;
+}
+.slider-ticks {
+  position: relative;
+  height: 30px;
+  margin-top: -5px;
+}
+.slider-tick {
+  position: absolute;
+  transform: translateX(-50%);
+  font-size: 12px;
+  color: #6b7280;
+  top: 8px;
+}
+.slider-tick::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 50%;
+  width: 2px;
+  height: 8px;
+  background: #374151;
+  transform: translateX(-50%);
+}
+
+/* Position zone bands on slider */
+.zone-band {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  border-radius: 10px;
+  opacity: 0.15;
+  pointer-events: none;
+}
