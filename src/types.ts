@@ -17,7 +17,7 @@ export interface GuessResult {
   knowsBall: boolean;
 }
 
-export type GameMode = 'menu' | 'quick' | 'endless' | 'position';
+export type GameMode = 'menu' | 'quick' | 'endless' | 'position' | 'speedsort';
 export type Position = 'WR' | 'RB' | 'TE' | 'QB';
 
 export interface HighScore {

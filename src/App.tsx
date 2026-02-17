@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import type { Player, GameMode, Position, GuessResult, HighScore } from './types';
 import { scoreGuess, getEasterEgg, getDeltaColor } from './scoring';
 import { playSuccess, playFail, playTick } from './sounds';
+import SpeedSort from './SpeedSort';
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -281,36 +282,50 @@ export default function App() {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-8">
         <div className="text-center mb-12">
-          <h1 className="text-6xl lg:text-8xl font-black tracking-tight leading-tight">
-            <span className="text-primary">🏈 SWOLECAST</span>
-            <br />
+          <img src="/swolecast-logo.png" alt="Swolecast" className="h-24 lg:h-28 mx-auto mb-4" />
+          <h1 className="text-5xl lg:text-7xl font-black tracking-tight leading-tight">
             <span className="text-accent">COMBINE GUESS-OFF</span> 💪
           </h1>
           <p className="text-highlight mt-4 text-2xl italic font-medium animate-glow-pulse">No Research, No Filter, All Vibes</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full max-w-5xl mb-8">
-          <button onClick={() => startGame('quick')}
-            className="py-10 px-8 bg-card hover:bg-primary/20 rounded-2xl text-center transition-all hover:scale-105 animate-pulse-glow border-2 border-primary/40 hover:border-primary group">
-            <div className="text-5xl mb-3">⚡</div>
-            <div className="text-3xl font-black text-primary mb-2">Quick Round</div>
-            <div className="text-gray-400 text-lg">10 players · 15s each</div>
+        <div className="flex flex-col items-center gap-6 w-full max-w-5xl mb-8">
+          {/* Speed Sort — PRIMARY */}
+          <button onClick={() => setMode('speedsort')}
+            className="py-12 px-10 bg-card hover:bg-primary/20 rounded-2xl text-center transition-all hover:scale-105 animate-pulse-glow border-2 border-primary/40 hover:border-primary w-full max-w-lg">
+            <div className="text-6xl mb-3">🏎️</div>
+            <div className="text-4xl font-black text-primary mb-2">Speed Sort</div>
+            <div className="text-gray-400 text-lg">Sort 3 players fastest → slowest · 3 lives</div>
           </button>
-          <button onClick={() => startGame('endless')}
-            className="py-10 px-8 bg-card hover:bg-accent/20 rounded-2xl text-center transition-all hover:scale-105 border-2 border-accent/40 hover:border-accent">
-            <div className="text-5xl mb-3">♾️</div>
-            <div className="text-3xl font-black text-accent mb-2">Endless Mode</div>
-            <div className="text-gray-400 text-lg">No timer · Pure vibes</div>
-          </button>
-          <div className="bg-card rounded-2xl p-8 border-2 border-highlight/40">
-            <p className="text-center font-black mb-5 text-lg uppercase tracking-widest text-highlight">Position Challenge</p>
-            <div className="grid grid-cols-2 gap-3">
-              {(['WR', 'RB', 'QB', 'TE'] as Position[]).map(pos => (
-                <button key={pos} onClick={() => startGame('position', pos)}
-                  className="py-5 bg-bg hover:bg-primary/30 rounded-xl font-bold text-xl transition-all border-2 border-primary/30 hover:border-primary hover:scale-105">
-                  {pos === 'WR' ? '🏃' : pos === 'RB' ? '🐂' : pos === 'QB' ? '🎯' : '🤚'} {pos}
-                </button>
-              ))}
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full">
+            {/* Endless — secondary */}
+            <button onClick={() => startGame('endless')}
+              className="py-10 px-8 bg-card hover:bg-accent/20 rounded-2xl text-center transition-all hover:scale-105 border-2 border-accent/40 hover:border-accent">
+              <div className="text-5xl mb-3">♾️</div>
+              <div className="text-3xl font-black text-accent mb-2">Endless Mode</div>
+              <div className="text-gray-400 text-lg">No timer · Pure vibes</div>
+            </button>
+
+            {/* Quick Round — COMING SOON */}
+            <div className="relative py-10 px-8 bg-card/50 rounded-2xl text-center border-2 border-gray-700 opacity-50 cursor-not-allowed">
+              <div className="absolute top-3 right-3 bg-gray-600 text-xs font-bold uppercase px-3 py-1 rounded-full tracking-wider">Coming Soon</div>
+              <div className="text-5xl mb-3">⚡</div>
+              <div className="text-3xl font-black text-gray-500 mb-2">Quick Round</div>
+              <div className="text-gray-600 text-lg">10 players · 15s each</div>
+            </div>
+
+            {/* Position Challenge — COMING SOON */}
+            <div className="relative bg-card/50 rounded-2xl p-8 border-2 border-gray-700 opacity-50 cursor-not-allowed">
+              <div className="absolute top-3 right-3 bg-gray-600 text-xs font-bold uppercase px-3 py-1 rounded-full tracking-wider">Coming Soon</div>
+              <p className="text-center font-black mb-5 text-lg uppercase tracking-widest text-gray-500">Position Challenge</p>
+              <div className="grid grid-cols-2 gap-3">
+                {(['WR', 'RB', 'QB', 'TE'] as Position[]).map(pos => (
+                  <div key={pos} className="py-5 bg-bg/50 rounded-xl font-bold text-xl text-gray-600 border-2 border-gray-700 text-center">
+                    {pos === 'WR' ? '🏃' : pos === 'RB' ? '🐂' : pos === 'QB' ? '🎯' : '🤚'} {pos}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -323,12 +338,17 @@ export default function App() {
     );
   }
 
+  // Speed Sort mode
+  if (mode === 'speedsort') {
+    return <SpeedSort allPlayers={allPlayers} onQuit={(s, r) => { saveHighScore({ score: s, mode: 'Speed Sort', date: new Date().toLocaleDateString(), rounds: r }); setMode('menu'); }} />;
+  }
+
   // Game Over — wide layout
   if (gameOver) {
     return (
       <div className="min-h-screen flex flex-col items-center p-8 max-w-6xl mx-auto">
         {/* Header */}
-        <div className="text-sm uppercase tracking-widest text-gray-500 font-bold mb-2">SWOLECAST COMBINE GUESS-OFF</div>
+        <div className="flex items-center justify-center gap-3 mb-2"><img src="/swolecast-logo.png" alt="Swolecast" className="h-10" /><span className="text-sm uppercase tracking-widest text-gray-500 font-bold">COMBINE GUESS-OFF</span></div>
 
         <h2 className="text-6xl font-black text-highlight mb-4 mt-4">GAME OVER!</h2>
         <p className="text-8xl font-black text-primary mb-2">{score} pts</p>
@@ -395,7 +415,7 @@ export default function App() {
       <div className="flex justify-between items-center px-8 py-3 bg-card/50 border-b border-gray-800">
         <button onClick={() => { if (confirm('Quit game?')) { endGame(); } }}
           className="text-gray-400 hover:text-white text-sm font-bold">✕ Quit</button>
-        <div className="text-sm uppercase tracking-widest text-gray-500 font-bold">SWOLECAST COMBINE GUESS-OFF</div>
+        <div className="flex items-center gap-3"><img src="/swolecast-logo.png" alt="Swolecast" className="h-8" /><span className="text-sm uppercase tracking-widest text-gray-500 font-bold">COMBINE GUESS-OFF</span></div>
         <div className="text-gray-400 text-sm">
           {mode === 'quick' ? '⚡ Quick' : mode === 'position' ? `${posFilter} Challenge` : '♾️ Endless'}
         </div>
