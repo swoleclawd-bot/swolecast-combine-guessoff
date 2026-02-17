@@ -20,6 +20,101 @@ function saveHighScore(s: HighScore) {
   localStorage.setItem('swolecast-scores', JSON.stringify(scores));
 }
 
+// Confetti component
+function Confetti() {
+  const colors = ['#10B981', '#FFD166', '#7C3AED', '#EC4899', '#3B82F6', '#EF4444'];
+  const particles = Array.from({ length: 30 }, (_, i) => ({
+    id: i,
+    left: 40 + Math.random() * 20 + '%',
+    color: colors[Math.floor(Math.random() * colors.length)],
+    delay: Math.random() * 0.4 + 's',
+    angle: (Math.random() - 0.5) * 200 + 'px',
+    size: 6 + Math.random() * 8,
+  }));
+  return (
+    <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      {particles.map(p => (
+        <div key={p.id} className="confetti-particle"
+          style={{
+            left: p.left,
+            top: '40%',
+            backgroundColor: p.color,
+            width: p.size,
+            height: p.size,
+            animationDelay: p.delay,
+            transform: `translateX(${p.angle})`,
+          }} />
+      ))}
+    </div>
+  );
+}
+
+// Slider tick marks and zone bands
+const TICK_VALUES = [4.3, 4.4, 4.5, 4.6, 4.7, 4.8, 4.9, 5.0, 5.2];
+const SLIDER_MIN = 4.20;
+const SLIDER_MAX = 5.40;
+const ZONES: { label: string; color: string; min: number; max: number }[] = [
+  { label: 'WR', color: '#3B82F6', min: 4.28, max: 4.50 },
+  { label: 'RB', color: '#10B981', min: 4.38, max: 4.60 },
+  { label: 'QB', color: '#FFD166', min: 4.55, max: 4.85 },
+  { label: 'TE', color: '#EC4899', min: 4.55, max: 4.80 },
+];
+
+function SliderWithTicks({ guess, setGuess, onSubmit }: { guess: number; setGuess: (v: number) => void; onSubmit: () => void }) {
+  const pct = (v: number) => ((v - SLIDER_MIN) / (SLIDER_MAX - SLIDER_MIN)) * 100;
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      const step = e.shiftKey ? 0.05 : 0.01;
+      setGuess(Math.min(SLIDER_MAX, Math.round((guess + step) * 100) / 100));
+    } else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') {
+      e.preventDefault();
+      const step = e.shiftKey ? 0.05 : 0.01;
+      setGuess(Math.max(SLIDER_MIN, Math.round((guess - step) * 100) / 100));
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      onSubmit();
+    }
+  }, [guess, setGuess, onSubmit]);
+
+  return (
+    <div className="slider-container w-full">
+      {/* Zone bands */}
+      <div className="relative h-6 mb-1 rounded-lg overflow-hidden bg-card/30">
+        {ZONES.map(z => (
+          <div key={z.label} className="zone-band" style={{
+            left: pct(z.min) + '%',
+            width: (pct(z.max) - pct(z.min)) + '%',
+            backgroundColor: z.color,
+            opacity: 0.2,
+          }}>
+            <span className="absolute top-0.5 left-1/2 -translate-x-1/2 text-xs font-bold" style={{ color: z.color, opacity: 0.8 }}>
+              {z.label}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <input
+        type="range" min={SLIDER_MIN} max={SLIDER_MAX} step="0.01" value={guess}
+        onChange={e => setGuess(parseFloat(e.target.value))}
+        onKeyDown={handleKeyDown}
+        className="w-full cursor-pointer"
+      />
+
+      {/* Tick marks */}
+      <div className="slider-ticks">
+        {TICK_VALUES.map(v => (
+          <div key={v} className="slider-tick" style={{ left: pct(v) + '%' }}>
+            {v.toFixed(1)}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const [allPlayers, setAllPlayers] = useState<Player[]>([]);
   const [mode, setMode] = useState<GameMode>('menu');
@@ -36,7 +131,7 @@ export default function App() {
   const [easterEgg, setEasterEgg] = useState<string | null>(null);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [shareText, setShareText] = useState('');
-  const [revealPhase, setRevealPhase] = useState(0); // 0=hidden, 1=drumroll, 2=revealed
+  const [showConfetti, setShowConfetti] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
@@ -56,7 +151,6 @@ export default function App() {
     setIdx(0);
     setGuess(4.50);
     setRevealed(false);
-    setRevealPhase(0);
     setResults([]);
     setScore(0);
     setStreak(0);
@@ -64,54 +158,40 @@ export default function App() {
     setGameOver(false);
     setEasterEgg(null);
     setShareText('');
+    setShowConfetti(false);
     setMode(m);
     setPosFilter(pos || null);
   }, [allPlayers]);
 
-  // Timer for quick mode
-  useEffect(() => {
-    if (mode === 'quick' && !revealed && !gameOver && revealPhase === 0) {
-      timerRef.current = setInterval(() => {
-        setTimeLeft(t => {
-          if (t <= 1) {
-            handleSubmit();
-            return 15;
-          }
-          if (t <= 4) playTick();
-          return t - 1;
-        });
-      }, 1000);
-      return () => { if (timerRef.current) clearInterval(timerRef.current); };
-    }
-    return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode, revealed, gameOver, idx, revealPhase]);
+  const endGame = useCallback(() => {
+    setGameOver(true);
+    const modeLabel = mode === 'quick' ? 'Quick Round' : mode === 'position' ? `${posFilter} Challenge` : 'Endless';
+    saveHighScore({ score, mode: modeLabel, date: new Date().toLocaleDateString(), rounds: results.length });
+    const maxPossible = results.length * 100;
+    setShareText(`I scored ${score}/${maxPossible > 0 ? maxPossible : results.length * 100} on the @Swolecast Combine Guess-Off! 🏈💪\n\nThink you can beat me? #Swolecast #CombineGuessOff`);
+  }, [score, mode, posFilter, results]);
 
   const handleSubmit = useCallback(() => {
     if (revealed || gameOver || !players[idx]) return;
+    const player = players[idx];
+    const result = scoreGuess(player, guess, streak);
+    const egg = getEasterEgg(player, guess);
+
+    if (result.points >= 50) {
+      playSuccess();
+      setShowConfetti(true);
+      setTimeout(() => setShowConfetti(false), 1500);
+    } else {
+      playFail();
+    }
+
+    const newStreak = result.points >= 50 ? streak + 1 : 0;
+    setStreak(newStreak);
+    setScore(s => s + result.points);
+    setResults(r => [...r, result]);
+    setRevealed(true);
+    setEasterEgg(egg);
     if (timerRef.current) clearInterval(timerRef.current);
-
-    // Drumroll phase
-    setRevealPhase(1);
-    setTimeout(() => {
-      const player = players[idx];
-      const result = scoreGuess(player, guess, streak);
-      const egg = getEasterEgg(player, guess);
-
-      if (result.knowsBall) {
-        playSuccess();
-      } else {
-        playFail();
-      }
-
-      const newStreak = result.knowsBall ? streak + 1 : 0;
-      setStreak(newStreak);
-      setScore(s => s + result.points);
-      setResults(r => [...r, result]);
-      setRevealed(true);
-      setRevealPhase(2);
-      setEasterEgg(egg);
-    }, 1200);
   }, [revealed, gameOver, players, idx, guess, streak]);
 
   const nextPlayer = useCallback(() => {
@@ -127,405 +207,346 @@ export default function App() {
     setIdx(nextIdx);
     setGuess(4.50);
     setRevealed(false);
-    setRevealPhase(0);
     setEasterEgg(null);
     setTimeLeft(15);
-  }, [idx, mode, players.length]);
+    setShowConfetti(false);
+  }, [idx, mode, players.length, endGame]);
 
-  const endGame = useCallback(() => {
-    setGameOver(true);
-    const modeLabel = mode === 'quick' ? 'Quick Round' : mode === 'position' ? `${posFilter} Challenge` : 'Endless';
-    saveHighScore({ score, mode: modeLabel, date: new Date().toLocaleDateString(), rounds: results.length });
-    const knowsBallCount = results.filter(r => r.knowsBall).length;
-    setShareText(`🏈 Swolecast Combine Guess-Off\n\nScore: ${score} pts | ${knowsBallCount}/${results.length} Knows Ball\n\nThink you know ball? #Swolecast #CombineGuessOff`);
-  }, [score, mode, posFilter, results]);
+  // Timer for quick mode
+  useEffect(() => {
+    if (mode === 'quick' && !revealed && !gameOver) {
+      timerRef.current = setInterval(() => {
+        setTimeLeft(t => {
+          if (t <= 1) {
+            handleSubmit();
+            return 15;
+          }
+          if (t <= 4) playTick();
+          return t - 1;
+        });
+      }, 1000);
+      return () => { if (timerRef.current) clearInterval(timerRef.current); };
+    }
+    return () => { if (timerRef.current) clearInterval(timerRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode, revealed, gameOver, idx]);
+
+  // Keyboard shortcuts: Enter to submit, Space for next
+  useEffect(() => {
+    if (mode === 'menu' || gameOver) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Enter' && !revealed) {
+        e.preventDefault();
+        handleSubmit();
+      } else if (e.key === ' ' && revealed) {
+        e.preventDefault();
+        nextPlayer();
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [mode, gameOver, revealed, handleSubmit, nextPlayer]);
 
   const currentPlayer = players[idx];
   const maxRounds = mode === 'quick' ? 10 : players.length;
 
-  if (!allPlayers.length) {
-    return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-5xl font-black animate-pulse text-primary">Loading... 🏈</div>
-      </div>
-    );
-  }
+  if (!allPlayers.length) return <div className="flex items-center justify-center min-h-screen text-3xl font-bold">Loading players... 🏈</div>;
 
-  // ═══════════════════════════════════════
-  // LEADERBOARD
-  // ═══════════════════════════════════════
+  // Leaderboard overlay
   if (showLeaderboard) {
     const scores = getHighScores();
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-8">
-        <div className="w-full max-w-2xl">
-          <button onClick={() => setShowLeaderboard(false)}
-            className="mb-8 px-6 py-3 bg-primary/20 border border-primary rounded-xl text-primary font-bold hover:bg-primary/30 transition-all text-lg">
-            ← Back
-          </button>
-          <h2 className="text-6xl font-black text-center mb-10 text-highlight">🏆 LEADERBOARD</h2>
-          {scores.length === 0 ? (
-            <p className="text-center text-gray-500 text-2xl">No scores yet. Go play!</p>
-          ) : (
-            <div className="space-y-3">
-              {scores.map((s, i) => (
-                <div key={i} className="bg-card p-6 rounded-2xl flex justify-between items-center border border-primary/10 hover:border-primary/40 transition-all">
-                  <div className="flex items-center gap-4">
-                    <span className="text-4xl">{i === 0 ? '👑' : i === 1 ? '🥈' : i === 2 ? '🥉' : ''}</span>
-                    <span className="text-3xl font-black text-highlight">{s.score}</span>
-                    <span className="text-xl text-gray-400">pts</span>
-                  </div>
-                  <div className="text-right text-gray-400">
-                    <div className="text-lg font-semibold">{s.mode}</div>
-                    <div className="text-sm">{s.rounds} rounds · {s.date}</div>
-                  </div>
+      <div className="min-h-screen p-8 max-w-4xl mx-auto">
+        <button onClick={() => setShowLeaderboard(false)} className="mb-6 px-6 py-3 bg-primary rounded-lg text-white font-bold text-lg hover:bg-primary/80 transition-all">← Back</button>
+        <h2 className="text-5xl font-black text-center mb-8 text-highlight">🏆 Leaderboard</h2>
+        {scores.length === 0 ? <p className="text-center text-gray-400 text-xl">No scores yet. Play a game!</p> :
+          <div className="space-y-3">
+            {scores.map((s, i) => (
+              <div key={i} className="bg-card p-6 rounded-xl flex justify-between items-center">
+                <div>
+                  <span className="text-2xl font-bold text-highlight">{i === 0 ? '👑' : i === 1 ? '🥈' : i === 2 ? '🥉' : `#${i+1}`}</span>
+                  <span className="ml-4 font-bold text-xl">{s.score} pts</span>
                 </div>
-              ))}
-            </div>
-          )}
-        </div>
+                <div className="text-lg text-gray-400">{s.mode} · {s.rounds}r · {s.date}</div>
+              </div>
+            ))}
+          </div>
+        }
       </div>
     );
   }
 
-  // ═══════════════════════════════════════
-  // MAIN MENU
-  // ═══════════════════════════════════════
+  // Menu — TV game show intro
   if (mode === 'menu') {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-8">
-        {/* Big hero title */}
-        <div className="text-center mb-16">
-          <h1 className="text-7xl md:text-8xl lg:text-9xl font-black tracking-tighter leading-none">
-            <span className="text-primary">SWOLECAST</span>
+        <div className="text-center mb-12">
+          <h1 className="text-6xl lg:text-8xl font-black tracking-tight leading-tight">
+            <span className="text-primary">🏈 SWOLECAST</span>
+            <br />
+            <span className="text-accent">COMBINE GUESS-OFF</span> 💪
           </h1>
-          <h2 className="text-5xl md:text-6xl lg:text-7xl font-black tracking-tight text-accent mt-2">
-            COMBINE GUESS-OFF
-          </h2>
-          <div className="flex items-center justify-center gap-4 mt-6">
-            <span className="text-5xl">🏈</span>
-            <p className="text-highlight text-2xl italic font-medium">No Research, No Filter, All Vibes</p>
-            <span className="text-5xl">💪</span>
-          </div>
+          <p className="text-highlight mt-4 text-2xl italic font-medium animate-glow-pulse">No Research, No Filter, All Vibes</p>
         </div>
 
-        {/* Mode buttons — big, bold, desktop-friendly */}
-        <div className="flex flex-col lg:flex-row gap-6 w-full max-w-5xl mb-10">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full max-w-5xl mb-8">
           <button onClick={() => startGame('quick')}
-            className="flex-1 py-8 px-10 bg-gradient-to-br from-primary to-primary/60 hover:from-primary/90 hover:to-primary/50 rounded-3xl text-3xl font-black transition-all hover:scale-105 animate-pulse-glow border-2 border-primary/50 group">
-            <div className="text-5xl mb-2">⚡</div>
-            <div>Quick Round</div>
-            <div className="text-base opacity-60 font-medium mt-1">10 players · 15 seconds each</div>
+            className="py-10 px-8 bg-card hover:bg-primary/20 rounded-2xl text-center transition-all hover:scale-105 animate-pulse-glow border-2 border-primary/40 hover:border-primary group">
+            <div className="text-5xl mb-3">⚡</div>
+            <div className="text-3xl font-black text-primary mb-2">Quick Round</div>
+            <div className="text-gray-400 text-lg">10 players · 15s each</div>
           </button>
           <button onClick={() => startGame('endless')}
-            className="flex-1 py-8 px-10 bg-gradient-to-br from-accent to-accent/60 hover:from-accent/90 hover:to-accent/50 rounded-3xl text-3xl font-black transition-all hover:scale-105 border-2 border-accent/50">
-            <div className="text-5xl mb-2">♾️</div>
-            <div>Endless Mode</div>
-            <div className="text-base opacity-60 font-medium mt-1">No timer · go until you quit</div>
+            className="py-10 px-8 bg-card hover:bg-accent/20 rounded-2xl text-center transition-all hover:scale-105 border-2 border-accent/40 hover:border-accent">
+            <div className="text-5xl mb-3">♾️</div>
+            <div className="text-3xl font-black text-accent mb-2">Endless Mode</div>
+            <div className="text-gray-400 text-lg">No timer · Pure vibes</div>
           </button>
-        </div>
-
-        {/* Position challenge */}
-        <div className="bg-card rounded-3xl p-8 w-full max-w-5xl border border-primary/20 mb-10">
-          <p className="text-center font-black mb-6 text-xl uppercase tracking-widest text-gray-400">Position Challenge</p>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {(['WR', 'RB', 'QB', 'TE'] as Position[]).map(pos => (
-              <button key={pos} onClick={() => startGame('position', pos)}
-                className="py-6 bg-bg hover:bg-primary/20 rounded-2xl font-black text-2xl transition-all border-2 border-primary/20 hover:border-primary hover:scale-105">
-                <div className="text-4xl mb-1">{pos === 'WR' ? '🏃' : pos === 'RB' ? '🐂' : pos === 'QB' ? '🎯' : '🤚'}</div>
-                {pos} Only
-              </button>
-            ))}
+          <div className="bg-card rounded-2xl p-8 border-2 border-highlight/40">
+            <p className="text-center font-black mb-5 text-lg uppercase tracking-widest text-highlight">Position Challenge</p>
+            <div className="grid grid-cols-2 gap-3">
+              {(['WR', 'RB', 'QB', 'TE'] as Position[]).map(pos => (
+                <button key={pos} onClick={() => startGame('position', pos)}
+                  className="py-5 bg-bg hover:bg-primary/30 rounded-xl font-bold text-xl transition-all border-2 border-primary/30 hover:border-primary hover:scale-105">
+                  {pos === 'WR' ? '🏃' : pos === 'RB' ? '🐂' : pos === 'QB' ? '🎯' : '🤚'} {pos}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
         <button onClick={() => setShowLeaderboard(true)}
-          className="px-10 py-4 bg-card hover:bg-card/80 rounded-2xl font-bold text-xl text-highlight transition-all border border-highlight/30 hover:border-highlight">
+          className="px-10 py-4 bg-card hover:bg-card/80 rounded-xl font-bold text-xl text-highlight transition-all hover:scale-105 border border-highlight/30">
           🏆 Leaderboard
         </button>
       </div>
     );
   }
 
-  // ═══════════════════════════════════════
-  // GAME OVER
-  // ═══════════════════════════════════════
+  // Game Over — wide layout
   if (gameOver) {
-    const knowsBallCount = results.filter(r => r.knowsBall).length;
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-8">
-        <div className="w-full max-w-4xl">
-          <h2 className="text-7xl font-black text-highlight text-center mb-4 animate-reveal">GAME OVER</h2>
-          <div className="text-center mb-8">
-            <div className="text-8xl font-black text-primary">{score}</div>
-            <div className="text-2xl text-gray-400 mt-2">
-              {knowsBallCount}/{results.length} Knows Ball 🏈 · {results.length - knowsBallCount} Learn Ball 💀
-            </div>
-          </div>
+      <div className="min-h-screen flex flex-col items-center p-8 max-w-6xl mx-auto">
+        {/* Header */}
+        <div className="text-sm uppercase tracking-widest text-gray-500 font-bold mb-2">SWOLECAST COMBINE GUESS-OFF</div>
 
-          {shareText && (
-            <div className="text-center mb-8">
-              <button onClick={() => navigator.clipboard.writeText(shareText).then(() => alert('Copied to clipboard! Share it!'))}
-                className="px-10 py-4 bg-accent rounded-2xl font-black text-2xl hover:bg-accent/80 transition-all hover:scale-105">
-                📋 Share Results
-              </button>
-            </div>
-          )}
+        <h2 className="text-6xl font-black text-highlight mb-4 mt-4">GAME OVER!</h2>
+        <p className="text-8xl font-black text-primary mb-2">{score} pts</p>
+        <p className="text-xl text-gray-400 mb-8">{results.length} rounds played</p>
 
-          {/* Results table */}
-          <div className="bg-card rounded-3xl p-6 border border-primary/20 mb-8">
-            <div className="grid gap-2">
-              {results.map((r, i) => (
-                <div key={i} className={`p-4 rounded-xl flex items-center justify-between ${r.knowsBall ? 'bg-success/10 border border-success/20' : 'bg-red-500/10 border border-red-500/20'}`}>
-                  <div className="flex items-center gap-4">
-                    <span className="text-3xl w-12 text-center">{r.knowsBall ? '🏈' : '💀'}</span>
-                    <div>
-                      <div className="font-black text-xl">{r.player.name}</div>
-                      <div className="text-gray-400 text-sm">{r.player.position} · {r.player.year}</div>
-                    </div>
-                  </div>
-                  <div className="text-right flex items-center gap-6">
-                    <div>
-                      <div className="text-gray-400 text-sm">Guess</div>
-                      <div className="font-bold text-lg">{r.guess.toFixed(2)}</div>
-                    </div>
-                    <div>
-                      <div className="text-gray-400 text-sm">Actual</div>
-                      <div className="font-black text-lg">{r.player.forty.toFixed(2)}</div>
-                    </div>
-                    <div className="w-20 text-right">
-                      <div className="text-sm" style={{ color: getDeltaColor(r.delta) }}>Δ {r.delta.toFixed(2)}</div>
-                      <div className="font-black text-highlight text-lg">+{r.points}</div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+        {shareText && (
+          <button onClick={() => navigator.clipboard.writeText(shareText).then(() => alert('Copied to clipboard!'))}
+            className="mb-8 px-8 py-4 bg-accent rounded-xl font-bold text-xl hover:bg-accent/80 transition-all hover:scale-105">
+            📋 Copy Share Card
+          </button>
+        )}
 
-          <div className="flex justify-center gap-6">
-            <button onClick={() => startGame(mode, posFilter || undefined)}
-              className="px-10 py-4 bg-primary rounded-2xl font-black text-2xl hover:bg-primary/80 transition-all hover:scale-105">
-              🔄 Play Again
-            </button>
-            <button onClick={() => setMode('menu')}
-              className="px-10 py-4 bg-card border border-primary/30 rounded-2xl font-black text-2xl hover:bg-card/80 transition-all">
-              🏠 Menu
-            </button>
+        {/* Full-width results table */}
+        <div className="w-full mb-8">
+          <h3 className="font-bold text-2xl text-center mb-4">Round Summary</h3>
+          <div className="bg-card rounded-xl overflow-hidden">
+            <table className="w-full">
+              <thead>
+                <tr className="text-left text-gray-400 text-sm uppercase border-b border-gray-700">
+                  <th className="p-4">#</th>
+                  <th className="p-4">Player</th>
+                  <th className="p-4">Pos</th>
+                  <th className="p-4 text-right">Your Guess</th>
+                  <th className="p-4 text-right">Actual</th>
+                  <th className="p-4 text-right">Delta</th>
+                  <th className="p-4 text-right">Points</th>
+                  <th className="p-4 text-center">Result</th>
+                </tr>
+              </thead>
+              <tbody>
+                {results.map((r, i) => (
+                  <tr key={i} className="border-b border-gray-800 hover:bg-bg/50 transition-colors">
+                    <td className="p-4 text-gray-500">{i + 1}</td>
+                    <td className="p-4 font-bold">{r.player.name}</td>
+                    <td className="p-4 text-gray-400">{r.player.position}</td>
+                    <td className="p-4 text-right text-gray-300">{r.guess.toFixed(2)}</td>
+                    <td className="p-4 text-right font-bold">{r.player.forty.toFixed(2)}</td>
+                    <td className="p-4 text-right" style={{ color: getDeltaColor(r.delta) }}>{r.delta.toFixed(2)}s</td>
+                    <td className="p-4 text-right font-bold text-highlight">+{r.points}</td>
+                    <td className="p-4 text-center text-xl">{r.emoji}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
+        </div>
+
+        <div className="flex gap-4">
+          <button onClick={() => startGame(mode, posFilter || undefined)}
+            className="px-8 py-4 bg-primary rounded-xl font-bold text-xl hover:bg-primary/80 transition-all hover:scale-105">🔄 Play Again</button>
+          <button onClick={() => setMode('menu')}
+            className="px-8 py-4 bg-card rounded-xl font-bold text-xl hover:bg-card/80 transition-all hover:scale-105">🏠 Menu</button>
         </div>
       </div>
     );
   }
 
-  // ═══════════════════════════════════════
-  // ACTIVE GAME — Desktop-first layout
-  // ═══════════════════════════════════════
+  // Active Game — 3-column desktop layout
+  const lastResult = results.length > 0 ? results[results.length - 1] : null;
+
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Top bar */}
-      <div className="flex items-center justify-between px-8 py-4 bg-card/50 border-b border-primary/10">
-        <button onClick={() => { if (confirm('Quit game?')) endGame(); }}
-          className="text-gray-500 hover:text-white text-lg font-bold transition-all">✕ Quit</button>
-        <div className="text-center">
-          <span className="text-sm uppercase tracking-widest text-gray-500 font-bold">
-            {mode === 'quick' ? 'Quick Round' : mode === 'position' ? `${posFilter} Challenge` : 'Endless'}
-          </span>
-        </div>
-        <div className="text-lg text-gray-400 font-bold">{idx + 1} / {maxRounds}</div>
-      </div>
-
-      {/* Main content — desktop 3-column layout */}
-      <div className="flex-1 flex">
-        {/* Left sidebar — Score & Streak */}
-        <div className="hidden lg:flex w-72 flex-col items-center justify-center bg-card/30 border-r border-primary/10 p-8">
-          <div className="text-center mb-8">
-            <div className="text-sm uppercase tracking-widest text-gray-500 font-bold mb-2">Score</div>
-            <div className="text-7xl font-black text-highlight">{score}</div>
-          </div>
-          {streak > 0 && (
-            <div className="text-center mb-8 animate-pulse">
-              <div className="text-sm uppercase tracking-widest text-gray-500 font-bold mb-2">Streak</div>
-              <div className="text-5xl font-black text-accent">🔥 {streak}</div>
-            </div>
-          )}
-          {mode === 'quick' && !revealed && revealPhase === 0 && (
-            <div className="text-center">
-              <div className="text-sm uppercase tracking-widest text-gray-500 font-bold mb-2">Time</div>
-              <div className={`text-6xl font-black ${timeLeft <= 5 ? 'text-red-500 animate-pulse' : timeLeft <= 10 ? 'text-highlight' : 'text-success'}`}>
-                {timeLeft}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Center — Main game area */}
-        <div className="flex-1 flex flex-col items-center justify-center p-6 lg:p-12">
-          {/* Mobile score bar */}
-          <div className="lg:hidden flex items-center justify-between w-full mb-4">
-            <div className="text-highlight font-black text-2xl">{score} pts</div>
-            {streak > 0 && <div className="text-accent font-bold text-lg">🔥 x{streak}</div>}
-            {mode === 'quick' && !revealed && revealPhase === 0 && (
-              <div className={`font-black text-2xl ${timeLeft <= 5 ? 'text-red-500' : 'text-success'}`}>{timeLeft}s</div>
-            )}
-          </div>
-
-          {/* Timer bar for quick mode */}
-          {mode === 'quick' && !revealed && revealPhase === 0 && (
-            <div className="w-full max-w-3xl h-3 bg-card rounded-full mb-8 overflow-hidden">
-              <div className="h-full rounded-full transition-all duration-1000 ease-linear"
-                style={{
-                  width: `${(timeLeft / 15) * 100}%`,
-                  backgroundColor: timeLeft <= 5 ? '#EF4444' : timeLeft <= 10 ? '#FFD166' : '#10B981'
-                }} />
-            </div>
-          )}
-
-          {/* Player Card */}
-          {currentPlayer && (
-            <div className="w-full max-w-3xl">
-              <div className="bg-card rounded-3xl p-8 lg:p-12 text-center border-2 border-primary/20 mb-8 relative overflow-hidden">
-                {/* Position badge */}
-                <div className="absolute top-6 right-6 bg-primary/20 border border-primary/40 rounded-full px-4 py-1 text-lg font-bold text-primary">
-                  {currentPlayer.position}
-                </div>
-
-                <div className="text-sm uppercase tracking-[0.3em] text-gray-500 font-bold mb-3">
-                  {currentPlayer.year} NFL Combine
-                </div>
-                <h2 className="text-5xl lg:text-7xl font-black text-white mb-4 tracking-tight">
-                  {currentPlayer.name}
-                </h2>
-                <p className="text-xl text-gray-400 mb-1">{currentPlayer.college}</p>
-                <p className="text-gray-600">Drafted by {currentPlayer.team}</p>
-
-                {/* The 40 time — THE BIG REVEAL */}
-                <div className="mt-10 mb-4">
-                  {revealPhase === 0 && (
-                    <div className="text-8xl lg:text-9xl font-black text-primary/20 select-none">?.??</div>
-                  )}
-                  {revealPhase === 1 && (
-                    <div className="text-8xl lg:text-9xl font-black text-primary/40 animate-pulse">
-                      ?.??
-                    </div>
-                  )}
-                  {revealPhase === 2 && results.length > 0 && (() => {
-                    const r = results[results.length - 1];
-                    return (
-                      <div className="animate-reveal">
-                        <div className="text-8xl lg:text-[10rem] font-black leading-none"
-                          style={{ color: getDeltaColor(r.delta) }}>
-                          {currentPlayer.forty.toFixed(2)}
-                        </div>
-                        <div className={`mt-6 text-5xl lg:text-6xl font-black ${r.knowsBall ? 'text-success' : 'text-red-500'}`}>
-                          {r.emoji} {r.label}
-                        </div>
-                        <div className="mt-4 flex items-center justify-center gap-6 text-xl">
-                          <span className="text-gray-400">
-                            Your guess: <span className="text-white font-bold">{r.guess.toFixed(2)}</span>
-                          </span>
-                          <span className="text-3xl font-black" style={{ color: getDeltaColor(r.delta) }}>
-                            Δ {r.delta.toFixed(2)}s
-                          </span>
-                          <span className="text-highlight font-black text-3xl">+{r.points}</span>
-                        </div>
-                        {easterEgg && (
-                          <p className="mt-4 text-accent italic text-lg">{easterEgg}</p>
-                        )}
-                      </div>
-                    );
-                  })()}
-                </div>
-              </div>
-
-              {/* Guess controls */}
-              {!revealed && revealPhase === 0 ? (
-                <div className="space-y-6">
-                  <div className="text-center text-6xl lg:text-7xl font-black text-white">
-                    {guess.toFixed(2)}<span className="text-3xl text-gray-500 ml-1">s</span>
-                  </div>
-                  <div className="px-4">
-                    <input
-                      type="range" min="4.20" max="5.40" step="0.01" value={guess}
-                      onChange={e => setGuess(parseFloat(e.target.value))}
-                      className="w-full h-4"
-                    />
-                    <div className="flex justify-between text-sm text-gray-500 mt-2 font-bold">
-                      <span>4.20 🚀 Blazing</span>
-                      <span>Lineman 🐌 5.40</span>
-                    </div>
-                  </div>
-                  <div className="flex justify-center gap-4">
-                    <input
-                      type="number" min={4.20} max={5.40} step={0.01} value={guess.toFixed(2)}
-                      onChange={e => {
-                        const v = parseFloat(e.target.value);
-                        if (v >= 4.20 && v <= 5.40) setGuess(v);
-                      }}
-                      className="w-40 p-4 bg-card rounded-xl text-center text-2xl font-bold border-2 border-primary/30 focus:border-primary outline-none"
-                    />
-                    <button onClick={handleSubmit}
-                      className="px-12 py-4 bg-gradient-to-r from-primary to-accent rounded-xl text-3xl font-black transition-all hover:scale-105 active:scale-95 hover:shadow-[0_0_40px_rgba(124,58,237,0.5)]">
-                      🎯 LOCK IT IN
-                    </button>
-                  </div>
-                </div>
-              ) : revealPhase === 1 ? (
-                <div className="text-center py-8">
-                  <div className="text-4xl font-black text-primary animate-pulse tracking-widest">
-                    REVEALING...
-                  </div>
-                </div>
-              ) : (
-                <div className="text-center">
-                  <button onClick={nextPlayer}
-                    className="px-16 py-5 bg-gradient-to-r from-accent to-primary rounded-xl text-3xl font-black transition-all hover:scale-105 active:scale-95 hover:shadow-[0_0_40px_rgba(236,72,153,0.5)]">
-                    {idx + 1 >= maxRounds ? '📊 See Results' : '➡️ NEXT PLAYER'}
-                  </button>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-
-        {/* Right sidebar — Recent guesses */}
-        <div className="hidden lg:flex w-80 flex-col bg-card/30 border-l border-primary/10 p-6">
-          <div className="text-sm uppercase tracking-widest text-gray-500 font-bold mb-4 text-center">History</div>
-          <div className="space-y-2 flex-1 overflow-y-auto">
-            {results.slice().reverse().map((r, i) => (
-              <div key={i}
-                className={`p-4 rounded-xl border ${r.knowsBall ? 'bg-success/5 border-success/20' : 'bg-red-500/5 border-red-500/20'}`}
-                style={{ opacity: Math.max(0.3, 1 - i * 0.1) }}>
-                <div className="flex justify-between items-center">
-                  <span className="font-bold">{r.player.name}</span>
-                  <span className="text-xl">{r.emoji}</span>
-                </div>
-                <div className="flex justify-between text-sm text-gray-400 mt-1">
-                  <span>{r.guess.toFixed(2)} → {r.player.forty.toFixed(2)}</span>
-                  <span className="text-highlight font-bold">+{r.points}</span>
-                </div>
-              </div>
-            ))}
-            {results.length === 0 && (
-              <p className="text-gray-600 text-center text-sm italic mt-8">Guesses will appear here</p>
-            )}
-          </div>
+      {/* Top header bar */}
+      <div className="flex justify-between items-center px-8 py-3 bg-card/50 border-b border-gray-800">
+        <button onClick={() => { if (confirm('Quit game?')) { endGame(); } }}
+          className="text-gray-400 hover:text-white text-sm font-bold">✕ Quit</button>
+        <div className="text-sm uppercase tracking-widest text-gray-500 font-bold">SWOLECAST COMBINE GUESS-OFF</div>
+        <div className="text-gray-400 text-sm">
+          {mode === 'quick' ? '⚡ Quick' : mode === 'position' ? `${posFilter} Challenge` : '♾️ Endless'}
         </div>
       </div>
 
-      {/* Mobile history */}
-      {results.length > 0 && (
-        <div className="lg:hidden px-4 pb-4">
-          <div className="space-y-1">
-            {results.slice(-3).reverse().map((r, i) => (
-              <div key={i} className="bg-card/50 p-3 rounded-xl flex justify-between text-sm" style={{ opacity: 1 - i * 0.2 }}>
-                <span className="font-bold">{r.player.name}</span>
-                <span>{r.emoji} +{r.points}</span>
-              </div>
-            ))}
-          </div>
+      {/* Timer bar for quick mode */}
+      {mode === 'quick' && !revealed && (
+        <div className="w-full h-3 bg-card overflow-hidden">
+          <div className="h-full transition-all duration-1000 ease-linear"
+            style={{
+              width: `${(timeLeft / 15) * 100}%`,
+              backgroundColor: timeLeft <= 5 ? '#EF4444' : timeLeft <= 10 ? '#FFD166' : '#10B981',
+              boxShadow: timeLeft <= 5 ? '0 0 20px #EF4444' : 'none',
+            }} />
         </div>
       )}
+
+      {/* 3-column main layout */}
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_1.5fr_1fr] gap-6 p-6 lg:p-8 max-w-[1600px] mx-auto w-full">
+        {/* LEFT — Player Card */}
+        <div className="flex flex-col items-center justify-center relative">
+          {currentPlayer && (
+            <div className="bg-card rounded-2xl p-8 text-center border-2 border-primary/30 w-full relative overflow-hidden">
+              {showConfetti && <Confetti />}
+              <div className="text-xs uppercase tracking-[0.3em] text-gray-400 mb-2">
+                {currentPlayer.position} · {currentPlayer.year} NFL Combine
+              </div>
+              <h2 className="text-5xl lg:text-7xl font-black text-white mb-3 leading-tight">{currentPlayer.name}</h2>
+              <p className="text-xl text-gray-400">{currentPlayer.college}</p>
+              <p className="text-gray-500">Drafted by {currentPlayer.team}</p>
+
+              {/* The big reveal zone */}
+              <div className="mt-8 mb-4">
+                {!revealed ? (
+                  <div className="text-8xl lg:text-9xl font-black text-primary/20 select-none">?.??</div>
+                ) : (
+                  <div className="animate-reveal">
+                    <div className="text-8xl lg:text-9xl font-black" style={{
+                      color: getDeltaColor(lastResult?.delta || 1),
+                      textShadow: `0 0 30px ${getDeltaColor(lastResult?.delta || 1)}40`,
+                    }}>
+                      {currentPlayer.forty.toFixed(2)}s
+                    </div>
+                    {lastResult && (
+                      <div className="mt-4">
+                        <div className={`text-3xl font-black ${lastResult.knowsBall ? 'text-success animate-knows-ball' : 'text-red-500 animate-learn-ball'}`}>
+                          {lastResult.emoji} {lastResult.label}
+                        </div>
+                        <div className="text-xl mt-2">
+                          <span className="text-gray-400">Guess: {lastResult.guess.toFixed(2)}</span>
+                          <span className="mx-3 text-gray-600">·</span>
+                          <span style={{ color: getDeltaColor(lastResult.delta) }}>Δ {lastResult.delta.toFixed(2)}s</span>
+                          <span className="mx-3 text-gray-600">·</span>
+                          <span className="text-highlight font-bold">+{lastResult.points}</span>
+                        </div>
+                        {easterEgg && <p className="mt-3 text-accent italic">{easterEgg}</p>}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* CENTER — Guess Controls */}
+        <div className="flex flex-col items-center justify-center">
+          {!revealed ? (
+            <div className="w-full max-w-xl space-y-6">
+              {/* Big guess display */}
+              <div className="text-center text-7xl lg:text-8xl font-black text-white">
+                {guess.toFixed(2)}<span className="text-4xl text-gray-500">s</span>
+              </div>
+
+              {/* Slider with ticks and zones */}
+              <SliderWithTicks guess={guess} setGuess={setGuess} onSubmit={handleSubmit} />
+
+              {/* Number input */}
+              <input
+                type="number" min={4.20} max={5.40} step={0.01} value={guess.toFixed(2)}
+                onChange={e => {
+                  const v = parseFloat(e.target.value);
+                  if (v >= 4.20 && v <= 5.40) setGuess(v);
+                }}
+                className="w-full p-4 bg-card rounded-xl text-center text-3xl font-bold border-2 border-primary/30 focus:border-primary outline-none"
+              />
+
+              {/* Submit button */}
+              <button onClick={handleSubmit}
+                className="w-full py-6 bg-primary hover:bg-primary/80 rounded-2xl text-3xl font-black transition-all hover:scale-105 active:scale-95 animate-pulse-glow">
+                🎯 LOCK IT IN
+              </button>
+              <p className="text-center text-gray-500 text-sm">Press <kbd className="px-2 py-0.5 bg-card rounded text-gray-400">Enter</kbd> to submit · Arrow keys to adjust · <kbd className="px-2 py-0.5 bg-card rounded text-gray-400">Shift</kbd>+Arrow for ±0.05</p>
+            </div>
+          ) : (
+            <div className="w-full max-w-xl">
+              <button onClick={nextPlayer}
+                className="w-full py-6 bg-accent hover:bg-accent/80 rounded-2xl text-3xl font-black transition-all hover:scale-105 active:scale-95">
+                {idx + 1 >= maxRounds ? '📊 See Results' : '➡️ NEXT PLAYER'}
+              </button>
+              <p className="text-center text-gray-500 text-sm mt-3">Press <kbd className="px-2 py-0.5 bg-card rounded text-gray-400">Space</kbd> to continue</p>
+            </div>
+          )}
+        </div>
+
+        {/* RIGHT — Score Panel */}
+        <div className="flex flex-col gap-4">
+          {/* Score display */}
+          <div className="bg-card rounded-2xl p-6 text-center border border-primary/20">
+            <div className="text-sm uppercase tracking-widest text-gray-500 mb-1">Score</div>
+            <div className="text-5xl font-black text-highlight">{score}</div>
+          </div>
+
+          {/* Round / Streak */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-card rounded-xl p-4 text-center">
+              <div className="text-xs uppercase text-gray-500">Round</div>
+              <div className="text-2xl font-bold">{idx + 1}/{maxRounds}</div>
+            </div>
+            <div className="bg-card rounded-xl p-4 text-center">
+              <div className="text-xs uppercase text-gray-500">Streak</div>
+              <div className="text-2xl font-bold text-accent">{streak > 0 ? `🔥 x${streak}` : '-'}</div>
+            </div>
+          </div>
+
+          {/* Quick mode timer */}
+          {mode === 'quick' && !revealed && (
+            <div className="bg-card rounded-xl p-4 text-center">
+              <div className="text-xs uppercase text-gray-500">Time Left</div>
+              <div className={`text-4xl font-black ${timeLeft <= 5 ? 'text-red-500' : timeLeft <= 10 ? 'text-highlight' : 'text-success'}`}>
+                {timeLeft}s
+              </div>
+            </div>
+          )}
+
+          {/* Recent results */}
+          {results.length > 0 && (
+            <div className="bg-card rounded-xl p-4">
+              <div className="text-xs uppercase text-gray-500 mb-3">Recent</div>
+              <div className="space-y-2">
+                {results.slice(-8).reverse().map((r, i) => (
+                  <div key={i} className="flex justify-between text-sm py-1 border-b border-gray-800 last:border-0" style={{ opacity: 1 - i * 0.1 }}>
+                    <span className="truncate mr-2">{r.player.name}</span>
+                    <span className="whitespace-nowrap">{r.emoji} +{r.points}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
     </div>
   );
 }
