@@ -19,6 +19,8 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
+type PositionFilter = 'All' | 'QB' | 'RB' | 'WR' | 'TE';
+
 interface BenchSortProps {
   onQuit: (score: number, rounds: number) => void;
 }
@@ -27,6 +29,7 @@ type SlotState = (BenchPlayer | null)[];
 
 export default function BenchSort({ onQuit }: BenchSortProps) {
   const [allPlayers, setAllPlayers] = useState<BenchPlayer[]>([]);
+  const [posFilter, setPosFilter] = useState<PositionFilter>('All');
   const [slots, setSlots] = useState<SlotState>([null, null, null]);
   const [available, setAvailable] = useState<BenchPlayer[]>([]);
   const [selected, setSelected] = useState<number | null>(null);
@@ -49,9 +52,12 @@ export default function BenchSort({ onQuit }: BenchSortProps) {
     });
   }, []);
 
+  const filteredPlayers = posFilter === 'All' ? allPlayers : allPlayers.filter(p => p.position === posFilter);
+
   const startRound = useCallback(() => {
-    if (allPlayers.length < 3) return;
-    const picked = shuffle(allPlayers).slice(0, 3);
+    const pool = posFilter === 'All' ? allPlayers : allPlayers.filter(p => p.position === posFilter);
+    if (pool.length < 3) return;
+    const picked = shuffle(pool).slice(0, 3);
     // Sort MOST to FEWEST reps
     setCorrectOrder([...picked].sort((a, b) => b.benchReps - a.benchReps));
     setAvailable(shuffle(picked));
@@ -60,9 +66,9 @@ export default function BenchSort({ onQuit }: BenchSortProps) {
     setRevealed(false);
     setRoundResult(null);
     setSlotResults([]);
-  }, [allPlayers]);
+  }, [allPlayers, posFilter]);
 
-  useEffect(() => { if (allPlayers.length >= 3) startRound(); }, [allPlayers, startRound]);
+  useEffect(() => { if (filteredPlayers.length >= 3) startRound(); }, [filteredPlayers.length, startRound]);
 
   const handleDragStart = (source: 'available' | 'slot', index: number) => {
     dragItem.current = { source, index };
@@ -218,6 +224,17 @@ export default function BenchSort({ onQuit }: BenchSortProps) {
           <span className="text-sm uppercase tracking-widest text-gray-500 font-bold">BENCH PRESS SORT</span>
         </div>
         <div className="text-gray-400 text-sm">Round {round + 1}</div>
+      </div>
+
+      {/* Position Filter */}
+      <div className="flex justify-center gap-2 px-8 py-3 bg-card/30 border-b border-gray-800">
+        {(['All', 'QB', 'RB', 'WR', 'TE'] as PositionFilter[]).map(pos => (
+          <button key={pos} onClick={() => { if (!revealed && round === 0 && score === 0) { setPosFilter(pos); } else if (confirm('Changing position filter will restart the game. Continue?')) { setPosFilter(pos); setScore(0); setRound(0); setLives(3); setStreak(0); setGameOver(false); } }}
+            className={`px-4 py-1.5 rounded-full text-sm font-bold transition-all ${posFilter === pos ? 'bg-primary text-white shadow-[0_0_10px_rgba(124,58,237,0.4)]' : 'bg-card text-gray-400 hover:text-white hover:bg-card/80'}`}>
+            {pos === 'All' ? '🎯 All' : pos === 'QB' ? '🎯 QB' : pos === 'RB' ? '🐂 RB' : pos === 'WR' ? '🏃 WR' : '🤚 TE'}
+          </button>
+        ))}
+        <span className="text-gray-600 text-xs self-center ml-2">({filteredPlayers.length} players)</span>
       </div>
 
       {/* Main layout */}

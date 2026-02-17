@@ -11,6 +11,8 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
+type PositionFilter = 'All' | 'QB' | 'RB' | 'WR' | 'TE';
+
 interface SpeedSortProps {
   allPlayers: Player[];
   onQuit: (score: number, rounds: number) => void;
@@ -19,6 +21,7 @@ interface SpeedSortProps {
 type SlotState = (Player | null)[];
 
 export default function SpeedSort({ allPlayers, onQuit }: SpeedSortProps) {
+  const [posFilter, setPosFilter] = useState<PositionFilter>('All');
   const [, setRoundPlayers] = useState<Player[]>([]);
   const [slots, setSlots] = useState<SlotState>([null, null, null]);
   const [available, setAvailable] = useState<Player[]>([]);
@@ -34,8 +37,11 @@ export default function SpeedSort({ allPlayers, onQuit }: SpeedSortProps) {
   const [slotResults, setSlotResults] = useState<boolean[]>([]);
   const dragItem = useRef<{ source: 'available' | 'slot'; index: number } | null>(null);
 
+  const filteredPlayers = posFilter === 'All' ? allPlayers : allPlayers.filter(p => p.position === posFilter);
+
   const startRound = useCallback(() => {
-    const picked = shuffle(allPlayers).slice(0, 3);
+    const pool = posFilter === 'All' ? allPlayers : allPlayers.filter(p => p.position === posFilter);
+    const picked = shuffle(pool).slice(0, 3);
     setRoundPlayers(picked);
     setCorrectOrder([...picked].sort((a, b) => a.forty - b.forty));
     setAvailable(shuffle(picked));
@@ -44,9 +50,9 @@ export default function SpeedSort({ allPlayers, onQuit }: SpeedSortProps) {
     setRevealed(false);
     setRoundResult(null);
     setSlotResults([]);
-  }, [allPlayers]);
+  }, [allPlayers, posFilter]);
 
-  useEffect(() => { if (allPlayers.length >= 3) startRound(); }, [allPlayers, startRound]);
+  useEffect(() => { if (filteredPlayers.length >= 3) startRound(); }, [filteredPlayers.length, startRound]);
 
   const handleDragStart = (source: 'available' | 'slot', index: number) => {
     dragItem.current = { source, index };
@@ -221,6 +227,17 @@ export default function SpeedSort({ allPlayers, onQuit }: SpeedSortProps) {
           <span className="text-sm uppercase tracking-widest text-gray-500 font-bold">SPEED SORT</span>
         </div>
         <div className="text-gray-400 text-sm">Round {round + 1}</div>
+      </div>
+
+      {/* Position Filter */}
+      <div className="flex justify-center gap-2 px-8 py-3 bg-card/30 border-b border-gray-800">
+        {(['All', 'QB', 'RB', 'WR', 'TE'] as PositionFilter[]).map(pos => (
+          <button key={pos} onClick={() => { if (!revealed && round === 0 && score === 0) { setPosFilter(pos); } else if (confirm('Changing position filter will restart the game. Continue?')) { setPosFilter(pos); setScore(0); setRound(0); setLives(3); setStreak(0); setGameOver(false); } }}
+            className={`px-4 py-1.5 rounded-full text-sm font-bold transition-all ${posFilter === pos ? 'bg-primary text-white shadow-[0_0_10px_rgba(124,58,237,0.4)]' : 'bg-card text-gray-400 hover:text-white hover:bg-card/80'}`}>
+            {pos === 'All' ? '🎯 All' : pos === 'QB' ? '🎯 QB' : pos === 'RB' ? '🐂 RB' : pos === 'WR' ? '🏃 WR' : '🤚 TE'}
+          </button>
+        ))}
+        <span className="text-gray-600 text-xs self-center ml-2">({filteredPlayers.length} players)</span>
       </div>
 
       {/* Main layout */}
