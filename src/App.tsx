@@ -3,6 +3,7 @@ import type { Player, GameMode, Position, GuessResult, HighScore } from './types
 import { scoreGuess, getEasterEgg, getDeltaColor } from './scoring';
 import { playSuccess, playFail, playTick } from './sounds';
 import SpeedSort from './SpeedSort';
+import BenchSort from './BenchSort';
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -290,13 +291,21 @@ export default function App() {
         </div>
 
         <div className="flex flex-col items-center gap-6 w-full max-w-5xl mb-8">
-          {/* Speed Sort — PRIMARY */}
-          <button onClick={() => setMode('speedsort')}
-            className="py-12 px-10 bg-card hover:bg-primary/20 rounded-2xl text-center transition-all hover:scale-105 animate-pulse-glow border-2 border-primary/40 hover:border-primary w-full max-w-lg">
-            <div className="text-6xl mb-3">🏎️</div>
-            <div className="text-4xl font-black text-primary mb-2">Speed Sort</div>
-            <div className="text-gray-400 text-lg">Sort 3 players fastest → slowest · 3 lives</div>
-          </button>
+          {/* Speed Sort variants — PRIMARY */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full max-w-2xl">
+            <button onClick={() => setMode('speedsort')}
+              className="py-12 px-10 bg-card hover:bg-primary/20 rounded-2xl text-center transition-all hover:scale-105 animate-pulse-glow border-2 border-primary/40 hover:border-primary">
+              <div className="text-6xl mb-3">🏃</div>
+              <div className="text-3xl font-black text-primary mb-2">40 Speed Sort</div>
+              <div className="text-gray-400 text-lg">Sort fastest → slowest · 3 lives</div>
+            </button>
+            <button onClick={() => setMode('benchsort')}
+              className="py-12 px-10 bg-card hover:bg-accent/20 rounded-2xl text-center transition-all hover:scale-105 animate-pulse-glow border-2 border-accent/40 hover:border-accent">
+              <div className="text-6xl mb-3">💪</div>
+              <div className="text-3xl font-black text-accent mb-2">Bench Press Sort</div>
+              <div className="text-gray-400 text-lg">Sort most → fewest reps · 3 lives</div>
+            </button>
+          </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full">
             {/* Endless — secondary */}
@@ -341,6 +350,11 @@ export default function App() {
   // Speed Sort mode
   if (mode === 'speedsort') {
     return <SpeedSort allPlayers={allPlayers} onQuit={(s, r) => { saveHighScore({ score: s, mode: 'Speed Sort', date: new Date().toLocaleDateString(), rounds: r }); setMode('menu'); }} />;
+  }
+
+  // Bench Press Sort mode
+  if (mode === 'benchsort') {
+    return <BenchSort onQuit={(s, r) => { saveHighScore({ score: s, mode: 'Bench Sort', date: new Date().toLocaleDateString(), rounds: r }); setMode('menu'); }} />;
   }
 
   // Game Over — wide layout

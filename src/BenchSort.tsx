@@ -1,0 +1,347 @@
+import { useState, useCallback, useEffect, useRef } from 'react';
+import { playSuccess, playFail } from './sounds';
+
+export interface BenchPlayer {
+  name: string;
+  position: string;
+  benchReps: number;
+  year: number;
+  college: string;
+  team: string;
+}
+
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+interface BenchSortProps {
+  onQuit: (score: number, rounds: number) => void;
+}
+
+type SlotState = (BenchPlayer | null)[];
+
+export default function BenchSort({ onQuit }: BenchSortProps) {
+  const [allPlayers, setAllPlayers] = useState<BenchPlayer[]>([]);
+  const [slots, setSlots] = useState<SlotState>([null, null, null]);
+  const [available, setAvailable] = useState<BenchPlayer[]>([]);
+  const [selected, setSelected] = useState<number | null>(null);
+  const [revealed, setRevealed] = useState(false);
+  const [score, setScore] = useState(0);
+  const [round, setRound] = useState(0);
+  const [lives, setLives] = useState(3);
+  const [streak, setStreak] = useState(0);
+  const [roundResult, setRoundResult] = useState<{ correct: number; label: string; emoji: string; points: number } | null>(null);
+  const [gameOver, setGameOver] = useState(false);
+  const [correctOrder, setCorrectOrder] = useState<BenchPlayer[]>([]);
+  const [slotResults, setSlotResults] = useState<boolean[]>([]);
+  const dragItem = useRef<{ source: 'available' | 'slot'; index: number } | null>(null);
+
+  useEffect(() => {
+    fetch('/players-bench.json').then(r => r.json()).then((data: BenchPlayer[]) => {
+      const seen = new Set<string>();
+      const unique = data.filter(p => { if (seen.has(p.name)) return false; seen.add(p.name); return true; });
+      setAllPlayers(unique);
+    });
+  }, []);
+
+  const startRound = useCallback(() => {
+    if (allPlayers.length < 3) return;
+    const picked = shuffle(allPlayers).slice(0, 3);
+    // Sort MOST to FEWEST reps
+    setCorrectOrder([...picked].sort((a, b) => b.benchReps - a.benchReps));
+    setAvailable(shuffle(picked));
+    setSlots([null, null, null]);
+    setSelected(null);
+    setRevealed(false);
+    setRoundResult(null);
+    setSlotResults([]);
+  }, [allPlayers]);
+
+  useEffect(() => { if (allPlayers.length >= 3) startRound(); }, [allPlayers, startRound]);
+
+  const handleDragStart = (source: 'available' | 'slot', index: number) => {
+    dragItem.current = { source, index };
+  };
+
+  const handleDropOnSlot = (slotIdx: number) => {
+    if (!dragItem.current || revealed) return;
+    const { source, index } = dragItem.current;
+    let player: BenchPlayer | null = null;
+
+    if (source === 'available') {
+      player = available[index];
+      if (!player) return;
+      setAvailable(prev => prev.filter((_, i) => i !== index));
+    } else {
+      player = slots[index];
+      if (!player) return;
+      setSlots(prev => { const n = [...prev]; n[index] = null; return n; });
+    }
+
+    setSlots(prev => {
+      const n = [...prev];
+      if (n[slotIdx]) {
+        setAvailable(a => [...a, n[slotIdx]!]);
+      }
+      n[slotIdx] = player;
+      return n;
+    });
+    dragItem.current = null;
+  };
+
+  const handleDropOnAvailable = () => {
+    if (!dragItem.current || revealed) return;
+    const { source, index } = dragItem.current;
+    if (source === 'slot') {
+      const player = slots[index];
+      if (player) {
+        setSlots(prev => { const n = [...prev]; n[index] = null; return n; });
+        setAvailable(prev => [...prev, player]);
+      }
+    }
+    dragItem.current = null;
+  };
+
+  const handleCardClick = (playerIndex: number) => {
+    if (revealed) return;
+    setSelected(prev => prev === playerIndex ? null : playerIndex);
+  };
+
+  const handleSlotClick = (slotIdx: number) => {
+    if (revealed) return;
+    if (selected !== null) {
+      const player = available[selected];
+      if (!player) return;
+      setAvailable(prev => prev.filter((_, i) => i !== selected));
+      setSlots(prev => {
+        const n = [...prev];
+        if (n[slotIdx]) {
+          setAvailable(a => [...a, n[slotIdx]!]);
+        }
+        n[slotIdx] = player;
+        return n;
+      });
+      setSelected(null);
+    } else if (slots[slotIdx]) {
+      const player = slots[slotIdx]!;
+      setSlots(prev => { const n = [...prev]; n[slotIdx] = null; return n; });
+      setAvailable(prev => [...prev, player]);
+    }
+  };
+
+  const allSlotsFilled = slots.every(s => s !== null);
+
+  const handleLockIn = useCallback(() => {
+    if (!allSlotsFilled || revealed) return;
+    setRevealed(true);
+
+    const results = slots.map((p, i) => p?.name === correctOrder[i]?.name);
+    setSlotResults(results);
+    const numCorrect = results.filter(Boolean).length;
+
+    let points = 0, label = '', emoji = '';
+    if (numCorrect === 3) {
+      points = 100; label = 'KNOWS BALL'; emoji = '🏈'; playSuccess();
+    } else if (numCorrect === 2) {
+      points = 50; label = 'DECENT'; emoji = '👀'; playSuccess();
+    } else {
+      points = 0; label = 'LEARN BALL'; emoji = '💀'; playFail();
+    }
+
+    setRoundResult({ correct: numCorrect, label, emoji, points });
+    setScore(s => s + points);
+    setRound(r => r + 1);
+
+    if (numCorrect === 3) {
+      setStreak(s => s + 1);
+    } else {
+      setStreak(0);
+      if (numCorrect < 2) {
+        setLives(l => {
+          if (l <= 1) setGameOver(true);
+          return l - 1;
+        });
+      }
+    }
+  }, [allSlotsFilled, revealed, slots, correctOrder]);
+
+  const handleNext = () => {
+    if (gameOver) return;
+    startRound();
+  };
+
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Enter' && !revealed && allSlotsFilled) {
+        e.preventDefault(); handleLockIn();
+      } else if (e.key === ' ' && revealed && !gameOver) {
+        e.preventDefault(); handleNext();
+      }
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  });
+
+  const slotLabels = ['💪 MOST REPS', '🏋️ MIDDLE', '🤏 FEWEST REPS'];
+
+  if (!allPlayers.length) return <div className="flex items-center justify-center min-h-screen text-3xl font-bold">Loading bench press data... 💪</div>;
+
+  if (gameOver) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-8">
+        <img src="/swolecast-logo.png" alt="Swolecast" className="h-16 mb-4" />
+        <h2 className="text-6xl font-black text-highlight mb-4">GAME OVER!</h2>
+        <p className="text-8xl font-black text-primary mb-2">{score} pts</p>
+        <p className="text-xl text-gray-400 mb-2">{round} rounds · Best streak: {streak}</p>
+        <div className="flex gap-4 mt-8">
+          <button onClick={() => { setScore(0); setRound(0); setLives(3); setStreak(0); setGameOver(false); startRound(); }}
+            className="px-8 py-4 bg-primary rounded-xl font-bold text-xl hover:bg-primary/80 transition-all hover:scale-105">🔄 Play Again</button>
+          <button onClick={() => onQuit(score, round)}
+            className="px-8 py-4 bg-card rounded-xl font-bold text-xl hover:bg-card/80 transition-all hover:scale-105">🏠 Menu</button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen flex flex-col">
+      {/* Header */}
+      <div className="flex justify-between items-center px-8 py-3 bg-card/50 border-b border-gray-800">
+        <button onClick={() => onQuit(score, round)} className="text-gray-400 hover:text-white text-sm font-bold">✕ Quit</button>
+        <div className="flex items-center gap-3">
+          <img src="/swolecast-logo.png" alt="Swolecast" className="h-10" />
+          <span className="text-sm uppercase tracking-widest text-gray-500 font-bold">BENCH PRESS SORT</span>
+        </div>
+        <div className="text-gray-400 text-sm">Round {round + 1}</div>
+      </div>
+
+      {/* Main layout */}
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6 p-6 lg:p-8 max-w-[1400px] mx-auto w-full">
+        <div className="flex flex-col gap-8">
+          <p className="text-center text-gray-400 text-lg">
+            {!revealed ? 'Sort these players from MOST to FEWEST 225 lb bench press reps' : 'Results revealed!'}
+          </p>
+
+          {/* Available cards */}
+          {available.length > 0 && !revealed && (
+            <div className="flex flex-wrap justify-center gap-4"
+              onDragOver={e => e.preventDefault()} onDrop={handleDropOnAvailable}>
+              {available.map((player, i) => (
+                <div key={player.name}
+                  draggable
+                  onDragStart={() => handleDragStart('available', i)}
+                  onClick={() => handleCardClick(i)}
+                  className={`bg-card border-2 rounded-2xl p-6 w-56 cursor-grab active:cursor-grabbing transition-all hover:scale-105 select-none
+                    ${selected === i ? 'border-primary shadow-[0_0_20px_rgba(124,58,237,0.5)]' : 'border-gray-700 hover:border-primary/50'}`}>
+                  <div className="text-2xl font-black text-white mb-1">{player.name}</div>
+                  <div className="text-sm text-gray-400">{player.position} · {player.college}</div>
+                  <div className="text-xs text-gray-500 mt-1">{player.year} Combine</div>
+                  <div className="text-xs text-primary/60 mt-1 font-bold uppercase tracking-wider">225 LB Bench Press</div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Slots */}
+          <div className="flex flex-col lg:flex-row justify-center gap-4">
+            {slotLabels.map((label, i) => {
+              const player = slots[i];
+              const isCorrect = revealed && slotResults[i];
+              const isWrong = revealed && !slotResults[i] && player;
+              return (
+                <div key={i}
+                  onDragOver={e => e.preventDefault()}
+                  onDrop={() => handleDropOnSlot(i)}
+                  onClick={() => handleSlotClick(i)}
+                  className={`relative rounded-2xl p-6 w-full lg:w-64 min-h-[180px] flex flex-col items-center justify-center transition-all border-2 border-dashed
+                    ${isCorrect ? 'bg-success/20 border-success' : isWrong ? 'bg-red-500/20 border-red-500' : player ? 'bg-card border-primary' : 'bg-card/30 border-gray-600 hover:border-primary/50'}`}>
+                  <div className={`text-xs uppercase tracking-widest mb-2 font-bold ${isCorrect ? 'text-success' : isWrong ? 'text-red-400' : 'text-gray-500'}`}>
+                    {label}
+                  </div>
+                  {player ? (
+                    <div draggable={!revealed} onDragStart={() => handleDragStart('slot', i)}
+                      className={`text-center ${!revealed ? 'cursor-grab active:cursor-grabbing' : ''}`}>
+                      <div className="text-xl font-black text-white">{player.name}</div>
+                      <div className="text-sm text-gray-400">{player.position} · {player.college}</div>
+                      {revealed && (
+                        <div className="mt-2 animate-reveal">
+                          <div className={`text-3xl font-black ${isCorrect ? 'text-success' : 'text-red-400'}`}>
+                            {player.benchReps} reps
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="text-gray-600 text-sm">Drop player here</div>
+                  )}
+                  {revealed && !slotResults[i] && player && (
+                    <div className="text-xs text-gray-500 mt-1">
+                      Should be: {correctOrder[i].name} ({correctOrder[i].benchReps} reps)
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Action button */}
+          <div className="text-center">
+            {!revealed ? (
+              <button onClick={handleLockIn} disabled={!allSlotsFilled}
+                className={`px-12 py-5 rounded-2xl text-3xl font-black transition-all
+                  ${allSlotsFilled ? 'bg-primary hover:bg-primary/80 hover:scale-105 active:scale-95 animate-pulse-glow cursor-pointer' : 'bg-gray-700 text-gray-500 cursor-not-allowed'}`}>
+                🎯 LOCK IT IN
+              </button>
+            ) : (
+              <div>
+                {roundResult && (
+                  <div className={`text-4xl font-black mb-4 ${roundResult.correct === 3 ? 'text-success animate-knows-ball' : roundResult.correct === 2 ? 'text-highlight' : 'text-red-500 animate-learn-ball'}`}>
+                    {roundResult.emoji} {roundResult.label} <span className="text-2xl">+{roundResult.points}</span>
+                  </div>
+                )}
+                <button onClick={handleNext}
+                  className="px-12 py-5 bg-accent hover:bg-accent/80 rounded-2xl text-3xl font-black transition-all hover:scale-105 active:scale-95">
+                  ➡️ NEXT ROUND
+                </button>
+                <p className="text-gray-500 text-sm mt-2">Press <kbd className="px-2 py-0.5 bg-card rounded text-gray-400">Space</kbd> to continue</p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Right: Score panel */}
+        <div className="flex flex-col gap-4">
+          <div className="bg-card rounded-2xl p-6 text-center border border-primary/20">
+            <div className="text-sm uppercase tracking-widest text-gray-500 mb-1">Score</div>
+            <div className="text-5xl font-black text-highlight">{score}</div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="bg-card rounded-xl p-4 text-center">
+              <div className="text-xs uppercase text-gray-500">Round</div>
+              <div className="text-2xl font-bold">{round + 1}</div>
+            </div>
+            <div className="bg-card rounded-xl p-4 text-center">
+              <div className="text-xs uppercase text-gray-500">Streak</div>
+              <div className="text-2xl font-bold text-accent">{streak > 0 ? `🔥 x${streak}` : '-'}</div>
+            </div>
+          </div>
+          <div className="bg-card rounded-xl p-4 text-center">
+            <div className="text-xs uppercase text-gray-500">Lives</div>
+            <div className="text-3xl">{'❤️'.repeat(lives)}{'🖤'.repeat(3 - lives)}</div>
+          </div>
+          <div className="bg-card rounded-xl p-4 text-sm text-gray-500">
+            <p className="font-bold text-gray-400 mb-2">Scoring</p>
+            <p>🏈 All 3 correct: 100 pts</p>
+            <p>👀 2 correct: 50 pts</p>
+            <p>💀 0-1 correct: 0 pts + lose a life</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
