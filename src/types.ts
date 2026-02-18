@@ -33,5 +33,5 @@ export interface QuickRoundResult {
   detail: string;
 }
 
-export type GameMode = 'menu' | 'quick' | 'endless' | 'position' | 'speedsort' | 'benchsort';
+export type GameMode = 'menu' | 'quick' | 'endless' | 'position' | 'speedsort' | 'benchsort' | 'schoolmatch';
 export type Position = 'WR' | 'RB' | 'TE' | 'QB';

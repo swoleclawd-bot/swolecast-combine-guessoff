@@ -5,6 +5,7 @@ import { playSuccess, playFail } from './sounds';
 import SpeedSort from './SpeedSort';
 import BenchSort from './BenchSort';
 import QuickRound from './QuickRound';
+import SchoolMatch from './SchoolMatch';
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -276,7 +277,7 @@ export default function App() {
 
         <div className="flex flex-col items-center gap-4 lg:gap-6 w-full max-w-5xl mb-6 lg:mb-8">
           {/* Speed Sort variants — PRIMARY */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 w-full max-w-2xl">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 w-full max-w-4xl">
             <button onClick={() => setMode('speedsort')}
               className="py-8 px-6 lg:py-12 lg:px-10 bg-card hover:bg-primary/20 rounded-2xl text-center transition-all hover:scale-105 animate-pulse-glow border-2 border-primary/40 hover:border-primary flex flex-col items-center">
               <div className="text-5xl lg:text-7xl font-black text-white mb-2 lg:mb-3 leading-none w-full text-center">40</div>
@@ -288,6 +289,12 @@ export default function App() {
               <div className="text-5xl lg:text-7xl font-black text-white mb-2 lg:mb-3 leading-none w-full text-center">225</div>
               <div className="text-2xl lg:text-3xl font-black text-accent mb-1 lg:mb-2">Bench Sort</div>
               <div className="text-gray-400 text-base lg:text-lg">Sort most → fewest reps · 3 lives</div>
+            </button>
+            <button onClick={() => setMode('schoolmatch')}
+              className="py-8 px-6 lg:py-12 lg:px-10 bg-card hover:bg-highlight/20 rounded-2xl text-center transition-all hover:scale-105 animate-pulse-glow border-2 border-highlight/40 hover:border-highlight flex flex-col items-center">
+              <div className="text-5xl lg:text-7xl font-black text-white mb-2 lg:mb-3 leading-none w-full text-center">🎓</div>
+              <div className="text-2xl lg:text-3xl font-black text-highlight mb-1 lg:mb-2">School Match</div>
+              <div className="text-gray-400 text-base lg:text-lg">Match 10 players to colleges</div>
             </button>
           </div>
 
@@ -351,6 +358,11 @@ export default function App() {
   // Bench Sort mode
   if (mode === 'benchsort') {
     return <BenchSort onQuit={() => setMode('menu')} />;
+  }
+
+  // School Match mode
+  if (mode === 'schoolmatch') {
+    return <SchoolMatch allPlayers={allPlayers} onQuit={() => setMode('menu')} />;
   }
 
   // Game Over — wide layout (for endless mode)
