@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import type { Player, BenchPlayer, QuickRoundResult, Position } from './types';
 import { playSuccess, playFail, playTick } from './sounds';
 
@@ -62,9 +62,10 @@ export default function QuickRound({ fortyPlayers, benchPlayers, posFilter, onQu
   // CombinedReps state
   const [repsGuess, setRepsGuess] = useState(50);
 
-  // SpeedSort5 state — click-to-order
+  // SpeedSort5 state — click-to-order + drag-to-reorder
   const [sortOrder, setSortOrder] = useState<Player[]>([]); // players in order clicked
   const [sortCards, setSortCards] = useState<Player[]>([]); // shuffled display order
+  const dragSortRef = useRef<number | null>(null); // drag source index in sortOrder
 
   // Generate all rounds upfront
   useEffect(() => {
@@ -198,7 +199,7 @@ export default function QuickRound({ fortyPlayers, benchPlayers, posFilter, onQu
     return () => window.removeEventListener('keydown', handler);
   }, [gameOver, revealed, handleSubmit, handleNext]);
 
-  // SpeedSort5 click-to-order
+  // SpeedSort5 click-to-order + drag-to-reorder
   const handleSortCardClick = (player: Player) => {
     if (revealed) return;
     const alreadyIdx = sortOrder.findIndex(p => p.name === player.name);
@@ -213,6 +214,22 @@ export default function QuickRound({ fortyPlayers, benchPlayers, posFilter, onQu
         setTimeout(() => handleSubmit(), 100);
       }
     }
+  };
+
+  const handleOrderDragStart = (idx: number) => {
+    dragSortRef.current = idx;
+  };
+
+  const handleOrderDragOver = (e: React.DragEvent, idx: number) => {
+    e.preventDefault();
+    if (dragSortRef.current === null || dragSortRef.current === idx) return;
+    setSortOrder(prev => {
+      const n = [...prev];
+      const [moved] = n.splice(dragSortRef.current!, 1);
+      n.splice(idx, 0, moved);
+      dragSortRef.current = idx;
+      return n;
+    });
   };
 
   const handleShare = async () => {
@@ -406,15 +423,22 @@ export default function QuickRound({ fortyPlayers, benchPlayers, posFilter, onQu
               })}
             </div>
 
-            {/* Order preview */}
+            {/* Order preview — draggable to reorder */}
             {!revealed && sortOrder.length > 0 && (
-              <div className="flex justify-center gap-2 mb-4">
-                {sortOrder.map((p, i) => (
-                  <div key={p.name} className="bg-primary/20 border border-primary rounded-lg px-3 py-1 text-sm">
-                    <span className="font-black text-primary mr-1">{i + 1}.</span>
-                    <span className="text-white">{p.name}</span>
-                  </div>
-                ))}
+              <div className="mb-4">
+                <div className="text-xs text-gray-500 mb-2">Your order (drag to reorder):</div>
+                <div className="flex justify-center gap-2">
+                  {sortOrder.map((p, i) => (
+                    <div key={p.name} draggable
+                      onDragStart={() => handleOrderDragStart(i)}
+                      onDragOver={e => handleOrderDragOver(e, i)}
+                      onDragEnd={() => { dragSortRef.current = null; }}
+                      className="bg-primary/20 border border-primary rounded-lg px-3 py-2 text-sm cursor-grab active:cursor-grabbing hover:bg-primary/30 transition-all select-none">
+                      <span className="font-black text-primary mr-1">{i + 1}.</span>
+                      <span className="text-white">{p.name}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
             )}
 
