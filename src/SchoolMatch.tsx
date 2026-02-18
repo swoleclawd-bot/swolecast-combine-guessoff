@@ -16,60 +16,109 @@ interface SchoolMatchProps {
   onQuit: () => void;
 }
 
-interface MatchResult {
-  player: Player;
-  guessedSchool: string;
-  correct: boolean;
+interface TierResult {
+  tier: 'easy' | 'medium' | 'hard';
+  correct: number;
+  total: number;
+  timeSeconds: number;
+  passed: boolean;
+  points: number;
 }
 
-const TOTAL_PLAYERS = 10;
+// Power 5 + major programs = Easy
+const EASY_SCHOOLS = new Set([
+  'Alabama', 'Ohio State', 'Georgia', 'LSU', 'Oklahoma', 'Texas', 'Michigan',
+  'Penn State', 'Florida', 'Tennessee', 'Oregon', 'USC', 'Notre Dame', 'Clemson',
+  'Florida State', 'Auburn', 'Wisconsin', 'Texas A&M', 'Miami', 'Washington',
+  'UCLA', 'Stanford', 'Nebraska', 'Iowa', 'Michigan State', 'Ole Miss', 'Mississippi',
+  'South Carolina', 'North Carolina', 'Virginia Tech', 'Louisville', 'Kentucky'
+]);
+
+// Mid-tier programs = Medium
+const MEDIUM_SCHOOLS = new Set([
+  'Cincinnati', 'Iowa State', 'Utah', 'BYU', 'UCF', 'Houston', 'Baylor',
+  'Pittsburgh', 'Minnesota', 'Kansas State', 'Colorado', 'Arizona State',
+  'Maryland', 'Mississippi State', 'Missouri', 'Oregon State', 'Purdue',
+  'Rutgers', 'Boston College', 'Illinois', 'TCU', 'Memphis', 'SMU', 'Tulane',
+  'Texas Tech', 'Arkansas', 'Wake Forest', 'Syracuse', 'Duke', 'Indiana'
+]);
+
+// Everything else = Hard (small schools, FCS, obscure)
+// If not in EASY or MEDIUM, it's HARD
+
+const TOTAL_PER_TIER = 10;
+const REQUIRED_TO_ADVANCE = 8;
 const TIMER_SECONDS = 60;
 
+type Difficulty = 'easy' | 'medium' | 'hard';
+
+function getDifficulty(college: string): Difficulty {
+  if (EASY_SCHOOLS.has(college)) return 'easy';
+  if (MEDIUM_SCHOOLS.has(college)) return 'medium';
+  return 'hard';
+}
+
 export default function SchoolMatch({ allPlayers, onQuit }: SchoolMatchProps) {
+  const [currentTier, setCurrentTier] = useState<Difficulty>('easy');
+  const [tierResults, setTierResults] = useState<TierResult[]>([]);
   const [gamePlayers, setGamePlayers] = useState<Player[]>([]);
   const [shuffledSchools, setShuffledSchools] = useState<string[]>([]);
-  const [matches, setMatches] = useState<Map<string, string>>(new Map()); // playerName -> schoolName
+  const [matches, setMatches] = useState<Map<string, string>>(new Map());
   const [selectedPlayer, setSelectedPlayer] = useState<string | null>(null);
   const [revealed, setRevealed] = useState(false);
-  const [results, setResults] = useState<MatchResult[]>([]);
-  const [score, setScore] = useState(0);
+  const [correctCount, setCorrectCount] = useState(0);
   const [timeLeft, setTimeLeft] = useState(TIMER_SECONDS);
+  const [startTime, setStartTime] = useState<number>(0);
+  const [elapsedTime, setElapsedTime] = useState(0);
   const [gameOver, setGameOver] = useState(false);
+  const [tierComplete, setTierComplete] = useState(false);
   const [shareText, setShareText] = useState('');
   const [copied, setCopied] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Initialize game
-  useEffect(() => {
-    // Filter to players with unique colleges to avoid confusion
-    const collegeMap = new Map<string, Player>();
-    const shuffledAll = shuffle(allPlayers);
+  // Get players for a specific difficulty tier
+  const getPlayersForTier = useCallback((tier: Difficulty): Player[] => {
+    const tierPlayers = allPlayers.filter(p => getDifficulty(p.college) === tier);
     
-    for (const p of shuffledAll) {
-      if (!collegeMap.has(p.college) && collegeMap.size < TOTAL_PLAYERS) {
+    // Filter to unique colleges
+    const collegeMap = new Map<string, Player>();
+    const shuffled = shuffle(tierPlayers);
+    
+    for (const p of shuffled) {
+      if (!collegeMap.has(p.college) && collegeMap.size < TOTAL_PER_TIER) {
         collegeMap.set(p.college, p);
       }
     }
     
-    const players = Array.from(collegeMap.values());
+    return Array.from(collegeMap.values());
+  }, [allPlayers]);
+
+  // Initialize/reset for a tier
+  const initializeTier = useCallback((tier: Difficulty) => {
+    const players = getPlayersForTier(tier);
     const schools = shuffle(players.map(p => p.college));
     
+    setCurrentTier(tier);
     setGamePlayers(players);
     setShuffledSchools(schools);
     setMatches(new Map());
     setSelectedPlayer(null);
     setRevealed(false);
-    setResults([]);
-    setScore(0);
+    setCorrectCount(0);
     setTimeLeft(TIMER_SECONDS);
-    setGameOver(false);
-    setShareText('');
-    setCopied(false);
-  }, [allPlayers]);
+    setStartTime(Date.now());
+    setElapsedTime(0);
+    setTierComplete(false);
+  }, [getPlayersForTier]);
+
+  // Start game
+  useEffect(() => {
+    initializeTier('easy');
+  }, [initializeTier]);
 
   // Timer
   useEffect(() => {
-    if (revealed || gameOver || gamePlayers.length === 0) return;
+    if (revealed || gameOver || tierComplete || gamePlayers.length === 0) return;
     timerRef.current = setInterval(() => {
       setTimeLeft(t => {
         if (t <= 1) {
@@ -81,29 +130,20 @@ export default function SchoolMatch({ allPlayers, onQuit }: SchoolMatchProps) {
       });
     }, 1000);
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [revealed, gameOver, gamePlayers.length]);
+  }, [revealed, gameOver, tierComplete, gamePlayers.length]);
 
   const handlePlayerClick = (playerName: string) => {
     if (revealed) return;
-    if (selectedPlayer === playerName) {
-      setSelectedPlayer(null);
-    } else {
-      setSelectedPlayer(playerName);
-    }
+    setSelectedPlayer(selectedPlayer === playerName ? null : playerName);
   };
 
   const handleSchoolClick = (school: string) => {
     if (revealed || !selectedPlayer) return;
     
-    // Remove this school from any existing matches
     const newMatches = new Map(matches);
     for (const [player, sch] of newMatches) {
-      if (sch === school) {
-        newMatches.delete(player);
-      }
+      if (sch === school) newMatches.delete(player);
     }
-    
-    // Add new match
     newMatches.set(selectedPlayer, school);
     setMatches(newMatches);
     setSelectedPlayer(null);
@@ -112,63 +152,79 @@ export default function SchoolMatch({ allPlayers, onQuit }: SchoolMatchProps) {
   const handleSubmit = useCallback(() => {
     if (revealed) return;
     if (timerRef.current) clearInterval(timerRef.current);
+    
+    const elapsed = Math.round((Date.now() - startTime) / 1000);
+    setElapsedTime(elapsed);
     setRevealed(true);
 
-    const matchResults: MatchResult[] = [];
     let correct = 0;
-
     for (const player of gamePlayers) {
-      const guessedSchool = matches.get(player.name) || '(no guess)';
-      const isCorrect = guessedSchool === player.college;
-      if (isCorrect) {
+      const guessedSchool = matches.get(player.name);
+      if (guessedSchool === player.college) {
         correct++;
-        playSuccess();
       }
-      matchResults.push({
-        player,
-        guessedSchool,
-        correct: isCorrect,
-      });
     }
-
-    if (correct < gamePlayers.length) playFail();
     
-    setResults(matchResults);
-    setScore(correct * 10);
+    if (correct >= REQUIRED_TO_ADVANCE) playSuccess();
+    else playFail();
+    
+    setCorrectCount(correct);
+  }, [revealed, gamePlayers, matches, startTime]);
 
-    const emoji = correct >= 8 ? '🏆' : correct >= 6 ? '🏈' : correct >= 4 ? '📈' : '📺';
-    setShareText(`${emoji} Swolecast School Match: ${correct}/${gamePlayers.length} correct!\n\nThink you Know Ball? 👉 swolecast.com`);
-  }, [revealed, gamePlayers, matches]);
+  const handleNextTier = useCallback(() => {
+    // Calculate points: 10 per correct + speed bonus (max 50 if under 30s)
+    const speedBonus = Math.max(0, Math.floor((TIMER_SECONDS - elapsedTime) * (50 / 30)));
+    const points = correctCount * 10 + (correctCount >= REQUIRED_TO_ADVANCE ? speedBonus : 0);
+    
+    const result: TierResult = {
+      tier: currentTier,
+      correct: correctCount,
+      total: TOTAL_PER_TIER,
+      timeSeconds: elapsedTime,
+      passed: correctCount >= REQUIRED_TO_ADVANCE,
+      points,
+    };
+    
+    const newResults = [...tierResults, result];
+    setTierResults(newResults);
+    
+    // Check if passed and can advance
+    if (correctCount >= REQUIRED_TO_ADVANCE) {
+      if (currentTier === 'easy') {
+        initializeTier('medium');
+      } else if (currentTier === 'medium') {
+        initializeTier('hard');
+      } else {
+        // Completed all tiers!
+        setGameOver(true);
+        generateShareText(newResults);
+      }
+    } else {
+      // Failed tier — game over
+      setGameOver(true);
+      generateShareText(newResults);
+    }
+  }, [correctCount, elapsedTime, currentTier, tierResults, initializeTier]);
 
-  const handleNext = useCallback(() => {
-    setGameOver(true);
-  }, []);
+  const generateShareText = (results: TierResult[]) => {
+    const totalPoints = results.reduce((sum, r) => sum + r.points, 0);
+    const tiersCleared = results.filter(r => r.passed).length;
+    const tierEmoji = tiersCleared === 3 ? '🏆' : tiersCleared === 2 ? '🥈' : tiersCleared === 1 ? '🥉' : '💀';
+    
+    const tierLabels: Record<Difficulty, string> = { easy: '📗', medium: '📙', hard: '📕' };
+    const tierLines = results.map(r => 
+      `${tierLabels[r.tier]} ${r.tier.charAt(0).toUpperCase() + r.tier.slice(1)}: ${r.correct}/${r.total} ${r.passed ? '✓' : '✗'} (${r.timeSeconds}s)`
+    ).join('\n');
+    
+    setShareText(`${tierEmoji} Swolecast School Match\n\n${tierLines}\n\nTotal: ${totalPoints} pts\n\nThink you Know Ball? 👉 swolecast.com`);
+  };
 
   const handleRestart = () => {
-    // Re-initialize
-    const collegeMap = new Map<string, Player>();
-    const shuffledAll = shuffle(allPlayers);
-    
-    for (const p of shuffledAll) {
-      if (!collegeMap.has(p.college) && collegeMap.size < TOTAL_PLAYERS) {
-        collegeMap.set(p.college, p);
-      }
-    }
-    
-    const players = Array.from(collegeMap.values());
-    const schools = shuffle(players.map(p => p.college));
-    
-    setGamePlayers(players);
-    setShuffledSchools(schools);
-    setMatches(new Map());
-    setSelectedPlayer(null);
-    setRevealed(false);
-    setResults([]);
-    setScore(0);
-    setTimeLeft(TIMER_SECONDS);
+    setTierResults([]);
     setGameOver(false);
     setShareText('');
     setCopied(false);
+    initializeTier('easy');
   };
 
   const handleShare = async () => {
@@ -190,21 +246,34 @@ export default function SchoolMatch({ allPlayers, onQuit }: SchoolMatchProps) {
         handleSubmit();
       } else if (e.key === ' ' && revealed) {
         e.preventDefault();
-        handleNext();
+        handleNextTier();
       }
     };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [gameOver, revealed, matches.size, handleSubmit, handleNext]);
+  }, [gameOver, revealed, matches.size, handleSubmit, handleNextTier]);
 
   if (gamePlayers.length === 0) {
     return <div className="flex items-center justify-center min-h-screen text-xl lg:text-3xl font-bold px-4 text-center">Loading players... 🎓</div>;
   }
 
+  const tierColors: Record<Difficulty, string> = {
+    easy: 'text-green-400',
+    medium: 'text-yellow-400', 
+    hard: 'text-red-400'
+  };
+
+  const tierBgColors: Record<Difficulty, string> = {
+    easy: 'bg-green-500/20 border-green-500/40',
+    medium: 'bg-yellow-500/20 border-yellow-500/40',
+    hard: 'bg-red-500/20 border-red-500/40'
+  };
+
   // Game Over screen
   if (gameOver) {
-    const correct = results.filter(r => r.correct).length;
-    const rating = correct >= 9 ? 'ELITE SCOUT 🏆' : correct >= 7 ? 'KNOWS BALL 🏈' : correct >= 5 ? 'GETTING THERE 📈' : 'BACK TO FILM ROOM 📺';
+    const totalPoints = tierResults.reduce((sum, r) => sum + r.points, 0);
+    const tiersCleared = tierResults.filter(r => r.passed).length;
+    const rating = tiersCleared === 3 ? 'ELITE SCOUT 🏆' : tiersCleared === 2 ? 'SOLID KNOWLEDGE 🥈' : tiersCleared === 1 ? 'NEEDS WORK 🥉' : 'BACK TO FILM ROOM 💀';
     
     return (
       <div className="min-h-screen flex flex-col items-center p-4 lg:p-8 pt-6 max-w-2xl mx-auto overflow-y-auto">
@@ -214,40 +283,56 @@ export default function SchoolMatch({ allPlayers, onQuit }: SchoolMatchProps) {
             <span className="text-xs uppercase tracking-[0.3em] text-gray-500 font-bold">SCHOOL MATCH</span>
           </div>
 
-          <div className="text-center mb-3 lg:mb-6">
-            <div className="text-4xl lg:text-7xl font-black text-white mb-0.5">{correct}/{TOTAL_PLAYERS}</div>
-            <div className="text-sm lg:text-lg text-gray-400 font-bold">CORRECT</div>
+          <div className="text-center mb-4 lg:mb-6">
+            <div className="text-lg lg:text-2xl font-black text-highlight mb-1">{rating}</div>
+            <div className="text-4xl lg:text-6xl font-black text-white">{totalPoints}</div>
+            <div className="text-sm lg:text-lg text-gray-400 font-bold">TOTAL POINTS</div>
           </div>
 
-          <div className="text-center mb-3 lg:mb-6">
-            <div className="text-lg lg:text-2xl font-black text-highlight">{rating}</div>
-            <div className="text-gray-400 text-xs lg:text-base mt-0.5">{score} points</div>
-          </div>
-
-          {/* Results strip */}
-          <div className="flex justify-center gap-1 mb-4 lg:mb-6 flex-wrap">
-            {results.map((r, i) => (
-              <div key={i} className={`w-7 h-7 lg:w-8 lg:h-8 rounded-lg flex items-center justify-center text-xs lg:text-sm font-bold ${r.correct ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
-                {r.correct ? '✓' : '✗'}
+          {/* Tier breakdown */}
+          <div className="space-y-3 mb-4 lg:mb-6">
+            {tierResults.map((r, i) => (
+              <div key={i} className={`rounded-xl p-3 lg:p-4 border ${tierBgColors[r.tier]}`}>
+                <div className="flex justify-between items-center mb-1">
+                  <div className={`font-black text-lg lg:text-xl uppercase ${tierColors[r.tier]}`}>
+                    {r.tier === 'easy' ? '📗' : r.tier === 'medium' ? '📙' : '📕'} {r.tier}
+                  </div>
+                  <div className={`text-lg lg:text-xl font-black ${r.passed ? 'text-green-400' : 'text-red-400'}`}>
+                    {r.passed ? '✓ PASSED' : '✗ FAILED'}
+                  </div>
+                </div>
+                <div className="flex justify-between text-sm lg:text-base text-gray-300">
+                  <span>{r.correct}/{r.total} correct</span>
+                  <span>⏱️ {r.timeSeconds}s</span>
+                  <span className="text-highlight font-bold">+{r.points} pts</span>
+                </div>
               </div>
             ))}
-          </div>
-
-          {/* Detailed results */}
-          <div className="space-y-2 mb-4 lg:mb-6">
-            {results.map((r, i) => (
-              <div key={i} className={`rounded-xl p-2.5 lg:p-3 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 ${r.correct ? 'bg-green-500/10 border border-green-500/20' : 'bg-red-500/10 border border-red-500/20'}`}>
-                <div className="min-w-0">
-                  <span className="font-bold text-white text-sm lg:text-base">{r.player.name}</span>
-                  <span className="text-xs lg:text-sm text-gray-400 ml-2">→ {r.player.college}</span>
-                </div>
-                {!r.correct && r.guessedSchool !== '(no guess)' && (
-                  <div className="text-xs lg:text-sm text-red-400">
-                    You said: {r.guessedSchool}
+            
+            {/* Show locked tiers */}
+            {tierResults.length < 3 && !tierResults[tierResults.length - 1]?.passed && (
+              <>
+                {currentTier === 'easy' && (
+                  <>
+                    <div className="rounded-xl p-3 lg:p-4 border border-gray-700 bg-gray-800/50 opacity-50">
+                      <div className="font-black text-lg uppercase text-gray-500">📙 MEDIUM — LOCKED</div>
+                    </div>
+                    <div className="rounded-xl p-3 lg:p-4 border border-gray-700 bg-gray-800/50 opacity-50">
+                      <div className="font-black text-lg uppercase text-gray-500">📕 HARD — LOCKED</div>
+                    </div>
+                  </>
+                )}
+                {currentTier === 'medium' && (
+                  <div className="rounded-xl p-3 lg:p-4 border border-gray-700 bg-gray-800/50 opacity-50">
+                    <div className="font-black text-lg uppercase text-gray-500">📕 HARD — LOCKED</div>
                   </div>
                 )}
-              </div>
-            ))}
+              </>
+            )}
+          </div>
+
+          <div className="text-center text-gray-500 text-xs lg:text-sm mb-4">
+            Need {REQUIRED_TO_ADVANCE}/{TOTAL_PER_TIER} correct to advance • Speed bonus for fast finishes
           </div>
 
           <div className="text-center text-gray-600 text-xs">swolecast.com · Live a Little 🤙</div>
@@ -283,7 +368,23 @@ export default function SchoolMatch({ allPlayers, onQuit }: SchoolMatchProps) {
           <span className="text-xs lg:text-sm uppercase tracking-widest text-gray-500 font-bold hidden sm:inline">SCHOOL MATCH</span>
         </div>
         <div className="flex items-center gap-2 lg:gap-4">
-          <span className="text-gray-400 text-xs lg:text-sm">{matches.size}/{TOTAL_PLAYERS}</span>
+          <span className={`font-black text-sm lg:text-base uppercase ${tierColors[currentTier]}`}>
+            {currentTier === 'easy' ? '📗' : currentTier === 'medium' ? '📙' : '📕'} {currentTier}
+          </span>
+          <span className="text-gray-400 text-xs lg:text-sm">{matches.size}/{TOTAL_PER_TIER}</span>
+        </div>
+      </div>
+
+      {/* Tier progress indicator */}
+      <div className="flex justify-center gap-2 py-2 bg-card/30 border-b border-gray-800">
+        <div className={`px-3 py-1 rounded-full text-xs font-bold ${currentTier === 'easy' ? 'bg-green-500/30 text-green-400' : tierResults.some(r => r.tier === 'easy' && r.passed) ? 'bg-green-500/20 text-green-400' : 'bg-gray-700 text-gray-500'}`}>
+          📗 Easy {tierResults.find(r => r.tier === 'easy')?.passed ? '✓' : ''}
+        </div>
+        <div className={`px-3 py-1 rounded-full text-xs font-bold ${currentTier === 'medium' ? 'bg-yellow-500/30 text-yellow-400' : tierResults.some(r => r.tier === 'medium' && r.passed) ? 'bg-yellow-500/20 text-yellow-400' : 'bg-gray-700 text-gray-500'}`}>
+          📙 Medium {tierResults.find(r => r.tier === 'medium')?.passed ? '✓' : ''}
+        </div>
+        <div className={`px-3 py-1 rounded-full text-xs font-bold ${currentTier === 'hard' ? 'bg-red-500/30 text-red-400' : tierResults.some(r => r.tier === 'hard' && r.passed) ? 'bg-red-500/20 text-red-400' : 'bg-gray-700 text-gray-500'}`}>
+          📕 Hard {tierResults.find(r => r.tier === 'hard')?.passed ? '✓' : ''}
         </div>
       </div>
 
@@ -312,12 +413,13 @@ export default function SchoolMatch({ allPlayers, onQuit }: SchoolMatchProps) {
                 ? <span>Now tap <span className="text-accent font-bold">{selectedPlayer}'s</span> school</span>
                 : 'Tap a player, then tap their school'}
             </p>
+            <p className="text-gray-500 text-xs mt-1">Need {REQUIRED_TO_ADVANCE}/{TOTAL_PER_TIER} to advance</p>
           </div>
         )}
 
         {/* Game label */}
-        <div className="text-xs uppercase tracking-[0.2em] lg:tracking-[0.3em] text-gray-500 font-bold mb-3 lg:mb-4">
-          🎓 MATCH PLAYER TO SCHOOL
+        <div className={`text-xs uppercase tracking-[0.2em] lg:tracking-[0.3em] font-bold mb-3 lg:mb-4 ${tierColors[currentTier]}`}>
+          🎓 {currentTier.toUpperCase()} MODE
         </div>
 
         {/* Two column layout: Players | Schools */}
@@ -331,6 +433,7 @@ export default function SchoolMatch({ allPlayers, onQuit }: SchoolMatchProps) {
               const matchedSchool = matches.get(player.name);
               const isCorrect = revealed && matchedSchool === player.college;
               const isWrong = revealed && matchedSchool && matchedSchool !== player.college;
+              const noGuess = revealed && !matchedSchool;
               
               return (
                 <div 
@@ -339,7 +442,7 @@ export default function SchoolMatch({ allPlayers, onQuit }: SchoolMatchProps) {
                   className={`relative bg-card border-2 rounded-xl p-3 lg:p-4 cursor-pointer transition-all select-none
                     ${revealed 
                       ? isCorrect ? 'border-green-500 bg-green-500/20' 
-                        : isWrong ? 'border-red-500 bg-red-500/20'
+                        : isWrong || noGuess ? 'border-red-500 bg-red-500/20'
                         : 'border-gray-700 bg-gray-800/50'
                       : isSelected 
                         ? 'border-accent shadow-[0_0_20px_rgba(16,185,129,0.5)] scale-105' 
@@ -418,18 +521,30 @@ export default function SchoolMatch({ allPlayers, onQuit }: SchoolMatchProps) {
                   : 'bg-gray-700 text-gray-500 cursor-not-allowed'
                 }`}
             >
-              🎯 LOCK IT IN {matches.size < TOTAL_PLAYERS && `(${matches.size}/${TOTAL_PLAYERS})`}
+              🎯 LOCK IT IN {matches.size < TOTAL_PER_TIER && `(${matches.size}/${TOTAL_PER_TIER})`}
             </button>
             <p className="hidden lg:block text-center text-gray-500 text-sm mt-2">Press <kbd className="px-2 py-0.5 bg-card rounded text-gray-400">Enter</kbd> to submit</p>
           </div>
         ) : (
           <div className="mt-4 lg:mt-6 text-center">
-            <div className={`text-2xl lg:text-4xl font-black mb-3 lg:mb-4 ${results.filter(r => r.correct).length >= 7 ? 'text-green-400 animate-knows-ball' : 'text-highlight'}`}>
-              {results.filter(r => r.correct).length}/{TOTAL_PLAYERS} CORRECT!
+            <div className={`text-2xl lg:text-4xl font-black mb-2 ${correctCount >= REQUIRED_TO_ADVANCE ? 'text-green-400 animate-knows-ball' : 'text-red-400'}`}>
+              {correctCount}/{TOTAL_PER_TIER} CORRECT
             </div>
-            <button onClick={handleNext}
+            <div className="text-lg lg:text-xl text-gray-400 mb-3">
+              ⏱️ Completed in <span className="text-highlight font-bold">{elapsedTime}s</span>
+            </div>
+            {correctCount >= REQUIRED_TO_ADVANCE ? (
+              <div className="text-green-400 font-bold mb-4">
+                {currentTier === 'hard' ? '🏆 ALL TIERS COMPLETE!' : `✓ Advancing to ${currentTier === 'easy' ? 'MEDIUM' : 'HARD'}...`}
+              </div>
+            ) : (
+              <div className="text-red-400 font-bold mb-4">
+                ✗ Need {REQUIRED_TO_ADVANCE} to advance
+              </div>
+            )}
+            <button onClick={handleNextTier}
               className="px-8 py-4 lg:px-12 lg:py-5 bg-accent hover:bg-accent/80 rounded-2xl text-xl lg:text-2xl font-black transition-all hover:scale-105 min-h-[52px]">
-              📊 See Results
+              {correctCount >= REQUIRED_TO_ADVANCE && currentTier !== 'hard' ? '➡️ NEXT TIER' : '📊 See Results'}
             </button>
             <p className="hidden lg:block text-gray-500 text-sm mt-2">Press <kbd className="px-2 py-0.5 bg-card rounded text-gray-400">Space</kbd></p>
           </div>
