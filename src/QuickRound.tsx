@@ -57,7 +57,7 @@ export default function QuickRound({ fortyPlayers, benchPlayers, posFilter, onQu
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Guess40 state
-  const [guess40, setGuess40] = useState(4.50);
+  const [guess40, setGuess40] = useState(4.75);
 
   // CombinedReps state
   const [repsGuess, setRepsGuess] = useState(50);
@@ -115,7 +115,7 @@ export default function QuickRound({ fortyPlayers, benchPlayers, posFilter, onQu
     if (!currentGame) return;
     setRevealed(false);
     setTimeLeft(getTimerForGame(currentGame));
-    setGuess40(4.50);
+    setGuess40(4.75);
     setRepsGuess(50);
     if (currentGame.type === 'speedSort5') {
       setSortOrder([]);

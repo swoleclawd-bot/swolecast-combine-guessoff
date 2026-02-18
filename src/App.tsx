@@ -117,7 +117,7 @@ export default function App() {
   const [posFilter, setPosFilter] = useState<Position | null>(null);
   const [players, setPlayers] = useState<Player[]>([]);
   const [idx, setIdx] = useState(0);
-  const [guess, setGuess] = useState(4.50);
+  const [guess, setGuess] = useState(4.75);
   const [revealed, setRevealed] = useState(false);
   const [results, setResults] = useState<GuessResult[]>([]);
   const [score, setScore] = useState(0);
@@ -151,7 +151,7 @@ export default function App() {
     const list = m === 'quick' ? shuffled.slice(0, 10) : shuffled;
     setPlayers(list);
     setIdx(0);
-    setGuess(4.50);
+    setGuess(4.75);
     setRevealed(false);
     setResults([]);
     setScore(0);
@@ -201,7 +201,7 @@ export default function App() {
       return;
     }
     setIdx(nextIdx);
-    setGuess(4.50);
+    setGuess(4.75);
     setRevealed(false);
     setEasterEgg(null);
     setShowConfetti(false);
@@ -278,13 +278,13 @@ export default function App() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full max-w-2xl">
             <button onClick={() => setMode('speedsort')}
               className="py-12 px-10 bg-card hover:bg-primary/20 rounded-2xl text-center transition-all hover:scale-105 animate-pulse-glow border-2 border-primary/40 hover:border-primary flex flex-col items-center">
-              <div className="text-7xl font-black text-white mb-3 leading-none self-start w-full text-left pl-2 pt-1">40</div>
+              <div className="text-7xl font-black text-white mb-3 leading-none w-full text-center">40</div>
               <div className="text-3xl font-black text-primary mb-2">Speed Sort</div>
               <div className="text-gray-400 text-lg">Sort fastest → slowest · 3 lives</div>
             </button>
             <button onClick={() => setMode('benchsort')}
               className="py-12 px-10 bg-card hover:bg-accent/20 rounded-2xl text-center transition-all hover:scale-105 animate-pulse-glow border-2 border-accent/40 hover:border-accent flex flex-col items-center">
-              <div className="text-7xl font-black text-white mb-3 leading-none self-start w-full text-left pl-2 pt-1">225</div>
+              <div className="text-7xl font-black text-white mb-3 leading-none w-full text-center">225</div>
               <div className="text-3xl font-black text-accent mb-2">Bench Sort</div>
               <div className="text-gray-400 text-lg">Sort most → fewest reps · 3 lives</div>
             </button>
