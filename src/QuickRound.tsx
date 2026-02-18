@@ -60,6 +60,7 @@ export default function QuickRound({ fortyPlayers, benchPlayers, posFilter, onQu
   const [gameOver, setGameOver] = useState(false);
   const [shareMsg, setShareMsg] = useState('');
   const [copied, setCopied] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Guess40 state
@@ -269,22 +270,22 @@ export default function QuickRound({ fortyPlayers, benchPlayers, posFilter, onQu
     const knowsBallCount = results.filter(r => r.knowsBall).length;
     const rating = knowsBallCount >= 8 ? 'ELITE SCOUT 🏆' : knowsBallCount >= 6 ? 'KNOWS BALL 🏈' : knowsBallCount >= 4 ? 'GETTING THERE 📈' : 'BACK TO FILM ROOM 📺';
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-4 lg:p-8 max-w-2xl mx-auto">
+      <div className="min-h-screen flex flex-col items-center p-4 lg:p-8 pt-6 max-w-2xl mx-auto overflow-y-auto">
         {/* Share Card */}
-        <div className="w-full bg-gradient-to-br from-surface-light to-surface border border-white/10 rounded-3xl p-5 lg:p-8 mb-6 lg:mb-8 shadow-2xl">
+        <div className="w-full bg-gradient-to-br from-surface-light to-surface border border-white/10 rounded-2xl lg:rounded-3xl p-4 lg:p-8 mb-4 lg:mb-8 shadow-2xl">
           <div className="flex items-center justify-center gap-2 lg:gap-3 mb-4 lg:mb-6">
             <img src="/swolecast-logo.png" alt="" className="h-6 lg:h-8" />
             <span className="text-xs uppercase tracking-[0.3em] text-gray-500 font-bold">COMBINE GAMES</span>
           </div>
 
-          <div className="text-center mb-4 lg:mb-6">
-            <div className="text-5xl lg:text-7xl font-black text-white mb-1">{score}</div>
-            <div className="text-base lg:text-lg text-gray-400 font-bold">POINTS</div>
+          <div className="text-center mb-3 lg:mb-6">
+            <div className="text-4xl lg:text-7xl font-black text-white mb-0.5">{score}</div>
+            <div className="text-sm lg:text-lg text-gray-400 font-bold">POINTS</div>
           </div>
 
-          <div className="text-center mb-4 lg:mb-6">
-            <div className="text-xl lg:text-2xl font-black text-highlight">{rating}</div>
-            <div className="text-gray-400 text-sm lg:text-base mt-1">{knowsBallCount}/{results.length} Knows Ball</div>
+          <div className="text-center mb-3 lg:mb-6">
+            <div className="text-lg lg:text-2xl font-black text-highlight">{rating}</div>
+            <div className="text-gray-400 text-xs lg:text-base mt-0.5">{knowsBallCount}/{results.length} Knows Ball</div>
           </div>
 
           {/* Mini result strip */}
@@ -296,8 +297,11 @@ export default function QuickRound({ fortyPlayers, benchPlayers, posFilter, onQu
             ))}
           </div>
 
-          {/* Round details */}
-          <div className="space-y-2 mb-4 lg:mb-6">
+          {/* Round details — collapsed on mobile by default */}
+          <button onClick={() => setShowDetails(!showDetails)} className="lg:hidden w-full text-center text-sm text-gray-400 mb-2 py-2">
+            {showDetails ? '▲ Hide Details' : '▼ Show Round Details'}
+          </button>
+          <div className={`space-y-2 mb-4 lg:mb-6 ${showDetails ? '' : 'hidden lg:block'}`}>
             {results.map((r, i) => (
               <div key={i} className={`rounded-xl p-2.5 lg:p-3 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-1 ${r.knowsBall ? 'bg-green-500/10 border border-green-500/20' : 'bg-red-500/10 border border-red-500/20'}`}>
                 <div className="min-w-0">
