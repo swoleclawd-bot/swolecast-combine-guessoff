@@ -451,24 +451,19 @@ export default function SchoolMatch({ allPlayers, onQuit }: SchoolMatchProps) {
                           : 'border-gray-700 hover:border-primary/50 hover:scale-102'
                     }`}
                 >
-                  <div className="flex items-center justify-between">
-                    <div className="min-w-0">
-                      <div className="text-sm lg:text-lg font-black text-white truncate">{player.name}</div>
-                      <div className="text-xs lg:text-sm text-gray-400">{player.position} · {player.year}</div>
+                  <div className="flex items-center justify-between gap-1">
+                    <div className="min-w-0 truncate">
+                      <span className="text-sm lg:text-lg font-bold text-white">{player.name}</span>
+                      <span className="text-xs lg:text-sm text-gray-500 font-normal ml-1">{player.position}</span>
                     </div>
-                    {isMatched && !revealed && (
-                      <div className="text-xs text-primary font-bold truncate max-w-[80px] lg:max-w-[120px]">
-                        → {matchedSchool}
-                      </div>
-                    )}
                     {revealed && (
-                      <div className={`text-lg ${isCorrect ? 'text-green-400' : 'text-red-400'}`}>
+                      <div className={`text-lg shrink-0 ${isCorrect ? 'text-green-400' : 'text-red-400'}`}>
                         {isCorrect ? '✓' : '✗'}
                       </div>
                     )}
                   </div>
                   {revealed && !isCorrect && (
-                    <div className="mt-1 text-xs text-green-400">
+                    <div className="text-xs text-green-400 truncate">
                       Correct: {player.college}
                     </div>
                   )}
