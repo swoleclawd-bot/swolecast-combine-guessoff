@@ -72,20 +72,20 @@ export default function QuickRound({ fortyPlayers, benchPlayers, posFilter, onQu
     const pool40 = posFilter ? fortyPlayers.filter(p => p.position === posFilter) : fortyPlayers;
     const poolBench = posFilter ? benchPlayers.filter(p => p.position === posFilter) : benchPlayers;
 
-    const gameTypes: MiniGameType[] = ['guess40', 'combinedReps', 'speedSort5'];
+    // Fixed distribution: 4x guess40, 3x speedSort5, 3x combinedReps
+    const distribution: MiniGameType[] = shuffle([
+      'guess40', 'guess40', 'guess40', 'guess40',
+      'speedSort5', 'speedSort5', 'speedSort5',
+      'combinedReps', 'combinedReps', 'combinedReps',
+    ] as MiniGameType[]);
     const generatedRounds: MiniGame[] = [];
 
     for (let i = 0; i < TOTAL_ROUNDS; i++) {
-      // Pick a random type, but ensure we have enough data
-      const availableTypes = gameTypes.filter(t => {
-        if (t === 'guess40') return pool40.length >= 1;
-        if (t === 'combinedReps') return poolBench.length >= 3;
-        if (t === 'speedSort5') return pool40.length >= 5;
-        return false;
-      });
-      if (availableTypes.length === 0) break;
-
-      const type = availableTypes[Math.floor(Math.random() * availableTypes.length)];
+      // Use the fixed distribution, but fall back if not enough data
+      let type = distribution[i] || 'guess40';
+      if (type === 'guess40' && pool40.length < 1) type = 'combinedReps';
+      if (type === 'combinedReps' && poolBench.length < 3) type = 'guess40';
+      if (type === 'speedSort5' && pool40.length < 5) type = 'guess40';
 
       if (type === 'guess40') {
         const player = shuffle(pool40)[0];
@@ -209,10 +209,7 @@ export default function QuickRound({ fortyPlayers, benchPlayers, posFilter, onQu
     } else {
       const newOrder = [...sortOrder, player];
       setSortOrder(newOrder);
-      // Auto-submit when all 5 placed
-      if (newOrder.length === 5) {
-        setTimeout(() => handleSubmit(), 100);
-      }
+      // Don't auto-submit — let user drag to reorder, then click LOCK IT IN or wait for timer
     }
   };
 
