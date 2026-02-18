@@ -15,7 +15,7 @@ type PositionFilter = 'All' | 'QB' | 'RB' | 'WR' | 'TE';
 
 interface SpeedSortProps {
   allPlayers: Player[];
-  onQuit: (score: number, rounds: number) => void;
+  onQuit: () => void;
 }
 
 type SlotState = (Player | null)[];
@@ -35,6 +35,8 @@ export default function SpeedSort({ allPlayers, onQuit }: SpeedSortProps) {
   const [gameOver, setGameOver] = useState(false);
   const [correctOrder, setCorrectOrder] = useState<Player[]>([]);
   const [slotResults, setSlotResults] = useState<boolean[]>([]);
+  const [shareMsg, setShareMsg] = useState('');
+  const [copied, setCopied] = useState(false);
   const dragItem = useRef<{ source: 'available' | 'slot'; index: number } | null>(null);
 
   const filteredPlayers = posFilter === 'All' ? allPlayers : allPlayers.filter(p => p.position === posFilter);
@@ -201,16 +203,31 @@ export default function SpeedSort({ allPlayers, onQuit }: SpeedSortProps) {
   const slotLabels = ['🥇 FASTEST', '🥈 MIDDLE', '🥉 SLOWEST'];
 
   if (gameOver) {
+    const text = shareMsg || `I scored ${score} points on the Swolecast Combine Guess-Off Speed Sort! 🏋️ Think you Know Ball? swolecast.com`;
+    if (!shareMsg) setShareMsg(text);
+    const handleShare = async () => {
+      if (navigator.share) {
+        try { await navigator.share({ text }); } catch { /* cancelled */ }
+      } else {
+        await navigator.clipboard.writeText(text);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      }
+    };
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-8">
         <img src="/swolecast-logo.png" alt="Swolecast" className="h-16 mb-4" />
         <h2 className="text-6xl font-black text-highlight mb-4">GAME OVER!</h2>
         <p className="text-8xl font-black text-primary mb-2">{score} pts</p>
         <p className="text-xl text-gray-400 mb-2">{round} rounds · Best streak: {streak}</p>
-        <div className="flex gap-4 mt-8">
-          <button onClick={() => { setScore(0); setRound(0); setLives(3); setStreak(0); setGameOver(false); startRound(); }}
+        <button onClick={handleShare}
+          className="mt-4 mb-4 px-8 py-4 bg-accent rounded-xl font-bold text-xl hover:bg-accent/80 transition-all hover:scale-105">
+          {copied ? '✅ Copied!' : '📤 Share'}
+        </button>
+        <div className="flex gap-4 mt-4">
+          <button onClick={() => { setScore(0); setRound(0); setLives(3); setStreak(0); setGameOver(false); setShareMsg(''); setCopied(false); startRound(); }}
             className="px-8 py-4 bg-primary rounded-xl font-bold text-xl hover:bg-primary/80 transition-all hover:scale-105">🔄 Play Again</button>
-          <button onClick={() => onQuit(score, round)}
+          <button onClick={() => onQuit()}
             className="px-8 py-4 bg-card rounded-xl font-bold text-xl hover:bg-card/80 transition-all hover:scale-105">🏠 Menu</button>
         </div>
       </div>
@@ -221,9 +238,10 @@ export default function SpeedSort({ allPlayers, onQuit }: SpeedSortProps) {
     <div className="min-h-screen flex flex-col">
       {/* Header */}
       <div className="flex justify-between items-center px-8 py-3 bg-card/50 border-b border-gray-800">
-        <button onClick={() => onQuit(score, round)} className="text-gray-400 hover:text-white text-sm font-bold">✕ Quit</button>
+        <button onClick={() => onQuit()} className="text-gray-400 hover:text-white text-sm font-bold">✕ Quit</button>
         <div className="flex items-center gap-3">
           <img src="/swolecast-logo.png" alt="Swolecast" className="h-10" />
+          <span className="text-3xl font-black text-primary mr-2">40</span>
           <span className="text-sm uppercase tracking-widest text-gray-500 font-bold">SPEED SORT</span>
         </div>
         <div className="text-gray-400 text-sm">Round {round + 1}</div>
