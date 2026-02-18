@@ -321,6 +321,13 @@ export default function App() {
             </button>
           </div>
         </div>
+
+        <p className="text-center text-gray-600 text-sm max-w-md mt-4">
+          Wanna thank Kitchen? Find out more about prospects with the{' '}
+          <a href="https://lateround.com/#guides" target="_blank" rel="noopener noreferrer" className="text-gray-400 underline hover:text-white transition-colors">Late-Round Prospect Guide</a>
+          {' '}and become a{' '}
+          <a href="https://www.youtube.com/channel/UCRUA9P6vB_O9sEKrEluPETQ/join" target="_blank" rel="noopener noreferrer" className="text-gray-400 underline hover:text-white transition-colors">Swolie on YouTube</a>.
+        </p>
       </div>
     );
   }
