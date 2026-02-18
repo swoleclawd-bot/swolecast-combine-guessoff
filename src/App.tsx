@@ -168,7 +168,7 @@ export default function App() {
   const endGame = useCallback(() => {
     setGameOver(true);
     const modeLabel = mode === 'quick' ? 'Quick Round' : mode === 'position' ? `${posFilter} Challenge` : 'Endless';
-    setShareText(`I scored ${score} points on the Swolecast Combine Guess-Off ${modeLabel}! 🏋️ Think you Know Ball? swolecast.com`);
+    setShareText(`I scored ${score} points on the Swolecast Combine Games ${modeLabel}! 🏋️ Think you Know Ball? swolecast.com`);
   }, [score, mode, posFilter]);
 
   const handleSubmit = useCallback(() => {
@@ -268,7 +268,7 @@ export default function App() {
         <div className="text-center mb-12">
           <img src="/swolecast-logo.png" alt="Swolecast" className="h-24 lg:h-28 mx-auto mb-4" />
           <h1 className="text-5xl lg:text-7xl font-black tracking-tight leading-tight">
-            <span className="text-accent">COMBINE GUESS-OFF</span> 💪
+            <span className="text-accent">COMBINE GAMES</span> 💪
           </h1>
           <p className="text-highlight mt-4 text-2xl italic font-medium animate-glow-pulse">No Research, No Filter, All Vibes</p>
         </div>
@@ -277,15 +277,15 @@ export default function App() {
           {/* Speed Sort variants — PRIMARY */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full max-w-2xl">
             <button onClick={() => setMode('speedsort')}
-              className="py-12 px-10 bg-card hover:bg-primary/20 rounded-2xl text-center transition-all hover:scale-105 animate-pulse-glow border-2 border-primary/40 hover:border-primary">
-              <div className="text-7xl font-black text-primary mb-3 leading-none">40</div>
+              className="py-12 px-10 bg-card hover:bg-primary/20 rounded-2xl text-center transition-all hover:scale-105 animate-pulse-glow border-2 border-primary/40 hover:border-primary flex flex-col items-center">
+              <div className="text-7xl font-black text-white mb-3 leading-none self-start w-full text-left pl-2 pt-1">40</div>
               <div className="text-3xl font-black text-primary mb-2">Speed Sort</div>
               <div className="text-gray-400 text-lg">Sort fastest → slowest · 3 lives</div>
             </button>
             <button onClick={() => setMode('benchsort')}
-              className="py-12 px-10 bg-card hover:bg-accent/20 rounded-2xl text-center transition-all hover:scale-105 animate-pulse-glow border-2 border-accent/40 hover:border-accent">
-              <div className="text-7xl font-black text-accent mb-3 leading-none">225</div>
-              <div className="text-3xl font-black text-accent mb-2">Bench Press Sort</div>
+              className="py-12 px-10 bg-card hover:bg-accent/20 rounded-2xl text-center transition-all hover:scale-105 animate-pulse-glow border-2 border-accent/40 hover:border-accent flex flex-col items-center">
+              <div className="text-7xl font-black text-white mb-3 leading-none self-start w-full text-left pl-2 pt-1">225</div>
+              <div className="text-3xl font-black text-accent mb-2">Bench Sort</div>
               <div className="text-gray-400 text-lg">Sort most → fewest reps · 3 lives</div>
             </button>
           </div>
@@ -304,7 +304,7 @@ export default function App() {
               className="py-10 px-8 bg-card hover:bg-primary/20 rounded-2xl text-center transition-all hover:scale-105 border-2 border-primary/40 hover:border-primary">
               <div className="text-5xl mb-3">⚡</div>
               <div className="text-3xl font-black text-primary mb-2">Quick Round</div>
-              <div className="text-gray-400 text-lg">10 mini-games · 7s each</div>
+              <div className="text-gray-400 text-lg">10 mini-games · Timed</div>
             </button>
 
             {/* Position Challenge — NOW PLAYABLE */}
@@ -340,7 +340,7 @@ export default function App() {
     return <SpeedSort allPlayers={allPlayers} onQuit={() => setMode('menu')} />;
   }
 
-  // Bench Press Sort mode
+  // Bench Sort mode
   if (mode === 'benchsort') {
     return <BenchSort onQuit={() => setMode('menu')} />;
   }
@@ -349,7 +349,7 @@ export default function App() {
   if (gameOver) {
     return (
       <div className="min-h-screen flex flex-col items-center p-8 max-w-6xl mx-auto">
-        <div className="flex items-center justify-center gap-3 mb-2"><img src="/swolecast-logo.png" alt="Swolecast" className="h-10" /><span className="text-sm uppercase tracking-widest text-gray-500 font-bold">COMBINE GUESS-OFF</span></div>
+        <div className="flex items-center justify-center gap-3 mb-2"><img src="/swolecast-logo.png" alt="Swolecast" className="h-10" /><span className="text-sm uppercase tracking-widest text-gray-500 font-bold">COMBINE GAMES</span></div>
 
         <h2 className="text-6xl font-black text-highlight mb-4 mt-4">GAME OVER!</h2>
         <p className="text-8xl font-black text-primary mb-2">{score} pts</p>
@@ -416,7 +416,7 @@ export default function App() {
       <div className="flex justify-between items-center px-8 py-3 bg-card/50 border-b border-gray-800">
         <button onClick={() => { if (confirm('Quit game?')) { endGame(); } }}
           className="text-gray-400 hover:text-white text-sm font-bold">✕ Quit</button>
-        <div className="flex items-center gap-3"><img src="/swolecast-logo.png" alt="Swolecast" className="h-8" /><span className="text-sm uppercase tracking-widest text-gray-500 font-bold">COMBINE GUESS-OFF</span></div>
+        <div className="flex items-center gap-3"><img src="/swolecast-logo.png" alt="Swolecast" className="h-8" /><span className="text-sm uppercase tracking-widest text-gray-500 font-bold">COMBINE GAMES</span></div>
         <div className="text-gray-400 text-sm">♾️ Endless</div>
       </div>
 

@@ -203,7 +203,7 @@ export default function SpeedSort({ allPlayers, onQuit }: SpeedSortProps) {
   const slotLabels = ['🥇 FASTEST', '🥈 MIDDLE', '🥉 SLOWEST'];
 
   if (gameOver) {
-    const text = shareMsg || `I scored ${score} points on the Swolecast Combine Guess-Off Speed Sort! 🏋️ Think you Know Ball? swolecast.com`;
+    const text = shareMsg || `I scored ${score} points on the Swolecast Combine Games Speed Sort! 🏋️ Think you Know Ball? swolecast.com`;
     if (!shareMsg) setShareMsg(text);
     const handleShare = async () => {
       if (navigator.share) {

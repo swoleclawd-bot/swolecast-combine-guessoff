@@ -200,7 +200,7 @@ export default function BenchSort({ onQuit }: BenchSortProps) {
   if (!allPlayers.length) return <div className="flex items-center justify-center min-h-screen text-3xl font-bold">Loading bench press data... 💪</div>;
 
   if (gameOver) {
-    const text = shareMsg || `I scored ${score} points on the Swolecast Combine Guess-Off Bench Press Sort! 🏋️ Think you Know Ball? swolecast.com`;
+    const text = shareMsg || `I scored ${score} points on the Swolecast Combine Games Bench Sort! 🏋️ Think you Know Ball? swolecast.com`;
     if (!shareMsg) setShareMsg(text);
     const handleShare = async () => {
       if (navigator.share) {
@@ -239,7 +239,7 @@ export default function BenchSort({ onQuit }: BenchSortProps) {
         <div className="flex items-center gap-3">
           <img src="/swolecast-logo.png" alt="Swolecast" className="h-10" />
           <span className="text-3xl font-black text-accent mr-2">225</span>
-          <span className="text-sm uppercase tracking-widest text-gray-500 font-bold">BENCH PRESS SORT</span>
+          <span className="text-sm uppercase tracking-widest text-gray-500 font-bold">BENCH SORT</span>
         </div>
         <div className="text-gray-400 text-sm">Round {round + 1}</div>
       </div>
