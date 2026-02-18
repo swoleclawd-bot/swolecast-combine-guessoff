@@ -122,14 +122,13 @@ export default function App() {
   const [results, setResults] = useState<GuessResult[]>([]);
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
-  // timer removed — quick/position modes handled by QuickRound component
   const [gameOver, setGameOver] = useState(false);
   const [easterEgg, setEasterEgg] = useState<string | null>(null);
   const [shareText, setShareText] = useState('');
   const [showConfetti, setShowConfetti] = useState(false);
   const [copied, setCopied] = useState(false);
   const [positionSelectMode, setPositionSelectMode] = useState(false);
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null); // kept for potential future use
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     fetch('/players.json').then(r => r.json()).then((data: Player[]) => {
@@ -236,27 +235,27 @@ export default function App() {
   const currentPlayer = players[idx];
   const maxRounds = mode === 'quick' ? 10 : players.length;
 
-  if (!allPlayers.length) return <div className="flex items-center justify-center min-h-screen text-3xl font-bold">Loading players... 🏈</div>;
+  if (!allPlayers.length) return <div className="flex items-center justify-center min-h-screen text-xl lg:text-3xl font-bold px-4 text-center">Loading players... 🏈</div>;
 
   // Position Challenge — position selection screen
   if (positionSelectMode) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-8">
-        <div className="text-center mb-8">
-          <img src="/swolecast-logo.png" alt="Swolecast" className="h-20 mx-auto mb-4" />
-          <h2 className="text-5xl font-black text-accent mb-2">POSITION CHALLENGE</h2>
-          <p className="text-gray-400 text-xl">Pick a position, then prove you Know Ball</p>
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 lg:p-8">
+        <div className="text-center mb-6 lg:mb-8">
+          <img src="/swolecast-logo.png" alt="Swolecast" className="h-14 lg:h-20 mx-auto mb-3 lg:mb-4" />
+          <h2 className="text-3xl lg:text-5xl font-black text-accent mb-2">POSITION CHALLENGE</h2>
+          <p className="text-gray-400 text-base lg:text-xl">Pick a position, then prove you Know Ball</p>
         </div>
-        <div className="grid grid-cols-2 gap-6 max-w-lg">
+        <div className="grid grid-cols-2 gap-4 lg:gap-6 max-w-lg w-full">
           {(['QB', 'RB', 'WR', 'TE'] as Position[]).map(pos => (
             <button key={pos} onClick={() => { setPositionSelectMode(false); setPosFilter(pos); setMode('position'); }}
-              className="py-10 px-8 bg-card hover:bg-primary/20 rounded-2xl text-center transition-all hover:scale-105 border-2 border-primary/40 hover:border-primary">
-              <div className="text-5xl mb-2">{pos === 'QB' ? '🎯' : pos === 'RB' ? '🐂' : pos === 'WR' ? '🏃' : '🤚'}</div>
-              <div className="text-3xl font-black text-white">{pos}</div>
+              className="py-6 px-4 lg:py-10 lg:px-8 bg-card hover:bg-primary/20 rounded-2xl text-center transition-all hover:scale-105 border-2 border-primary/40 hover:border-primary">
+              <div className="text-3xl lg:text-5xl mb-2">{pos === 'QB' ? '🎯' : pos === 'RB' ? '🐂' : pos === 'WR' ? '🏃' : '🤚'}</div>
+              <div className="text-2xl lg:text-3xl font-black text-white">{pos}</div>
             </button>
           ))}
         </div>
-        <button onClick={() => setPositionSelectMode(false)} className="mt-8 text-gray-500 hover:text-white transition-colors">← Back to Menu</button>
+        <button onClick={() => setPositionSelectMode(false)} className="mt-6 lg:mt-8 text-gray-500 hover:text-white transition-colors min-h-[44px]">← Back to Menu</button>
       </div>
     );
   }
@@ -264,56 +263,58 @@ export default function App() {
   // Menu
   if (mode === 'menu') {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-8">
-        <div className="text-center mb-12">
-          <img src="/swolecast-logo.png" alt="Swolecast" className="h-24 lg:h-28 mx-auto mb-4" />
-          <h1 className="text-5xl lg:text-7xl font-black tracking-tight leading-tight">
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 lg:p-8">
+        <div className="text-center mb-6 lg:mb-12">
+          <a href="https://www.youtube.com/channel/UCRUA9P6vB_O9sEKrEluPETQ" target="_blank" rel="noopener noreferrer">
+            <img src="/swolecast-logo.png" alt="Swolecast" className="h-16 lg:h-28 mx-auto mb-3 lg:mb-4 hover:opacity-80 transition-opacity" />
+          </a>
+          <h1 className="text-3xl lg:text-7xl font-black tracking-tight leading-tight">
             <span className="text-accent">COMBINE GAMES</span> 💪
           </h1>
-          <p className="text-highlight mt-4 text-2xl italic font-medium animate-glow-pulse">No Research, No Filter, All Vibes</p>
+          <p className="text-highlight mt-2 lg:mt-4 text-lg lg:text-2xl italic font-medium animate-glow-pulse">No Research, No Filter, All Vibes</p>
         </div>
 
-        <div className="flex flex-col items-center gap-6 w-full max-w-5xl mb-8">
+        <div className="flex flex-col items-center gap-4 lg:gap-6 w-full max-w-5xl mb-6 lg:mb-8">
           {/* Speed Sort variants — PRIMARY */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full max-w-2xl">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-6 w-full max-w-2xl">
             <button onClick={() => setMode('speedsort')}
-              className="py-12 px-10 bg-card hover:bg-primary/20 rounded-2xl text-center transition-all hover:scale-105 animate-pulse-glow border-2 border-primary/40 hover:border-primary flex flex-col items-center">
-              <div className="text-7xl font-black text-white mb-3 leading-none w-full text-center">40</div>
-              <div className="text-3xl font-black text-primary mb-2">Speed Sort</div>
-              <div className="text-gray-400 text-lg">Sort fastest → slowest · 3 lives</div>
+              className="py-8 px-6 lg:py-12 lg:px-10 bg-card hover:bg-primary/20 rounded-2xl text-center transition-all hover:scale-105 animate-pulse-glow border-2 border-primary/40 hover:border-primary flex flex-col items-center">
+              <div className="text-5xl lg:text-7xl font-black text-white mb-2 lg:mb-3 leading-none w-full text-center">40</div>
+              <div className="text-2xl lg:text-3xl font-black text-primary mb-1 lg:mb-2">Speed Sort</div>
+              <div className="text-gray-400 text-base lg:text-lg">Sort fastest → slowest · 3 lives</div>
             </button>
             <button onClick={() => setMode('benchsort')}
-              className="py-12 px-10 bg-card hover:bg-accent/20 rounded-2xl text-center transition-all hover:scale-105 animate-pulse-glow border-2 border-accent/40 hover:border-accent flex flex-col items-center">
-              <div className="text-7xl font-black text-white mb-3 leading-none w-full text-center">225</div>
-              <div className="text-3xl font-black text-accent mb-2">Bench Sort</div>
-              <div className="text-gray-400 text-lg">Sort most → fewest reps · 3 lives</div>
+              className="py-8 px-6 lg:py-12 lg:px-10 bg-card hover:bg-accent/20 rounded-2xl text-center transition-all hover:scale-105 animate-pulse-glow border-2 border-accent/40 hover:border-accent flex flex-col items-center">
+              <div className="text-5xl lg:text-7xl font-black text-white mb-2 lg:mb-3 leading-none w-full text-center">225</div>
+              <div className="text-2xl lg:text-3xl font-black text-accent mb-1 lg:mb-2">Bench Sort</div>
+              <div className="text-gray-400 text-base lg:text-lg">Sort most → fewest reps · 3 lives</div>
             </button>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 w-full">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 w-full">
             {/* Endless */}
             <button onClick={() => startGame('endless')}
-              className="py-10 px-8 bg-card hover:bg-accent/20 rounded-2xl text-center transition-all hover:scale-105 border-2 border-accent/40 hover:border-accent">
-              <div className="text-5xl mb-3">♾️</div>
-              <div className="text-3xl font-black text-accent mb-2">Endless Mode</div>
-              <div className="text-gray-400 text-lg">No timer · Pure vibes</div>
+              className="py-6 px-6 lg:py-10 lg:px-8 bg-card hover:bg-accent/20 rounded-2xl text-center transition-all hover:scale-105 border-2 border-accent/40 hover:border-accent">
+              <div className="text-4xl lg:text-5xl mb-2 lg:mb-3">♾️</div>
+              <div className="text-2xl lg:text-3xl font-black text-accent mb-1 lg:mb-2">Endless Mode</div>
+              <div className="text-gray-400 text-base lg:text-lg">No timer · Pure vibes</div>
             </button>
 
-            {/* Quick Round — NOW PLAYABLE */}
+            {/* Quick Round */}
             <button onClick={() => setMode('quick')}
-              className="py-10 px-8 bg-card hover:bg-primary/20 rounded-2xl text-center transition-all hover:scale-105 border-2 border-primary/40 hover:border-primary">
-              <div className="text-5xl mb-3">⚡</div>
-              <div className="text-3xl font-black text-primary mb-2">Quick Round</div>
-              <div className="text-gray-400 text-lg">10 mini-games · Timed</div>
+              className="py-6 px-6 lg:py-10 lg:px-8 bg-card hover:bg-primary/20 rounded-2xl text-center transition-all hover:scale-105 border-2 border-primary/40 hover:border-primary">
+              <div className="text-4xl lg:text-5xl mb-2 lg:mb-3">⚡</div>
+              <div className="text-2xl lg:text-3xl font-black text-primary mb-1 lg:mb-2">Quick Round</div>
+              <div className="text-gray-400 text-base lg:text-lg">10 mini-games · Timed</div>
             </button>
 
-            {/* Position Challenge — NOW PLAYABLE */}
+            {/* Position Challenge */}
             <button onClick={() => setPositionSelectMode(true)}
-              className="bg-card hover:bg-accent/20 rounded-2xl p-8 transition-all hover:scale-105 border-2 border-accent/40 hover:border-accent">
-              <p className="text-center font-black mb-5 text-lg uppercase tracking-widest text-accent">Position Challenge</p>
-              <div className="grid grid-cols-2 gap-3">
+              className="bg-card hover:bg-accent/20 rounded-2xl p-5 lg:p-8 transition-all hover:scale-105 border-2 border-accent/40 hover:border-accent">
+              <p className="text-center font-black mb-3 lg:mb-5 text-base lg:text-lg uppercase tracking-widest text-accent">Position Challenge</p>
+              <div className="grid grid-cols-2 gap-2 lg:gap-3">
                 {(['WR', 'RB', 'QB', 'TE'] as Position[]).map(pos => (
-                  <div key={pos} className="py-5 bg-bg/50 rounded-xl font-bold text-xl text-gray-300 border-2 border-gray-700 text-center hover:border-accent/50 transition-colors">
+                  <div key={pos} className="py-3 lg:py-5 bg-bg/50 rounded-xl font-bold text-base lg:text-xl text-gray-300 border-2 border-gray-700 text-center hover:border-accent/50 transition-colors">
                     {pos === 'WR' ? '🏃' : pos === 'RB' ? '🐂' : pos === 'QB' ? '🎯' : '🤚'} {pos}
                   </div>
                 ))}
@@ -322,7 +323,7 @@ export default function App() {
           </div>
         </div>
 
-        <p className="text-center text-gray-600 text-sm max-w-md mt-4">
+        <p className="text-center text-gray-600 text-xs lg:text-sm max-w-md mt-2 lg:mt-4 px-4">
           Wanna thank Kitchen? Find out more about prospects with the{' '}
           <a href="https://lateround.com/#guides" target="_blank" rel="noopener noreferrer" className="text-gray-400 underline hover:text-white transition-colors">Late-Round Prospect Guide</a>
           {' '}and become a{' '}
@@ -332,12 +333,12 @@ export default function App() {
     );
   }
 
-  // Quick Round mode — delegate to QuickRound component
+  // Quick Round mode
   if (mode === 'quick') {
     return <QuickRound fortyPlayers={allPlayers} benchPlayers={benchPlayers} onQuit={() => setMode('menu')} />;
   }
 
-  // Position Challenge mode — delegate to QuickRound with position filter
+  // Position Challenge mode
   if (mode === 'position') {
     return <QuickRound fortyPlayers={allPlayers} benchPlayers={benchPlayers} posFilter={posFilter || undefined} onQuit={() => setMode('menu')} />;
   }
@@ -355,24 +356,25 @@ export default function App() {
   // Game Over — wide layout (for endless mode)
   if (gameOver) {
     return (
-      <div className="min-h-screen flex flex-col items-center p-8 max-w-6xl mx-auto">
-        <div className="flex items-center justify-center gap-3 mb-2"><img src="/swolecast-logo.png" alt="Swolecast" className="h-10" /><span className="text-sm uppercase tracking-widest text-gray-500 font-bold">COMBINE GAMES</span></div>
+      <div className="min-h-screen flex flex-col items-center p-4 lg:p-8 max-w-6xl mx-auto">
+        <div className="flex items-center justify-center gap-3 mb-2"><img src="/swolecast-logo.png" alt="Swolecast" className="h-8 lg:h-10" /><span className="text-xs lg:text-sm uppercase tracking-widest text-gray-500 font-bold">COMBINE GAMES</span></div>
 
-        <h2 className="text-6xl font-black text-highlight mb-4 mt-4">GAME OVER!</h2>
-        <p className="text-8xl font-black text-primary mb-2">{score} pts</p>
-        <p className="text-xl text-gray-400 mb-8">{results.length} rounds played</p>
+        <h2 className="text-4xl lg:text-6xl font-black text-highlight mb-3 lg:mb-4 mt-3 lg:mt-4">GAME OVER!</h2>
+        <p className="text-5xl lg:text-8xl font-black text-primary mb-2">{score} pts</p>
+        <p className="text-lg lg:text-xl text-gray-400 mb-6 lg:mb-8">{results.length} rounds played</p>
 
         {shareText && (
           <button onClick={handleShare}
-            className="mb-8 px-8 py-4 bg-accent rounded-xl font-bold text-xl hover:bg-accent/80 transition-all hover:scale-105">
+            className="mb-6 lg:mb-8 px-6 py-3 lg:px-8 lg:py-4 bg-accent rounded-xl font-bold text-lg lg:text-xl hover:bg-accent/80 transition-all hover:scale-105 min-h-[44px]">
             {copied ? '✅ Copied!' : '📤 Share'}
           </button>
         )}
 
-        {/* Full-width results table */}
-        <div className="w-full mb-8">
-          <h3 className="font-bold text-2xl text-center mb-4">Round Summary</h3>
-          <div className="bg-card rounded-xl overflow-hidden">
+        {/* Results — table on desktop, cards on mobile */}
+        <div className="w-full mb-6 lg:mb-8">
+          <h3 className="font-bold text-xl lg:text-2xl text-center mb-4">Round Summary</h3>
+          {/* Desktop table */}
+          <div className="hidden lg:block bg-card rounded-xl overflow-hidden">
             <table className="w-full">
               <thead>
                 <tr className="text-left text-gray-400 text-sm uppercase border-b border-gray-700">
@@ -402,13 +404,30 @@ export default function App() {
               </tbody>
             </table>
           </div>
+          {/* Mobile cards */}
+          <div className="lg:hidden space-y-2">
+            {results.map((r, i) => (
+              <div key={i} className="bg-card rounded-xl p-3 flex items-center justify-between gap-2">
+                <div className="flex-1 min-w-0">
+                  <div className="font-bold text-sm truncate">{r.player.name} <span className="text-gray-500 font-normal">{r.player.position}</span></div>
+                  <div className="text-xs text-gray-400">
+                    Guess {r.guess.toFixed(2)} · Actual {r.player.forty.toFixed(2)} · <span style={{ color: getDeltaColor(r.delta) }}>Δ{r.delta.toFixed(2)}s</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className="font-bold text-highlight text-sm">+{r.points}</span>
+                  <span className="text-lg">{r.emoji}</span>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
 
-        <div className="flex gap-4">
+        <div className="flex gap-3 lg:gap-4">
           <button onClick={() => startGame(mode, posFilter || undefined)}
-            className="px-8 py-4 bg-primary rounded-xl font-bold text-xl hover:bg-primary/80 transition-all hover:scale-105">🔄 Play Again</button>
+            className="px-6 py-3 lg:px-8 lg:py-4 bg-primary rounded-xl font-bold text-lg lg:text-xl hover:bg-primary/80 transition-all hover:scale-105 min-h-[44px]">🔄 Play Again</button>
           <button onClick={() => setMode('menu')}
-            className="px-8 py-4 bg-card rounded-xl font-bold text-xl hover:bg-card/80 transition-all hover:scale-105">🏠 Menu</button>
+            className="px-6 py-3 lg:px-8 lg:py-4 bg-card rounded-xl font-bold text-lg lg:text-xl hover:bg-card/80 transition-all hover:scale-105 min-h-[44px]">🏠 Menu</button>
         </div>
       </div>
     );
@@ -420,51 +439,67 @@ export default function App() {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Top header bar */}
-      <div className="flex justify-between items-center px-8 py-3 bg-card/50 border-b border-gray-800">
+      <div className="flex justify-between items-center px-4 lg:px-8 py-2 lg:py-3 bg-card/50 border-b border-gray-800">
         <button onClick={() => { if (confirm('Quit game?')) { endGame(); } }}
-          className="text-gray-400 hover:text-white text-sm font-bold">✕ Quit</button>
-        <div className="flex items-center gap-3"><img src="/swolecast-logo.png" alt="Swolecast" className="h-8" /><span className="text-sm uppercase tracking-widest text-gray-500 font-bold">COMBINE GAMES</span></div>
-        <div className="text-gray-400 text-sm">♾️ Endless</div>
+          className="text-gray-400 hover:text-white text-sm font-bold min-h-[44px] min-w-[44px] flex items-center">✕ Quit</button>
+        <div className="flex items-center gap-2 lg:gap-3"><img src="/swolecast-logo.png" alt="Swolecast" className="h-6 lg:h-8" /><span className="text-xs lg:text-sm uppercase tracking-widest text-gray-500 font-bold">COMBINE GAMES</span></div>
+        <div className="text-gray-400 text-xs lg:text-sm">♾️ Endless</div>
+      </div>
+
+      {/* Score bar on mobile */}
+      <div className="lg:hidden flex justify-around items-center px-4 py-2 bg-card/30 border-b border-gray-800">
+        <div className="text-center">
+          <div className="text-xs uppercase text-gray-500">Score</div>
+          <div className="text-2xl font-black text-highlight">{score}</div>
+        </div>
+        <div className="text-center">
+          <div className="text-xs uppercase text-gray-500">Round</div>
+          <div className="text-lg font-bold">{idx + 1}/{maxRounds}</div>
+        </div>
+        <div className="text-center">
+          <div className="text-xs uppercase text-gray-500">Streak</div>
+          <div className="text-lg font-bold text-accent">{streak > 0 ? `🔥 x${streak}` : '-'}</div>
+        </div>
       </div>
 
       {/* 3-column main layout */}
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_1.5fr_1fr] gap-6 p-6 lg:p-8 max-w-[1600px] mx-auto w-full">
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_1.5fr_1fr] gap-4 lg:gap-6 p-4 lg:p-8 max-w-[1600px] mx-auto w-full">
         {/* LEFT — Player Card */}
         <div className="flex flex-col items-center justify-center relative">
           {currentPlayer && (
-            <div className="bg-card rounded-2xl p-8 text-center border-2 border-primary/30 w-full relative overflow-hidden">
+            <div className="bg-card rounded-2xl p-5 lg:p-8 text-center border-2 border-primary/30 w-full relative overflow-hidden">
               {showConfetti && <Confetti />}
-              <div className="text-xs uppercase tracking-[0.3em] text-gray-400 mb-2">
+              <div className="text-xs uppercase tracking-[0.3em] text-gray-400 mb-1 lg:mb-2">
                 {currentPlayer.position} · {currentPlayer.year} NFL Combine
               </div>
-              <h2 className="text-5xl lg:text-7xl font-black text-white mb-3 leading-tight">{currentPlayer.name}</h2>
-              <p className="text-xl text-gray-400">{currentPlayer.college}</p>
-              <p className="text-gray-500">Drafted by {currentPlayer.team}</p>
+              <h2 className="text-3xl lg:text-7xl font-black text-white mb-2 lg:mb-3 leading-tight">{currentPlayer.name}</h2>
+              <p className="text-base lg:text-xl text-gray-400">{currentPlayer.college}</p>
+              <p className="text-sm lg:text-base text-gray-500">Drafted by {currentPlayer.team}</p>
 
-              <div className="mt-8 mb-4">
+              <div className="mt-4 lg:mt-8 mb-2 lg:mb-4">
                 {!revealed ? (
-                  <div className="text-8xl lg:text-9xl font-black text-primary/20 select-none">?.??</div>
+                  <div className="text-6xl lg:text-9xl font-black text-primary/20 select-none">?.??</div>
                 ) : (
                   <div className="animate-reveal">
-                    <div className="text-8xl lg:text-9xl font-black" style={{
+                    <div className="text-6xl lg:text-9xl font-black" style={{
                       color: getDeltaColor(lastResult?.delta || 1),
                       textShadow: `0 0 30px ${getDeltaColor(lastResult?.delta || 1)}40`,
                     }}>
                       {currentPlayer.forty.toFixed(2)}s
                     </div>
                     {lastResult && (
-                      <div className="mt-4">
-                        <div className={`text-3xl font-black ${lastResult.knowsBall ? 'text-success animate-knows-ball' : 'text-red-500 animate-learn-ball'}`}>
+                      <div className="mt-3 lg:mt-4">
+                        <div className={`text-2xl lg:text-3xl font-black ${lastResult.knowsBall ? 'text-success animate-knows-ball' : 'text-red-500 animate-learn-ball'}`}>
                           {lastResult.emoji} {lastResult.label}
                         </div>
-                        <div className="text-xl mt-2">
+                        <div className="text-base lg:text-xl mt-2">
                           <span className="text-gray-400">Guess: {lastResult.guess.toFixed(2)}</span>
-                          <span className="mx-3 text-gray-600">·</span>
+                          <span className="mx-2 lg:mx-3 text-gray-600">·</span>
                           <span style={{ color: getDeltaColor(lastResult.delta) }}>Δ {lastResult.delta.toFixed(2)}s</span>
-                          <span className="mx-3 text-gray-600">·</span>
+                          <span className="mx-2 lg:mx-3 text-gray-600">·</span>
                           <span className="text-highlight font-bold">+{lastResult.points}</span>
                         </div>
-                        {easterEgg && <p className="mt-3 text-accent italic">{easterEgg}</p>}
+                        {easterEgg && <p className="mt-2 lg:mt-3 text-accent italic text-sm lg:text-base">{easterEgg}</p>}
                       </div>
                     )}
                   </div>
@@ -477,9 +512,9 @@ export default function App() {
         {/* CENTER — Guess Controls */}
         <div className="flex flex-col items-center justify-center">
           {!revealed ? (
-            <div className="w-full max-w-xl space-y-6">
-              <div className="text-center text-7xl lg:text-8xl font-black text-white">
-                {guess.toFixed(2)}<span className="text-4xl text-gray-500">s</span>
+            <div className="w-full max-w-xl space-y-4 lg:space-y-6">
+              <div className="text-center text-5xl lg:text-8xl font-black text-white">
+                {guess.toFixed(2)}<span className="text-2xl lg:text-4xl text-gray-500">s</span>
               </div>
               <SliderWithTicks guess={guess} setGuess={setGuess} onSubmit={handleSubmit} />
               <input
@@ -488,27 +523,27 @@ export default function App() {
                   const v = parseFloat(e.target.value);
                   if (v >= 4.20 && v <= 5.40) setGuess(v);
                 }}
-                className="w-full p-4 bg-card rounded-xl text-center text-3xl font-bold border-2 border-primary/30 focus:border-primary outline-none"
+                className="w-full p-3 lg:p-4 bg-card rounded-xl text-center text-2xl lg:text-3xl font-bold border-2 border-primary/30 focus:border-primary outline-none"
               />
               <button onClick={handleSubmit}
-                className="w-full py-6 bg-primary hover:bg-primary/80 rounded-2xl text-3xl font-black transition-all hover:scale-105 active:scale-95 animate-pulse-glow">
+                className="w-full py-4 lg:py-6 bg-primary hover:bg-primary/80 rounded-2xl text-2xl lg:text-3xl font-black transition-all hover:scale-105 active:scale-95 animate-pulse-glow min-h-[52px]">
                 🎯 LOCK IT IN
               </button>
-              <p className="text-center text-gray-500 text-sm">Press <kbd className="px-2 py-0.5 bg-card rounded text-gray-400">Enter</kbd> to submit · Arrow keys to adjust · <kbd className="px-2 py-0.5 bg-card rounded text-gray-400">Shift</kbd>+Arrow for ±0.05</p>
+              <p className="hidden lg:block text-center text-gray-500 text-sm">Press <kbd className="px-2 py-0.5 bg-card rounded text-gray-400">Enter</kbd> to submit · Arrow keys to adjust · <kbd className="px-2 py-0.5 bg-card rounded text-gray-400">Shift</kbd>+Arrow for ±0.05</p>
             </div>
           ) : (
             <div className="w-full max-w-xl">
               <button onClick={nextPlayer}
-                className="w-full py-6 bg-accent hover:bg-accent/80 rounded-2xl text-3xl font-black transition-all hover:scale-105 active:scale-95">
+                className="w-full py-4 lg:py-6 bg-accent hover:bg-accent/80 rounded-2xl text-2xl lg:text-3xl font-black transition-all hover:scale-105 active:scale-95 min-h-[52px]">
                 {idx + 1 >= maxRounds ? '📊 See Results' : '➡️ NEXT PLAYER'}
               </button>
-              <p className="text-center text-gray-500 text-sm mt-3">Press <kbd className="px-2 py-0.5 bg-card rounded text-gray-400">Space</kbd> to continue</p>
+              <p className="hidden lg:block text-center text-gray-500 text-sm mt-3">Press <kbd className="px-2 py-0.5 bg-card rounded text-gray-400">Space</kbd> to continue</p>
             </div>
           )}
         </div>
 
-        {/* RIGHT — Score Panel */}
-        <div className="flex flex-col gap-4">
+        {/* RIGHT — Score Panel (desktop only) */}
+        <div className="hidden lg:flex flex-col gap-4">
           <div className="bg-card rounded-2xl p-6 text-center border border-primary/20">
             <div className="text-sm uppercase tracking-widest text-gray-500 mb-1">Score</div>
             <div className="text-5xl font-black text-highlight">{score}</div>

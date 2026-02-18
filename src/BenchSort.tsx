@@ -60,7 +60,6 @@ export default function BenchSort({ onQuit }: BenchSortProps) {
     const pool = posFilter === 'All' ? allPlayers : allPlayers.filter(p => p.position === posFilter);
     if (pool.length < 3) return;
     const picked = shuffle(pool).slice(0, 3);
-    // Sort MOST to FEWEST reps
     setCorrectOrder([...picked].sort((a, b) => b.benchReps - a.benchReps));
     setAvailable(shuffle(picked));
     setSlots([null, null, null]);
@@ -197,7 +196,7 @@ export default function BenchSort({ onQuit }: BenchSortProps) {
 
   const slotLabels = ['💪 MOST REPS', '🏋️ MIDDLE', '🤏 FEWEST REPS'];
 
-  if (!allPlayers.length) return <div className="flex items-center justify-center min-h-screen text-3xl font-bold">Loading bench press data... 💪</div>;
+  if (!allPlayers.length) return <div className="flex items-center justify-center min-h-screen text-xl lg:text-3xl font-bold px-4 text-center">Loading bench press data... 💪</div>;
 
   if (gameOver) {
     const text = shareMsg || `I scored ${score} points on the Swolecast Combine Games Bench Sort! 🏋️ Think you Know Ball? swolecast.com`;
@@ -212,20 +211,20 @@ export default function BenchSort({ onQuit }: BenchSortProps) {
       }
     };
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-8">
-        <img src="/swolecast-logo.png" alt="Swolecast" className="h-16 mb-4" />
-        <h2 className="text-6xl font-black text-highlight mb-4">GAME OVER!</h2>
-        <p className="text-8xl font-black text-primary mb-2">{score} pts</p>
-        <p className="text-xl text-gray-400 mb-2">{round} rounds · Best streak: {streak}</p>
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 lg:p-8">
+        <img src="/swolecast-logo.png" alt="Swolecast" className="h-12 lg:h-16 mb-3 lg:mb-4" />
+        <h2 className="text-4xl lg:text-6xl font-black text-highlight mb-3 lg:mb-4">GAME OVER!</h2>
+        <p className="text-5xl lg:text-8xl font-black text-primary mb-2">{score} pts</p>
+        <p className="text-lg lg:text-xl text-gray-400 mb-2">{round} rounds · Best streak: {streak}</p>
         <button onClick={handleShare}
-          className="mt-4 mb-4 px-8 py-4 bg-accent rounded-xl font-bold text-xl hover:bg-accent/80 transition-all hover:scale-105">
+          className="mt-3 mb-3 lg:mt-4 lg:mb-4 px-6 py-3 lg:px-8 lg:py-4 bg-accent rounded-xl font-bold text-lg lg:text-xl hover:bg-accent/80 transition-all hover:scale-105 min-h-[44px]">
           {copied ? '✅ Copied!' : '📤 Share'}
         </button>
-        <div className="flex gap-4 mt-4">
+        <div className="flex gap-3 lg:gap-4 mt-3 lg:mt-4">
           <button onClick={() => { setScore(0); setRound(0); setLives(3); setStreak(0); setGameOver(false); setShareMsg(''); setCopied(false); startRound(); }}
-            className="px-8 py-4 bg-primary rounded-xl font-bold text-xl hover:bg-primary/80 transition-all hover:scale-105">🔄 Play Again</button>
+            className="px-6 py-3 lg:px-8 lg:py-4 bg-primary rounded-xl font-bold text-lg lg:text-xl hover:bg-primary/80 transition-all hover:scale-105 min-h-[44px]">🔄 Play Again</button>
           <button onClick={() => onQuit()}
-            className="px-8 py-4 bg-card rounded-xl font-bold text-xl hover:bg-card/80 transition-all hover:scale-105">🏠 Menu</button>
+            className="px-6 py-3 lg:px-8 lg:py-4 bg-card rounded-xl font-bold text-lg lg:text-xl hover:bg-card/80 transition-all hover:scale-105 min-h-[44px]">🏠 Menu</button>
         </div>
       </div>
     );
@@ -234,47 +233,63 @@ export default function BenchSort({ onQuit }: BenchSortProps) {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Header */}
-      <div className="flex justify-between items-center px-8 py-3 bg-card/50 border-b border-gray-800">
-        <button onClick={() => onQuit()} className="text-gray-400 hover:text-white text-sm font-bold">✕ Quit</button>
-        <div className="flex items-center gap-3">
-          <img src="/swolecast-logo.png" alt="Swolecast" className="h-10" />
-          <span className="text-3xl font-black text-accent mr-2">225</span>
-          <span className="text-sm uppercase tracking-widest text-gray-500 font-bold">BENCH SORT</span>
+      <div className="flex justify-between items-center px-4 lg:px-8 py-2 lg:py-3 bg-card/50 border-b border-gray-800">
+        <button onClick={() => onQuit()} className="text-gray-400 hover:text-white text-sm font-bold min-h-[44px] min-w-[44px] flex items-center">✕ Quit</button>
+        <div className="flex items-center gap-2 lg:gap-3">
+          <img src="/swolecast-logo.png" alt="Swolecast" className="h-7 lg:h-10" />
+          <span className="text-xl lg:text-3xl font-black text-accent mr-1 lg:mr-2">225</span>
+          <span className="text-xs lg:text-sm uppercase tracking-widest text-gray-500 font-bold">BENCH SORT</span>
         </div>
-        <div className="text-gray-400 text-sm">Round {round + 1}</div>
+        <div className="text-gray-400 text-xs lg:text-sm">Round {round + 1}</div>
       </div>
 
       {/* Position Filter */}
-      <div className="flex justify-center gap-2 px-8 py-3 bg-card/30 border-b border-gray-800">
+      <div className="flex justify-center gap-1.5 lg:gap-2 px-3 lg:px-8 py-2 lg:py-3 bg-card/30 border-b border-gray-800 flex-wrap">
         {(['All', 'QB', 'RB', 'WR', 'TE'] as PositionFilter[]).map(pos => (
           <button key={pos} onClick={() => { if (!revealed && round === 0 && score === 0) { setPosFilter(pos); } else if (confirm('Changing position filter will restart the game. Continue?')) { setPosFilter(pos); setScore(0); setRound(0); setLives(3); setStreak(0); setGameOver(false); } }}
-            className={`px-4 py-1.5 rounded-full text-sm font-bold transition-all ${posFilter === pos ? 'bg-primary text-white shadow-[0_0_10px_rgba(124,58,237,0.4)]' : 'bg-card text-gray-400 hover:text-white hover:bg-card/80'}`}>
+            className={`px-3 py-1.5 lg:px-4 rounded-full text-xs lg:text-sm font-bold transition-all min-h-[36px] ${posFilter === pos ? 'bg-primary text-white shadow-[0_0_10px_rgba(124,58,237,0.4)]' : 'bg-card text-gray-400 hover:text-white hover:bg-card/80'}`}>
             {pos === 'All' ? '🎯 All' : pos === 'QB' ? '🎯 QB' : pos === 'RB' ? '🐂 RB' : pos === 'WR' ? '🏃 WR' : '🤚 TE'}
           </button>
         ))}
-        <span className="text-gray-600 text-xs self-center ml-2">({filteredPlayers.length} players)</span>
+        <span className="hidden lg:inline text-gray-600 text-xs self-center ml-2">({filteredPlayers.length} players)</span>
+      </div>
+
+      {/* Mobile score bar */}
+      <div className="lg:hidden flex justify-around items-center px-4 py-2 bg-card/30 border-b border-gray-800">
+        <div className="text-center">
+          <div className="text-xs uppercase text-gray-500">Score</div>
+          <div className="text-xl font-black text-highlight">{score}</div>
+        </div>
+        <div className="text-center">
+          <div className="text-xs uppercase text-gray-500">Streak</div>
+          <div className="text-lg font-bold text-accent">{streak > 0 ? `🔥 x${streak}` : '-'}</div>
+        </div>
+        <div className="text-center">
+          <div className="text-xs uppercase text-gray-500">Lives</div>
+          <div className="text-lg">{'❤️'.repeat(lives)}{'🖤'.repeat(3 - lives)}</div>
+        </div>
       </div>
 
       {/* Main layout */}
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-6 p-6 lg:p-8 max-w-[1400px] mx-auto w-full">
-        <div className="flex flex-col gap-8">
-          <p className="text-center text-gray-400 text-lg">
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-[1fr_280px] gap-4 lg:gap-6 p-3 lg:p-8 max-w-[1400px] mx-auto w-full">
+        <div className="flex flex-col gap-4 lg:gap-8">
+          <p className="text-center text-gray-400 text-sm lg:text-lg">
             {!revealed ? 'Sort these players from MOST to FEWEST 225 lb bench press reps' : 'Results revealed!'}
           </p>
 
           {/* Available cards */}
           {available.length > 0 && !revealed && (
-            <div className="flex flex-wrap justify-center gap-4"
+            <div className="flex flex-col lg:flex-row flex-wrap justify-center gap-3 lg:gap-4 items-center"
               onDragOver={e => e.preventDefault()} onDrop={handleDropOnAvailable}>
               {available.map((player, i) => (
                 <div key={player.name}
                   draggable
                   onDragStart={() => handleDragStart('available', i)}
                   onClick={() => handleCardClick(i)}
-                  className={`bg-card border-2 rounded-2xl p-6 w-56 cursor-grab active:cursor-grabbing transition-all hover:scale-105 select-none
+                  className={`bg-card border-2 rounded-2xl p-4 lg:p-6 w-full max-w-[280px] lg:w-56 cursor-grab active:cursor-grabbing transition-all hover:scale-105 select-none
                     ${selected === i ? 'border-primary shadow-[0_0_20px_rgba(124,58,237,0.5)]' : 'border-gray-700 hover:border-primary/50'}`}>
-                  <div className="text-2xl font-black text-white mb-1">{player.name}</div>
-                  <div className="text-sm text-gray-400">{player.position} · {player.college}</div>
+                  <div className="text-lg lg:text-2xl font-black text-white mb-1">{player.name}</div>
+                  <div className="text-xs lg:text-sm text-gray-400">{player.position} · {player.college}</div>
                   <div className="text-xs text-gray-500 mt-1">{player.year} Combine</div>
                   <div className="text-xs text-primary/60 mt-1 font-bold uppercase tracking-wider">225 LB Bench Press</div>
                 </div>
@@ -283,7 +298,7 @@ export default function BenchSort({ onQuit }: BenchSortProps) {
           )}
 
           {/* Slots */}
-          <div className="flex flex-col lg:flex-row justify-center gap-4">
+          <div className="flex flex-col lg:flex-row justify-center gap-3 lg:gap-4">
             {slotLabels.map((label, i) => {
               const player = slots[i];
               const isCorrect = revealed && slotResults[i];
@@ -293,26 +308,26 @@ export default function BenchSort({ onQuit }: BenchSortProps) {
                   onDragOver={e => e.preventDefault()}
                   onDrop={() => handleDropOnSlot(i)}
                   onClick={() => handleSlotClick(i)}
-                  className={`relative rounded-2xl p-6 w-full lg:w-64 min-h-[180px] flex flex-col items-center justify-center transition-all border-2 border-dashed
+                  className={`relative rounded-2xl p-4 lg:p-6 w-full lg:w-64 min-h-[100px] lg:min-h-[180px] flex flex-col items-center justify-center transition-all border-2 border-dashed
                     ${isCorrect ? 'bg-success/20 border-success' : isWrong ? 'bg-red-500/20 border-red-500' : player ? 'bg-card border-primary' : 'bg-card/30 border-gray-600 hover:border-primary/50'}`}>
-                  <div className={`text-xs uppercase tracking-widest mb-2 font-bold ${isCorrect ? 'text-success' : isWrong ? 'text-red-400' : 'text-gray-500'}`}>
+                  <div className={`text-xs uppercase tracking-widest mb-1 lg:mb-2 font-bold ${isCorrect ? 'text-success' : isWrong ? 'text-red-400' : 'text-gray-500'}`}>
                     {label}
                   </div>
                   {player ? (
                     <div draggable={!revealed} onDragStart={() => handleDragStart('slot', i)}
                       className={`text-center ${!revealed ? 'cursor-grab active:cursor-grabbing' : ''}`}>
-                      <div className="text-xl font-black text-white">{player.name}</div>
-                      <div className="text-sm text-gray-400">{player.position} · {player.college}</div>
+                      <div className="text-base lg:text-xl font-black text-white">{player.name}</div>
+                      <div className="text-xs lg:text-sm text-gray-400">{player.position} · {player.college}</div>
                       {revealed && (
-                        <div className="mt-2 animate-reveal">
-                          <div className={`text-3xl font-black ${isCorrect ? 'text-success' : 'text-red-400'}`}>
+                        <div className="mt-1 lg:mt-2 animate-reveal">
+                          <div className={`text-2xl lg:text-3xl font-black ${isCorrect ? 'text-success' : 'text-red-400'}`}>
                             {player.benchReps} reps
                           </div>
                         </div>
                       )}
                     </div>
                   ) : (
-                    <div className="text-gray-600 text-sm">Drop player here</div>
+                    <div className="text-gray-600 text-xs lg:text-sm">Tap a card to place here</div>
                   )}
                   {revealed && !slotResults[i] && player && (
                     <div className="text-xs text-gray-500 mt-1">
@@ -328,29 +343,29 @@ export default function BenchSort({ onQuit }: BenchSortProps) {
           <div className="text-center">
             {!revealed ? (
               <button onClick={handleLockIn} disabled={!allSlotsFilled}
-                className={`px-12 py-5 rounded-2xl text-3xl font-black transition-all
+                className={`px-8 py-4 lg:px-12 lg:py-5 rounded-2xl text-2xl lg:text-3xl font-black transition-all min-h-[52px]
                   ${allSlotsFilled ? 'bg-primary hover:bg-primary/80 hover:scale-105 active:scale-95 animate-pulse-glow cursor-pointer' : 'bg-gray-700 text-gray-500 cursor-not-allowed'}`}>
                 🎯 LOCK IT IN
               </button>
             ) : (
               <div>
                 {roundResult && (
-                  <div className={`text-4xl font-black mb-4 ${roundResult.correct === 3 ? 'text-success animate-knows-ball' : roundResult.correct === 2 ? 'text-highlight' : 'text-red-500 animate-learn-ball'}`}>
-                    {roundResult.emoji} {roundResult.label} <span className="text-2xl">+{roundResult.points}</span>
+                  <div className={`text-2xl lg:text-4xl font-black mb-3 lg:mb-4 ${roundResult.correct === 3 ? 'text-success animate-knows-ball' : roundResult.correct === 2 ? 'text-highlight' : 'text-red-500 animate-learn-ball'}`}>
+                    {roundResult.emoji} {roundResult.label} <span className="text-xl lg:text-2xl">+{roundResult.points}</span>
                   </div>
                 )}
                 <button onClick={handleNext}
-                  className="px-12 py-5 bg-accent hover:bg-accent/80 rounded-2xl text-3xl font-black transition-all hover:scale-105 active:scale-95">
+                  className="px-8 py-4 lg:px-12 lg:py-5 bg-accent hover:bg-accent/80 rounded-2xl text-2xl lg:text-3xl font-black transition-all hover:scale-105 active:scale-95 min-h-[52px]">
                   ➡️ NEXT ROUND
                 </button>
-                <p className="text-gray-500 text-sm mt-2">Press <kbd className="px-2 py-0.5 bg-card rounded text-gray-400">Space</kbd> to continue</p>
+                <p className="hidden lg:block text-gray-500 text-sm mt-2">Press <kbd className="px-2 py-0.5 bg-card rounded text-gray-400">Space</kbd> to continue</p>
               </div>
             )}
           </div>
         </div>
 
-        {/* Right: Score panel */}
-        <div className="flex flex-col gap-4">
+        {/* Right: Score panel (desktop only) */}
+        <div className="hidden lg:flex flex-col gap-4">
           <div className="bg-card rounded-2xl p-6 text-center border border-primary/20">
             <div className="text-sm uppercase tracking-widest text-gray-500 mb-1">Score</div>
             <div className="text-5xl font-black text-highlight">{score}</div>
