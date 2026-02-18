@@ -11,7 +11,7 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
-type MiniGameType = 'guess40' | 'combinedReps' | 'speedSort5';
+type MiniGameType = 'guess40' | 'combinedReps' | 'speedSort4' | 'benchSort3';
 
 interface Guess40Round {
   type: 'guess40';
@@ -24,13 +24,19 @@ interface CombinedRepsRound {
   totalReps: number;
 }
 
-interface SpeedSort5Round {
-  type: 'speedSort5';
+interface SpeedSort4Round {
+  type: 'speedSort4';
   players: Player[];
   correctOrder: Player[];
 }
 
-type MiniGame = Guess40Round | CombinedRepsRound | SpeedSort5Round;
+interface BenchSort3Round {
+  type: 'benchSort3';
+  players: BenchPlayer[];
+  correctOrder: BenchPlayer[];
+}
+
+type MiniGame = Guess40Round | CombinedRepsRound | SpeedSort4Round | BenchSort3Round;
 
 interface QuickRoundProps {
   fortyPlayers: Player[];
@@ -63,8 +69,8 @@ export default function QuickRound({ fortyPlayers, benchPlayers, posFilter, onQu
   const [repsGuess, setRepsGuess] = useState(50);
 
   // SpeedSort5 state — click-to-order + drag-to-reorder
-  const [sortOrder, setSortOrder] = useState<Player[]>([]); // players in order clicked
-  const [sortCards, setSortCards] = useState<Player[]>([]); // shuffled display order
+  const [sortOrder, setSortOrder] = useState<(Player | BenchPlayer)[]>([]); // players in order clicked
+  const [sortCards, setSortCards] = useState<(Player | BenchPlayer)[]>([]); // shuffled display order
   const dragSortRef = useRef<number | null>(null); // drag source index in sortOrder
 
   // Generate all rounds upfront
@@ -72,20 +78,21 @@ export default function QuickRound({ fortyPlayers, benchPlayers, posFilter, onQu
     const pool40 = posFilter ? fortyPlayers.filter(p => p.position === posFilter) : fortyPlayers;
     const poolBench = posFilter ? benchPlayers.filter(p => p.position === posFilter) : benchPlayers;
 
-    // Fixed distribution: 4x guess40, 3x speedSort5, 3x combinedReps
+    // Fixed distribution: 3x guess40, 3x speedSort4, 2x combinedReps, 2x benchSort3
     const distribution: MiniGameType[] = shuffle([
-      'guess40', 'guess40', 'guess40', 'guess40',
-      'speedSort5', 'speedSort5', 'speedSort5',
-      'combinedReps', 'combinedReps', 'combinedReps',
+      'guess40', 'guess40', 'guess40',
+      'speedSort4', 'speedSort4', 'speedSort4',
+      'combinedReps', 'combinedReps',
+      'benchSort3', 'benchSort3',
     ] as MiniGameType[]);
     const generatedRounds: MiniGame[] = [];
 
     for (let i = 0; i < TOTAL_ROUNDS; i++) {
-      // Use the fixed distribution, but fall back if not enough data
       let type = distribution[i] || 'guess40';
       if (type === 'guess40' && pool40.length < 1) type = 'combinedReps';
       if (type === 'combinedReps' && poolBench.length < 3) type = 'guess40';
-      if (type === 'speedSort5' && pool40.length < 5) type = 'guess40';
+      if (type === 'speedSort4' && pool40.length < 4) type = 'guess40';
+      if (type === 'benchSort3' && poolBench.length < 3) type = 'combinedReps';
 
       if (type === 'guess40') {
         const player = shuffle(pool40)[0];
@@ -93,10 +100,15 @@ export default function QuickRound({ fortyPlayers, benchPlayers, posFilter, onQu
       } else if (type === 'combinedReps') {
         const picked = shuffle(poolBench).slice(0, 3);
         generatedRounds.push({ type: 'combinedReps', players: picked, totalReps: picked.reduce((s, p) => s + p.benchReps, 0) });
-      } else {
-        const picked = shuffle(pool40).slice(0, 5);
+      } else if (type === 'speedSort4') {
+        const picked = shuffle(pool40).slice(0, 4);
         const correct = [...picked].sort((a, b) => a.forty - b.forty);
-        generatedRounds.push({ type: 'speedSort5', players: picked, correctOrder: correct });
+        generatedRounds.push({ type: 'speedSort4', players: picked, correctOrder: correct });
+      } else {
+        // benchSort3: sort 3 players by most to fewest bench reps
+        const picked = shuffle(poolBench).slice(0, 3);
+        const correct = [...picked].sort((a, b) => b.benchReps - a.benchReps);
+        generatedRounds.push({ type: 'benchSort3', players: picked, correctOrder: correct });
       }
     }
     setRounds(generatedRounds);
@@ -107,7 +119,7 @@ export default function QuickRound({ fortyPlayers, benchPlayers, posFilter, onQu
   const getTimerForGame = (game: MiniGame) => {
     if (game.type === 'guess40') return TIMER_GUESS40;
     if (game.type === 'combinedReps') return TIMER_COMBINED_REPS;
-    return TIMER_SPEED_SORT;
+    return TIMER_SPEED_SORT; // speedSort4 and benchSort3 both use 15s
   };
 
   // Reset state when round changes
@@ -117,7 +129,10 @@ export default function QuickRound({ fortyPlayers, benchPlayers, posFilter, onQu
     setTimeLeft(getTimerForGame(currentGame));
     setGuess40(4.75);
     setRepsGuess(50);
-    if (currentGame.type === 'speedSort5') {
+    if (currentGame.type === 'speedSort4') {
+      setSortOrder([]);
+      setSortCards(shuffle(currentGame.players));
+    } else if (currentGame.type === 'benchSort3') {
       setSortOrder([]);
       setSortCards(shuffle(currentGame.players));
     }
@@ -139,11 +154,16 @@ export default function QuickRound({ fortyPlayers, benchPlayers, posFilter, onQu
       const diff = Math.abs(repsGuess - currentGame.totalReps);
       knowsBall = diff <= 5;
       detail = `Guessed ${repsGuess} · Actual ${currentGame.totalReps} reps (off by ${diff})`;
-    } else if (currentGame.type === 'speedSort5') {
-      const allCorrect = sortOrder.length === 5 && sortOrder.every((p, i) => p.name === currentGame.correctOrder[i]?.name);
+    } else if (currentGame.type === 'speedSort4') {
+      const allCorrect = sortOrder.length === 4 && sortOrder.every((p, i) => p.name === currentGame.correctOrder[i]?.name);
       knowsBall = allCorrect;
       const numCorrect = sortOrder.filter((p, i) => p.name === currentGame.correctOrder[i]?.name).length;
-      detail = `${numCorrect}/5 correct`;
+      detail = `${numCorrect}/4 correct`;
+    } else if (currentGame.type === 'benchSort3') {
+      const allCorrect = sortOrder.length === 3 && sortOrder.every((p, i) => p.name === currentGame.correctOrder[i]?.name);
+      knowsBall = allCorrect;
+      const numCorrect = sortOrder.filter((p, i) => p.name === currentGame.correctOrder[i]?.name).length;
+      detail = `${numCorrect}/3 correct`;
     }
 
     if (knowsBall) {
@@ -155,9 +175,10 @@ export default function QuickRound({ fortyPlayers, benchPlayers, posFilter, onQu
 
     const question = currentGame.type === 'guess40' ? `Guess the 40: ${currentGame.player.name}`
       : currentGame.type === 'combinedReps' ? `Combined Reps: ${currentGame.players.map(p => p.name).join(', ')}`
-      : `Speed Sort 5`;
+      : currentGame.type === 'speedSort4' ? `Sort 40: Fastest→Slowest`
+      : `Sort Bench: Most→Fewest`;
 
-    setResults(r => [...r, { type: currentGame.type, question, knowsBall, detail }]);
+    setResults(r => [...r, { type: currentGame.type as string, question, knowsBall, detail }]);
   }, [revealed, currentGame, guess40, repsGuess, sortOrder]);
 
   const handleNext = useCallback(() => {
@@ -168,7 +189,8 @@ export default function QuickRound({ fortyPlayers, benchPlayers, posFilter, onQu
         setGameOver(true);
         const finalScore = score;
         const knowsBall = results.filter(r => r.knowsBall).length;
-        setShareMsg(`🏋️ Swolecast Combine Games\n\n${finalScore} pts · ${knowsBall}/${results.length} Knows Ball\n\n${results.map((r) => `${r.knowsBall ? '🏈' : '💀'} ${r.type === 'guess40' ? 'Guess the 40' : r.type === 'combinedReps' ? 'Combined Reps' : 'Speed Sort 5'}`).join('\n')}\n\nThink you Know Ball? 👉 swolecast.com`);
+        const gameLabel = (t: string) => t === 'guess40' ? '40 Time' : t === 'combinedReps' ? 'Reps' : t === 'speedSort4' ? 'Sort 40' : 'Sort Bench';
+        setShareMsg(`🏋️ Swolecast Combine Games\n\n${finalScore} pts · ${knowsBall}/${results.length} Knows Ball\n\n${results.map((r) => `${r.knowsBall ? '🏈' : '💀'} ${gameLabel(r.type)}`).join('\n')}\n\nThink you Know Ball? 👉 swolecast.com`);
       }, 2500);
       return;
     }
@@ -203,7 +225,7 @@ export default function QuickRound({ fortyPlayers, benchPlayers, posFilter, onQu
   }, [gameOver, revealed, handleSubmit, handleNext]);
 
   // SpeedSort5 click-to-order + drag-to-reorder
-  const handleSortCardClick = (player: Player) => {
+  const handleSortCardClick = (player: Player | BenchPlayer) => {
     if (revealed) return;
     const alreadyIdx = sortOrder.findIndex(p => p.name === player.name);
     if (alreadyIdx >= 0) {
@@ -232,14 +254,15 @@ export default function QuickRound({ fortyPlayers, benchPlayers, posFilter, onQu
     });
   };
 
-  const handleShare = async () => {
-    if (navigator.share) {
-      try { await navigator.share({ text: shareMsg }); } catch { /* cancelled */ }
-    } else {
-      await navigator.clipboard.writeText(shareMsg);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-    }
+  const handleShareX = () => {
+    const tweetText = encodeURIComponent(shareMsg);
+    window.open(`https://twitter.com/intent/tweet?text=${tweetText}`, '_blank');
+  };
+
+  const handleCopy = async () => {
+    await navigator.clipboard.writeText(shareMsg);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
   };
 
   const modeName = posFilter ? `${posFilter} CHALLENGE` : 'QUICK ROUND';
@@ -283,7 +306,7 @@ export default function QuickRound({ fortyPlayers, benchPlayers, posFilter, onQu
             {results.map((r, i) => (
               <div key={i} className={`rounded-xl p-3 flex justify-between items-center ${r.knowsBall ? 'bg-green-500/10 border border-green-500/20' : 'bg-red-500/10 border border-red-500/20'}`}>
                 <div>
-                  <span className="font-bold text-xs text-gray-400 uppercase mr-2">{r.type === 'guess40' ? '🏃 40 Time' : r.type === 'combinedReps' ? '💪 Reps' : '⚡ Sort'}</span>
+                  <span className="font-bold text-xs text-gray-400 uppercase mr-2">{r.type === 'guess40' ? '🏃 40 Time' : r.type === 'combinedReps' ? '💪 Reps' : r.type === 'speedSort4' ? '⚡ Sort 40' : '🏋️ Sort Bench'}</span>
                   <span className="text-sm text-gray-300">{r.detail}</span>
                 </div>
                 <div className={`text-sm font-black ${r.knowsBall ? 'text-green-400' : 'text-red-400'}`}>
@@ -297,10 +320,14 @@ export default function QuickRound({ fortyPlayers, benchPlayers, posFilter, onQu
         </div>
 
         {/* Action buttons */}
-        <div className="flex gap-4 w-full max-w-md">
-          <button onClick={handleShare}
-            className="flex-1 py-4 bg-gradient-to-r from-cyan-dark to-magenta-dark rounded-2xl font-black text-lg hover:opacity-90 transition-all hover:scale-105 text-white">
-            {copied ? '✅ Copied!' : '📤 Share Results'}
+        <div className="flex gap-3 w-full max-w-md">
+          <button onClick={handleShareX}
+            className="flex-1 py-4 bg-black border border-white/20 rounded-2xl font-black text-lg hover:bg-white/10 transition-all hover:scale-105 text-white flex items-center justify-center gap-2">
+            <span className="text-xl">𝕏</span> Post to X
+          </button>
+          <button onClick={handleCopy}
+            className="flex-1 py-4 bg-card border border-white/10 rounded-2xl font-bold text-lg hover:bg-card/80 transition-all text-gray-300">
+            {copied ? '✅ Copied!' : '📋 Copy'}
           </button>
         </div>
         <div className="flex gap-4 mt-3 w-full max-w-md">
@@ -351,7 +378,7 @@ export default function QuickRound({ fortyPlayers, benchPlayers, posFilter, onQu
 
         {/* Game type label */}
         <div className="text-xs uppercase tracking-[0.3em] text-gray-500 font-bold mb-4">
-          {currentGame.type === 'guess40' ? '🏃 GUESS THE 40' : currentGame.type === 'combinedReps' ? '💪 COMBINED REPS' : '⚡ SPEED SORT 5'}
+          {currentGame.type === 'guess40' ? '🏃 GUESS THE 40' : currentGame.type === 'combinedReps' ? '💪 COMBINED REPS' : currentGame.type === 'speedSort4' ? '⚡ SORT 40 TIME' : '🏋️ SORT BENCH PRESS'}
         </div>
 
         {/* === GUESS THE 40 === */}
@@ -419,36 +446,34 @@ export default function QuickRound({ fortyPlayers, benchPlayers, posFilter, onQu
           </div>
         )}
 
-        {/* === SPEED SORT 5 === */}
-        {currentGame.type === 'speedSort5' && (
+        {/* === SPEED SORT 4 (40 times) === */}
+        {currentGame.type === 'speedSort4' && (
           <div className="w-full max-w-4xl text-center">
-            <h3 className="text-xl font-bold text-gray-300 mb-4">Click players FASTEST → SLOWEST</h3>
+            <h3 className="text-xl font-bold text-gray-300 mb-6">Tap players <span className="text-highlight">FASTEST → SLOWEST</span></h3>
 
-            {/* Player cards — click to order */}
-            <div className="flex flex-wrap justify-center gap-3 mb-6">
+            <div className="flex justify-center gap-4 mb-6">
               {sortCards.map((p) => {
                 const orderIdx = sortOrder.findIndex(op => op.name === p.name);
                 const isPlaced = orderIdx >= 0;
                 const isCorrect = revealed && isPlaced && sortOrder[orderIdx]?.name === currentGame.correctOrder[orderIdx]?.name;
-                const isWrong = revealed && isPlaced && sortOrder[orderIdx]?.name !== currentGame.correctOrder[orderIdx]?.name;
+                const isWrong = revealed && isPlaced && !isCorrect;
                 return (
                   <div key={p.name} onClick={() => handleSortCardClick(p)}
-                    className={`relative bg-card border-2 rounded-xl p-4 w-44 cursor-pointer transition-all hover:scale-105 select-none
+                    className={`relative bg-card border-2 rounded-2xl p-5 w-48 cursor-pointer transition-all hover:scale-105 select-none
                       ${isCorrect ? 'border-green-500 bg-green-500/20' : isWrong ? 'border-red-500 bg-red-500/20' : isPlaced ? 'border-primary shadow-[0_0_15px_rgba(124,58,237,0.5)]' : 'border-gray-700 hover:border-primary/50'}`}>
                     {isPlaced && (
-                      <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-primary text-white font-black text-lg flex items-center justify-center shadow-lg">
+                      <div className="absolute -top-3 -right-3 w-9 h-9 rounded-full bg-primary text-white font-black text-xl flex items-center justify-center shadow-lg">
                         {orderIdx + 1}
                       </div>
                     )}
-                    <div className="text-lg font-black text-white">{p.name}</div>
-                    <div className="text-xs text-gray-400">{p.position}</div>
-                    {revealed && <div className={`text-lg font-black mt-1 ${isCorrect ? 'text-green-400' : 'text-red-400'}`}>{p.forty.toFixed(2)}s</div>}
+                    <div className="text-xl font-black text-white mb-1">{p.name}</div>
+                    <div className="text-sm text-gray-400">{(p as Player).position}</div>
+                    {revealed && <div className={`text-2xl font-black mt-2 ${isCorrect ? 'text-green-400' : 'text-red-400'}`}>{(p as Player).forty.toFixed(2)}s</div>}
                   </div>
                 );
               })}
             </div>
 
-            {/* Order preview — draggable to reorder */}
             {!revealed && sortOrder.length > 0 && (
               <div className="mb-4">
                 <div className="text-xs text-gray-500 mb-2">Your order (drag to reorder):</div>
@@ -467,7 +492,6 @@ export default function QuickRound({ fortyPlayers, benchPlayers, posFilter, onQu
               </div>
             )}
 
-            {/* Revealed correct order */}
             {revealed && (
               <div className="mt-4">
                 <div className="text-sm text-gray-500 mb-2">Correct order:</div>
@@ -476,7 +500,7 @@ export default function QuickRound({ fortyPlayers, benchPlayers, posFilter, onQu
                     <div key={p.name} className="bg-card border border-gray-700 rounded-lg px-3 py-1 text-sm">
                       <span className="font-black text-green-400 mr-1">{i + 1}.</span>
                       <span className="text-gray-300">{p.name}</span>
-                      <span className="text-gray-500 ml-1">{p.forty.toFixed(2)}s</span>
+                      <span className="text-gray-500 ml-1">{(p as Player).forty.toFixed(2)}s</span>
                     </div>
                   ))}
                 </div>
@@ -488,7 +512,79 @@ export default function QuickRound({ fortyPlayers, benchPlayers, posFilter, onQu
                 disabled={sortOrder.length === 0}
                 className={`mt-4 px-12 py-5 rounded-2xl text-2xl font-black transition-all
                   ${sortOrder.length > 0 ? 'bg-primary hover:bg-primary/80 hover:scale-105 animate-pulse-glow cursor-pointer' : 'bg-gray-700 text-gray-500 cursor-not-allowed'}`}>
-                🎯 LOCK IT IN {sortOrder.length < 5 && `(${sortOrder.length}/5)`}
+                🎯 LOCK IT IN {sortOrder.length < 4 && `(${sortOrder.length}/4)`}
+              </button>
+            )}
+          </div>
+        )}
+
+        {/* === BENCH SORT 3 === */}
+        {currentGame.type === 'benchSort3' && (
+          <div className="w-full max-w-3xl text-center">
+            <h3 className="text-xl font-bold text-gray-300 mb-6">Tap players <span className="text-highlight">MOST → FEWEST</span> bench reps</h3>
+
+            <div className="flex justify-center gap-5 mb-6">
+              {sortCards.map((p) => {
+                const orderIdx = sortOrder.findIndex(op => op.name === p.name);
+                const isPlaced = orderIdx >= 0;
+                const isCorrect = revealed && isPlaced && sortOrder[orderIdx]?.name === currentGame.correctOrder[orderIdx]?.name;
+                const isWrong = revealed && isPlaced && !isCorrect;
+                return (
+                  <div key={p.name} onClick={() => handleSortCardClick(p)}
+                    className={`relative bg-card border-2 rounded-2xl p-6 w-52 cursor-pointer transition-all hover:scale-105 select-none
+                      ${isCorrect ? 'border-green-500 bg-green-500/20' : isWrong ? 'border-red-500 bg-red-500/20' : isPlaced ? 'border-primary shadow-[0_0_15px_rgba(124,58,237,0.5)]' : 'border-gray-700 hover:border-primary/50'}`}>
+                    {isPlaced && (
+                      <div className="absolute -top-3 -right-3 w-9 h-9 rounded-full bg-primary text-white font-black text-xl flex items-center justify-center shadow-lg">
+                        {orderIdx + 1}
+                      </div>
+                    )}
+                    <div className="text-xl font-black text-white mb-1">{p.name}</div>
+                    <div className="text-sm text-gray-400">{(p as BenchPlayer).position}</div>
+                    {revealed && <div className={`text-2xl font-black mt-2 ${isCorrect ? 'text-green-400' : 'text-red-400'}`}>{(p as BenchPlayer).benchReps} reps</div>}
+                  </div>
+                );
+              })}
+            </div>
+
+            {!revealed && sortOrder.length > 0 && (
+              <div className="mb-4">
+                <div className="text-xs text-gray-500 mb-2">Your order (drag to reorder):</div>
+                <div className="flex justify-center gap-2">
+                  {sortOrder.map((p, i) => (
+                    <div key={p.name} draggable
+                      onDragStart={() => handleOrderDragStart(i)}
+                      onDragOver={e => handleOrderDragOver(e, i)}
+                      onDragEnd={() => { dragSortRef.current = null; }}
+                      className="bg-primary/20 border border-primary rounded-lg px-3 py-2 text-sm cursor-grab active:cursor-grabbing hover:bg-primary/30 transition-all select-none">
+                      <span className="font-black text-primary mr-1">{i + 1}.</span>
+                      <span className="text-white">{p.name}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {revealed && (
+              <div className="mt-4">
+                <div className="text-sm text-gray-500 mb-2">Correct order:</div>
+                <div className="flex justify-center gap-2">
+                  {currentGame.correctOrder.map((p, i) => (
+                    <div key={p.name} className="bg-card border border-gray-700 rounded-lg px-3 py-1 text-sm">
+                      <span className="font-black text-green-400 mr-1">{i + 1}.</span>
+                      <span className="text-gray-300">{p.name}</span>
+                      <span className="text-gray-500 ml-1">{(p as BenchPlayer).benchReps} reps</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {!revealed && (
+              <button onClick={handleSubmit}
+                disabled={sortOrder.length === 0}
+                className={`mt-4 px-12 py-5 rounded-2xl text-2xl font-black transition-all
+                  ${sortOrder.length > 0 ? 'bg-primary hover:bg-primary/80 hover:scale-105 animate-pulse-glow cursor-pointer' : 'bg-gray-700 text-gray-500 cursor-not-allowed'}`}>
+                🎯 LOCK IT IN {sortOrder.length < 3 && `(${sortOrder.length}/3)`}
               </button>
             )}
           </div>

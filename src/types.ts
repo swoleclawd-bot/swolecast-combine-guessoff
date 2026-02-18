@@ -27,7 +27,7 @@ export interface GuessResult {
 }
 
 export interface QuickRoundResult {
-  type: 'guess40' | 'combinedReps' | 'speedSort5';
+  type: string;
   question: string;
   knowsBall: boolean;
   detail: string;
