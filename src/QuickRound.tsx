@@ -163,14 +163,17 @@ export default function QuickRound({ fortyPlayers, benchPlayers, posFilter, onQu
   const handleNext = useCallback(() => {
     const next = currentRound + 1;
     if (next >= rounds.length) {
-      setGameOver(true);
-      const finalScore = score;
-      const modeName = posFilter ? `${posFilter} Challenge` : 'Quick Round';
-      setShareMsg(`I scored ${finalScore} points on the Swolecast Combine Games ${modeName}! 🏋️ Think you Know Ball? swolecast.com`);
+      // Delay before showing game over — let the last answer breathe
+      setTimeout(() => {
+        setGameOver(true);
+        const finalScore = score;
+        const knowsBall = results.filter(r => r.knowsBall).length;
+        setShareMsg(`🏋️ Swolecast Combine Games\n\n${finalScore} pts · ${knowsBall}/${results.length} Knows Ball\n\n${results.map((r) => `${r.knowsBall ? '🏈' : '💀'} ${r.type === 'guess40' ? 'Guess the 40' : r.type === 'combinedReps' ? 'Combined Reps' : 'Speed Sort 5'}`).join('\n')}\n\nThink you Know Ball? 👉 swolecast.com`);
+      }, 2500);
       return;
     }
     setCurrentRound(next);
-  }, [currentRound, rounds.length, score, posFilter]);
+  }, [currentRound, rounds.length, score, posFilter, results]);
 
   // Timer
   useEffect(() => {
@@ -246,40 +249,65 @@ export default function QuickRound({ fortyPlayers, benchPlayers, posFilter, onQu
   // Game Over
   if (gameOver) {
     const knowsBallCount = results.filter(r => r.knowsBall).length;
+    const rating = knowsBallCount >= 8 ? 'ELITE SCOUT 🏆' : knowsBallCount >= 6 ? 'KNOWS BALL 🏈' : knowsBallCount >= 4 ? 'GETTING THERE 📈' : 'BACK TO FILM ROOM 📺';
     return (
-      <div className="min-h-screen flex flex-col items-center p-8 max-w-4xl mx-auto">
-        <div className="flex items-center gap-3 mb-2"><img src="/swolecast-logo.png" alt="" className="h-10" /><span className="text-sm uppercase tracking-widest text-gray-500 font-bold">COMBINE GAMES</span></div>
-        <h2 className="text-6xl font-black text-highlight mb-4 mt-4">GAME OVER!</h2>
-        <p className="text-8xl font-black text-primary mb-2">{score} pts</p>
-        <p className="text-xl text-gray-400 mb-2">{knowsBallCount}/{results.length} Knows Ball</p>
+      <div className="min-h-screen flex flex-col items-center justify-center p-8 max-w-2xl mx-auto">
+        {/* Share Card — designed to look good as a screenshot too */}
+        <div className="w-full bg-gradient-to-br from-surface-light to-surface border border-white/10 rounded-3xl p-8 mb-8 shadow-2xl">
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <img src="/swolecast-logo.png" alt="" className="h-8" />
+            <span className="text-xs uppercase tracking-[0.3em] text-gray-500 font-bold">COMBINE GAMES</span>
+          </div>
 
-        <button onClick={handleShare}
-          className="mb-8 mt-4 px-8 py-4 bg-accent rounded-xl font-bold text-xl hover:bg-accent/80 transition-all hover:scale-105">
-          {copied ? '✅ Copied!' : '📤 Share'}
-        </button>
+          <div className="text-center mb-6">
+            <div className="text-7xl font-black text-white mb-1">{score}</div>
+            <div className="text-lg text-gray-400 font-bold">POINTS</div>
+          </div>
 
-        <div className="w-full mb-8">
-          <h3 className="font-bold text-2xl text-center mb-4">Round Summary</h3>
-          <div className="space-y-2">
+          <div className="text-center mb-6">
+            <div className="text-2xl font-black text-highlight">{rating}</div>
+            <div className="text-gray-400 mt-1">{knowsBallCount}/{results.length} Knows Ball</div>
+          </div>
+
+          {/* Mini result strip */}
+          <div className="flex justify-center gap-1 mb-6">
             {results.map((r, i) => (
-              <div key={i} className={`bg-card rounded-xl p-4 flex justify-between items-center ${r.knowsBall ? 'border-l-4 border-green-500' : 'border-l-4 border-red-500'}`}>
+              <div key={i} className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold ${r.knowsBall ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+                {r.knowsBall ? '🏈' : '💀'}
+              </div>
+            ))}
+          </div>
+
+          {/* Round details */}
+          <div className="space-y-2 mb-6">
+            {results.map((r, i) => (
+              <div key={i} className={`rounded-xl p-3 flex justify-between items-center ${r.knowsBall ? 'bg-green-500/10 border border-green-500/20' : 'bg-red-500/10 border border-red-500/20'}`}>
                 <div>
-                  <div className="font-bold text-sm text-gray-400 uppercase">{r.type === 'guess40' ? 'Guess the 40' : r.type === 'combinedReps' ? 'Combined Reps' : 'Speed Sort 5'}</div>
-                  <div className="text-sm text-gray-300">{r.detail}</div>
+                  <span className="font-bold text-xs text-gray-400 uppercase mr-2">{r.type === 'guess40' ? '🏃 40 Time' : r.type === 'combinedReps' ? '💪 Reps' : '⚡ Sort'}</span>
+                  <span className="text-sm text-gray-300">{r.detail}</span>
                 </div>
-                <div className={`text-2xl font-black ${r.knowsBall ? 'text-green-400' : 'text-red-400'}`}>
-                  {r.knowsBall ? '🏈 KNOWS BALL' : '💀 LEARN BALL'}
+                <div className={`text-sm font-black ${r.knowsBall ? 'text-green-400' : 'text-red-400'}`}>
+                  {r.knowsBall ? 'KNOWS BALL' : 'LEARN BALL'}
                 </div>
               </div>
             ))}
           </div>
+
+          <div className="text-center text-gray-600 text-xs">swolecast.com · Live a Little 🤙</div>
         </div>
 
-        <div className="flex gap-4">
-          <button onClick={() => { setGameOver(false); setResults([]); setScore(0); setCurrentRound(0); /* regenerate rounds */ window.location.reload(); }}
-            className="px-8 py-4 bg-primary rounded-xl font-bold text-xl hover:bg-primary/80 transition-all hover:scale-105">🔄 Play Again</button>
+        {/* Action buttons */}
+        <div className="flex gap-4 w-full max-w-md">
+          <button onClick={handleShare}
+            className="flex-1 py-4 bg-gradient-to-r from-cyan-dark to-magenta-dark rounded-2xl font-black text-lg hover:opacity-90 transition-all hover:scale-105 text-white">
+            {copied ? '✅ Copied!' : '📤 Share Results'}
+          </button>
+        </div>
+        <div className="flex gap-4 mt-3 w-full max-w-md">
+          <button onClick={() => { setGameOver(false); setResults([]); setScore(0); setCurrentRound(0); window.location.reload(); }}
+            className="flex-1 py-4 bg-card border border-white/10 rounded-2xl font-bold text-lg hover:bg-card/80 transition-all">🔄 Play Again</button>
           <button onClick={() => onQuit(score, results.length, posFilter ? `${posFilter} Challenge` : 'Quick Round')}
-            className="px-8 py-4 bg-card rounded-xl font-bold text-xl hover:bg-card/80 transition-all hover:scale-105">🏠 Menu</button>
+            className="flex-1 py-4 bg-card border border-white/10 rounded-2xl font-bold text-lg hover:bg-card/80 transition-all">🏠 Menu</button>
         </div>
       </div>
     );
