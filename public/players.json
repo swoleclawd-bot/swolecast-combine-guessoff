@@ -5,7 +5,8 @@
     "forty": 4.29,
     "year": 2016,
     "college": "West Alabama",
-    "team": "Kansas City Chiefs"
+    "team": "Kansas City Chiefs",
+    "source": "combine"
   },
   {
     "name": "Christian McCaffrey",
@@ -13,7 +14,8 @@
     "forty": 4.48,
     "year": 2017,
     "college": "Stanford",
-    "team": "Carolina Panthers"
+    "team": "Carolina Panthers",
+    "source": "combine"
   },
   {
     "name": "Josh Allen",
@@ -21,7 +23,8 @@
     "forty": 4.75,
     "year": 2018,
     "college": "Wyoming",
-    "team": "Buffalo Bills"
+    "team": "Buffalo Bills",
+    "source": "combine"
   },
   {
     "name": "Patrick Mahomes",
@@ -29,7 +32,8 @@
     "forty": 4.8,
     "year": 2017,
     "college": "Texas Tech",
-    "team": "Kansas City Chiefs"
+    "team": "Kansas City Chiefs",
+    "source": "combine"
   },
   {
     "name": "Justin Jefferson",
@@ -37,7 +41,8 @@
     "forty": 4.43,
     "year": 2020,
     "college": "LSU",
-    "team": "Minnesota Vikings"
+    "team": "Minnesota Vikings",
+    "source": "combine"
   },
   {
     "name": "Ja'Marr Chase",
@@ -45,7 +50,8 @@
     "forty": 4.38,
     "year": 2021,
     "college": "LSU",
-    "team": "Cincinnati Bengals"
+    "team": "Cincinnati Bengals",
+    "source": "proday"
   },
   {
     "name": "CeeDee Lamb",
@@ -53,7 +59,8 @@
     "forty": 4.5,
     "year": 2020,
     "college": "Oklahoma",
-    "team": "Dallas Cowboys"
+    "team": "Dallas Cowboys",
+    "source": "combine"
   },
   {
     "name": "Saquon Barkley",
@@ -61,7 +68,8 @@
     "forty": 4.4,
     "year": 2018,
     "college": "Penn State",
-    "team": "New York Giants"
+    "team": "New York Giants",
+    "source": "combine"
   },
   {
     "name": "Lamar Jackson",
@@ -69,7 +77,8 @@
     "forty": 4.34,
     "year": 2018,
     "college": "Louisville",
-    "team": "Baltimore Ravens"
+    "team": "Baltimore Ravens",
+    "source": "combine"
   },
   {
     "name": "DK Metcalf",
@@ -77,7 +86,8 @@
     "forty": 4.33,
     "year": 2019,
     "college": "Ole Miss",
-    "team": "Seattle Seahawks"
+    "team": "Seattle Seahawks",
+    "source": "combine"
   },
   {
     "name": "Derrick Henry",
@@ -85,7 +95,8 @@
     "forty": 4.54,
     "year": 2016,
     "college": "Alabama",
-    "team": "Tennessee Titans"
+    "team": "Tennessee Titans",
+    "source": "combine"
   },
   {
     "name": "Travis Kelce",
@@ -93,7 +104,8 @@
     "forty": 4.61,
     "year": 2013,
     "college": "Cincinnati",
-    "team": "Kansas City Chiefs"
+    "team": "Kansas City Chiefs",
+    "source": "combine"
   },
   {
     "name": "Tom Brady",
@@ -101,7 +113,8 @@
     "forty": 5.28,
     "year": 2000,
     "college": "Michigan",
-    "team": "New England Patriots"
+    "team": "New England Patriots",
+    "source": "combine"
   },
   {
     "name": "Jonathan Taylor",
@@ -109,7 +122,8 @@
     "forty": 4.39,
     "year": 2020,
     "college": "Wisconsin",
-    "team": "Indianapolis Colts"
+    "team": "Indianapolis Colts",
+    "source": "combine"
   },
   {
     "name": "Nick Chubb",
@@ -117,7 +131,8 @@
     "forty": 4.52,
     "year": 2018,
     "college": "Georgia",
-    "team": "Cleveland Browns"
+    "team": "Cleveland Browns",
+    "source": "combine"
   },
   {
     "name": "Kyler Murray",
@@ -125,7 +140,8 @@
     "forty": 4.48,
     "year": 2019,
     "college": "Oklahoma",
-    "team": "Arizona Cardinals"
+    "team": "Arizona Cardinals",
+    "source": "combine"
   },
   {
     "name": "Kyle Pitts",
@@ -133,7 +149,8 @@
     "forty": 4.44,
     "year": 2021,
     "college": "Florida",
-    "team": "Atlanta Falcons"
+    "team": "Atlanta Falcons",
+    "source": "combine"
   },
   {
     "name": "George Kittle",
@@ -141,7 +158,8 @@
     "forty": 4.52,
     "year": 2017,
     "college": "Iowa",
-    "team": "San Francisco 49ers"
+    "team": "San Francisco 49ers",
+    "source": "combine"
   },
   {
     "name": "Justin Herbert",
@@ -149,7 +167,8 @@
     "forty": 4.68,
     "year": 2020,
     "college": "Oregon",
-    "team": "Los Angeles Chargers"
+    "team": "Los Angeles Chargers",
+    "source": "combine"
   },
   {
     "name": "Joe Burrow",
@@ -157,7 +176,8 @@
     "forty": 4.89,
     "year": 2020,
     "college": "LSU",
-    "team": "Cincinnati Bengals"
+    "team": "Cincinnati Bengals",
+    "source": "combine"
   },
   {
     "name": "Jalen Hurts",
@@ -165,7 +185,8 @@
     "forty": 4.59,
     "year": 2020,
     "college": "Oklahoma",
-    "team": "Philadelphia Eagles"
+    "team": "Philadelphia Eagles",
+    "source": "combine"
   },
   {
     "name": "Davante Adams",
@@ -173,7 +194,8 @@
     "forty": 4.56,
     "year": 2014,
     "college": "Fresno State",
-    "team": "Green Bay Packers"
+    "team": "Green Bay Packers",
+    "source": "combine"
   },
   {
     "name": "Stefon Diggs",
@@ -181,7 +203,8 @@
     "forty": 4.46,
     "year": 2015,
     "college": "Maryland",
-    "team": "Minnesota Vikings"
+    "team": "Minnesota Vikings",
+    "source": "combine"
   },
   {
     "name": "A.J. Brown",
@@ -189,7 +212,8 @@
     "forty": 4.49,
     "year": 2019,
     "college": "Ole Miss",
-    "team": "Tennessee Titans"
+    "team": "Tennessee Titans",
+    "source": "combine"
   },
   {
     "name": "DeVonta Smith",
@@ -197,7 +221,8 @@
     "forty": 4.39,
     "year": 2021,
     "college": "Alabama",
-    "team": "Philadelphia Eagles"
+    "team": "Philadelphia Eagles",
+    "source": "combine"
   },
   {
     "name": "Jaylen Waddle",
@@ -205,7 +230,8 @@
     "forty": 4.37,
     "year": 2021,
     "college": "Alabama",
-    "team": "Miami Dolphins"
+    "team": "Miami Dolphins",
+    "source": "combine"
   },
   {
     "name": "Amon-Ra St. Brown",
@@ -213,7 +239,8 @@
     "forty": 4.51,
     "year": 2021,
     "college": "USC",
-    "team": "Detroit Lions"
+    "team": "Detroit Lions",
+    "source": "combine"
   },
   {
     "name": "Garrett Wilson",
@@ -221,7 +248,8 @@
     "forty": 4.38,
     "year": 2022,
     "college": "Ohio State",
-    "team": "New York Jets"
+    "team": "New York Jets",
+    "source": "combine"
   },
   {
     "name": "Chris Olave",
@@ -229,7 +257,8 @@
     "forty": 4.39,
     "year": 2022,
     "college": "Ohio State",
-    "team": "New Orleans Saints"
+    "team": "New Orleans Saints",
+    "source": "combine"
   },
   {
     "name": "Drake London",
@@ -237,7 +266,8 @@
     "forty": 4.56,
     "year": 2022,
     "college": "USC",
-    "team": "Atlanta Falcons"
+    "team": "Atlanta Falcons",
+    "source": "combine"
   },
   {
     "name": "Marvin Harrison Jr",
@@ -245,7 +275,8 @@
     "forty": 4.33,
     "year": 2024,
     "college": "Ohio State",
-    "team": "Arizona Cardinals"
+    "team": "Arizona Cardinals",
+    "source": "combine"
   },
   {
     "name": "Malik Nabers",
@@ -253,7 +284,8 @@
     "forty": 4.35,
     "year": 2024,
     "college": "LSU",
-    "team": "New York Giants"
+    "team": "New York Giants",
+    "source": "combine"
   },
   {
     "name": "Xavier Worthy",
@@ -261,7 +293,8 @@
     "forty": 4.21,
     "year": 2024,
     "college": "Texas",
-    "team": "Kansas City Chiefs"
+    "team": "Kansas City Chiefs",
+    "source": "combine"
   },
   {
     "name": "Rome Odunze",
@@ -269,7 +302,8 @@
     "forty": 4.45,
     "year": 2024,
     "college": "Washington",
-    "team": "Chicago Bears"
+    "team": "Chicago Bears",
+    "source": "combine"
   },
   {
     "name": "Bijan Robinson",
@@ -277,7 +311,8 @@
     "forty": 4.46,
     "year": 2023,
     "college": "Texas",
-    "team": "Atlanta Falcons"
+    "team": "Atlanta Falcons",
+    "source": "combine"
   },
   {
     "name": "Jahmyr Gibbs",
@@ -285,7 +320,8 @@
     "forty": 4.36,
     "year": 2023,
     "college": "Alabama",
-    "team": "Detroit Lions"
+    "team": "Detroit Lions",
+    "source": "combine"
   },
   {
     "name": "Breece Hall",
@@ -293,7 +329,8 @@
     "forty": 4.39,
     "year": 2022,
     "college": "Iowa State",
-    "team": "New York Jets"
+    "team": "New York Jets",
+    "source": "combine"
   },
   {
     "name": "Kenneth Walker III",
@@ -301,7 +338,8 @@
     "forty": 4.38,
     "year": 2022,
     "college": "Michigan State",
-    "team": "Seattle Seahawks"
+    "team": "Seattle Seahawks",
+    "source": "combine"
   },
   {
     "name": "Travis Etienne",
@@ -309,7 +347,8 @@
     "forty": 4.45,
     "year": 2021,
     "college": "Clemson",
-    "team": "Jacksonville Jaguars"
+    "team": "Jacksonville Jaguars",
+    "source": "combine"
   },
   {
     "name": "Najee Harris",
@@ -317,7 +356,8 @@
     "forty": 4.55,
     "year": 2021,
     "college": "Alabama",
-    "team": "Pittsburgh Steelers"
+    "team": "Pittsburgh Steelers",
+    "source": "combine"
   },
   {
     "name": "D'Andre Swift",
@@ -325,7 +365,8 @@
     "forty": 4.48,
     "year": 2020,
     "college": "Georgia",
-    "team": "Detroit Lions"
+    "team": "Detroit Lions",
+    "source": "combine"
   },
   {
     "name": "Josh Jacobs",
@@ -333,7 +374,8 @@
     "forty": 4.6,
     "year": 2019,
     "college": "Alabama",
-    "team": "Oakland Raiders"
+    "team": "Oakland Raiders",
+    "source": "combine"
   },
   {
     "name": "Austin Ekeler",
@@ -341,7 +383,8 @@
     "forty": 4.55,
     "year": 2017,
     "college": "Western Colorado",
-    "team": "LA Chargers UDFA"
+    "team": "LA Chargers UDFA",
+    "source": "combine"
   },
   {
     "name": "Devon Achane",
@@ -349,7 +392,8 @@
     "forty": 4.32,
     "year": 2023,
     "college": "Texas A&M",
-    "team": "Miami Dolphins"
+    "team": "Miami Dolphins",
+    "source": "combine"
   },
   {
     "name": "Isiah Pacheco",
@@ -357,7 +401,8 @@
     "forty": 4.37,
     "year": 2022,
     "college": "Rutgers",
-    "team": "Kansas City Chiefs"
+    "team": "Kansas City Chiefs",
+    "source": "combine"
   },
   {
     "name": "Ezekiel Elliott",
@@ -365,7 +410,8 @@
     "forty": 4.47,
     "year": 2016,
     "college": "Ohio State",
-    "team": "Dallas Cowboys"
+    "team": "Dallas Cowboys",
+    "source": "combine"
   },
   {
     "name": "Alvin Kamara",
@@ -373,7 +419,8 @@
     "forty": 4.56,
     "year": 2017,
     "college": "Tennessee",
-    "team": "New Orleans Saints"
+    "team": "New Orleans Saints",
+    "source": "combine"
   },
   {
     "name": "Dalvin Cook",
@@ -381,7 +428,8 @@
     "forty": 4.49,
     "year": 2017,
     "college": "Florida State",
-    "team": "Minnesota Vikings"
+    "team": "Minnesota Vikings",
+    "source": "combine"
   },
   {
     "name": "Mark Andrews",
@@ -389,7 +437,8 @@
     "forty": 4.67,
     "year": 2018,
     "college": "Oklahoma",
-    "team": "Baltimore Ravens"
+    "team": "Baltimore Ravens",
+    "source": "combine"
   },
   {
     "name": "T.J. Hockenson",
@@ -397,7 +446,8 @@
     "forty": 4.7,
     "year": 2019,
     "college": "Iowa",
-    "team": "Detroit Lions"
+    "team": "Detroit Lions",
+    "source": "combine"
   },
   {
     "name": "Sam LaPorta",
@@ -405,7 +455,8 @@
     "forty": 4.59,
     "year": 2023,
     "college": "Iowa",
-    "team": "Detroit Lions"
+    "team": "Detroit Lions",
+    "source": "combine"
   },
   {
     "name": "Brock Bowers",
@@ -413,7 +464,8 @@
     "forty": 4.49,
     "year": 2024,
     "college": "Georgia",
-    "team": "Las Vegas Raiders"
+    "team": "Las Vegas Raiders",
+    "source": "combine"
   },
   {
     "name": "Dalton Kincaid",
@@ -421,7 +473,8 @@
     "forty": 4.6,
     "year": 2023,
     "college": "Utah",
-    "team": "Buffalo Bills"
+    "team": "Buffalo Bills",
+    "source": "combine"
   },
   {
     "name": "CJ Stroud",
@@ -429,7 +482,8 @@
     "forty": 4.74,
     "year": 2023,
     "college": "Ohio State",
-    "team": "Houston Texans"
+    "team": "Houston Texans",
+    "source": "combine"
   },
   {
     "name": "Anthony Richardson",
@@ -437,7 +491,8 @@
     "forty": 4.43,
     "year": 2023,
     "college": "Florida",
-    "team": "Indianapolis Colts"
+    "team": "Indianapolis Colts",
+    "source": "combine"
   },
   {
     "name": "Caleb Williams",
@@ -445,7 +500,8 @@
     "forty": 4.56,
     "year": 2024,
     "college": "USC",
-    "team": "Chicago Bears"
+    "team": "Chicago Bears",
+    "source": "combine"
   },
   {
     "name": "Jayden Daniels",
@@ -453,7 +509,8 @@
     "forty": 4.47,
     "year": 2024,
     "college": "LSU",
-    "team": "Washington Commanders"
+    "team": "Washington Commanders",
+    "source": "combine"
   },
   {
     "name": "Tua Tagovailoa",
@@ -461,7 +518,8 @@
     "forty": 4.73,
     "year": 2020,
     "college": "Alabama",
-    "team": "Miami Dolphins"
+    "team": "Miami Dolphins",
+    "source": "combine"
   },
   {
     "name": "Justin Fields",
@@ -469,7 +527,8 @@
     "forty": 4.44,
     "year": 2021,
     "college": "Ohio State",
-    "team": "Chicago Bears"
+    "team": "Chicago Bears",
+    "source": "combine"
   },
   {
     "name": "Trevor Lawrence",
@@ -477,7 +536,8 @@
     "forty": 4.55,
     "year": 2021,
     "college": "Clemson",
-    "team": "Jacksonville Jaguars"
+    "team": "Jacksonville Jaguars",
+    "source": "combine"
   },
   {
     "name": "Dak Prescott",
@@ -485,7 +545,8 @@
     "forty": 4.79,
     "year": 2016,
     "college": "Mississippi State",
-    "team": "Dallas Cowboys"
+    "team": "Dallas Cowboys",
+    "source": "combine"
   },
   {
     "name": "Jaxon Smith-Njigba",
@@ -493,7 +554,8 @@
     "forty": 4.52,
     "year": 2023,
     "college": "Ohio State",
-    "team": "Seattle Seahawks"
+    "team": "Seattle Seahawks",
+    "source": "proday"
   },
   {
     "name": "Zay Flowers",
@@ -501,7 +563,8 @@
     "forty": 4.42,
     "year": 2023,
     "college": "Boston College",
-    "team": "Baltimore Ravens"
+    "team": "Baltimore Ravens",
+    "source": "combine"
   },
   {
     "name": "George Pickens",
@@ -509,7 +572,8 @@
     "forty": 4.47,
     "year": 2022,
     "college": "Georgia",
-    "team": "Pittsburgh Steelers"
+    "team": "Pittsburgh Steelers",
+    "source": "combine"
   },
   {
     "name": "Jameson Williams",
@@ -517,7 +581,8 @@
     "forty": 4.4,
     "year": 2022,
     "college": "Alabama",
-    "team": "Detroit Lions"
+    "team": "Detroit Lions",
+    "source": "combine"
   },
   {
     "name": "Jerry Jeudy",
@@ -525,7 +590,8 @@
     "forty": 4.45,
     "year": 2020,
     "college": "Alabama",
-    "team": "Denver Broncos"
+    "team": "Denver Broncos",
+    "source": "combine"
   },
   {
     "name": "Brandon Aiyuk",
@@ -533,7 +599,8 @@
     "forty": 4.5,
     "year": 2020,
     "college": "Arizona State",
-    "team": "San Francisco 49ers"
+    "team": "San Francisco 49ers",
+    "source": "combine"
   },
   {
     "name": "Terry McLaurin",
@@ -541,7 +608,8 @@
     "forty": 4.35,
     "year": 2019,
     "college": "Ohio State",
-    "team": "Washington Commanders"
+    "team": "Washington Commanders",
+    "source": "combine"
   },
   {
     "name": "Michael Thomas",
@@ -549,7 +617,8 @@
     "forty": 4.57,
     "year": 2016,
     "college": "Ohio State",
-    "team": "New Orleans Saints"
+    "team": "New Orleans Saints",
+    "source": "combine"
   },
   {
     "name": "Cooper Kupp",
@@ -557,7 +626,8 @@
     "forty": 4.62,
     "year": 2017,
     "college": "Eastern Washington",
-    "team": "Los Angeles Rams"
+    "team": "Los Angeles Rams",
+    "source": "combine"
   },
   {
     "name": "Deebo Samuel",
@@ -565,7 +635,8 @@
     "forty": 4.48,
     "year": 2019,
     "college": "South Carolina",
-    "team": "San Francisco 49ers"
+    "team": "San Francisco 49ers",
+    "source": "combine"
   },
   {
     "name": "Amari Cooper",
@@ -573,7 +644,8 @@
     "forty": 4.42,
     "year": 2015,
     "college": "Alabama",
-    "team": "Oakland Raiders"
+    "team": "Oakland Raiders",
+    "source": "combine"
   },
   {
     "name": "Henry Ruggs III",
@@ -581,7 +653,8 @@
     "forty": 4.27,
     "year": 2020,
     "college": "Alabama",
-    "team": "Las Vegas Raiders"
+    "team": "Las Vegas Raiders",
+    "source": "combine"
   },
   {
     "name": "John Ross",
@@ -589,7 +662,8 @@
     "forty": 4.22,
     "year": 2017,
     "college": "Washington",
-    "team": "Cincinnati Bengals"
+    "team": "Cincinnati Bengals",
+    "source": "combine"
   },
   {
     "name": "Mecole Hardman",
@@ -597,7 +671,8 @@
     "forty": 4.33,
     "year": 2019,
     "college": "Georgia",
-    "team": "Kansas City Chiefs"
+    "team": "Kansas City Chiefs",
+    "source": "combine"
   },
   {
     "name": "Marquise Brown",
@@ -605,7 +680,8 @@
     "forty": 4.32,
     "year": 2019,
     "college": "Oklahoma",
-    "team": "Baltimore Ravens"
+    "team": "Baltimore Ravens",
+    "source": "combine"
   },
   {
     "name": "Puka Nacua",
@@ -613,7 +689,8 @@
     "forty": 4.64,
     "year": 2023,
     "college": "BYU",
-    "team": "Los Angeles Rams"
+    "team": "Los Angeles Rams",
+    "source": "combine"
   },
   {
     "name": "Rashee Rice",
@@ -621,7 +698,8 @@
     "forty": 4.51,
     "year": 2023,
     "college": "SMU",
-    "team": "Kansas City Chiefs"
+    "team": "Kansas City Chiefs",
+    "source": "combine"
   },
   {
     "name": "Tank Dell",
@@ -629,7 +707,8 @@
     "forty": 4.49,
     "year": 2023,
     "college": "Houston",
-    "team": "Houston Texans"
+    "team": "Houston Texans",
+    "source": "combine"
   },
   {
     "name": "Trey Benson",
@@ -637,7 +716,8 @@
     "forty": 4.39,
     "year": 2024,
     "college": "Florida State",
-    "team": "Arizona Cardinals"
+    "team": "Arizona Cardinals",
+    "source": "combine"
   },
   {
     "name": "De'Von Achane",
@@ -645,7 +725,8 @@
     "forty": 4.32,
     "year": 2023,
     "college": "Texas A&M",
-    "team": "Miami Dolphins"
+    "team": "Miami Dolphins",
+    "source": "combine"
   },
   {
     "name": "Bhayshul Tuten",
@@ -653,7 +734,8 @@
     "forty": 4.32,
     "year": 2025,
     "college": "Virginia Tech",
-    "team": "Arizona Cardinals"
+    "team": "Arizona Cardinals",
+    "source": "combine"
   },
   {
     "name": "Omarion Hampton",
@@ -661,7 +743,8 @@
     "forty": 4.46,
     "year": 2025,
     "college": "North Carolina",
-    "team": "Cleveland Browns"
+    "team": "Cleveland Browns",
+    "source": "combine"
   },
   {
     "name": "Quinshon Judkins",
@@ -669,7 +752,8 @@
     "forty": 4.48,
     "year": 2025,
     "college": "Ohio State",
-    "team": "Los Angeles Chargers"
+    "team": "Los Angeles Chargers",
+    "source": "combine"
   },
   {
     "name": "TreVeyon Henderson",
@@ -677,7 +761,8 @@
     "forty": 4.43,
     "year": 2025,
     "college": "Ohio State",
-    "team": "Cincinnati Bengals"
+    "team": "Cincinnati Bengals",
+    "source": "combine"
   },
   {
     "name": "Luther Burden III",
@@ -685,7 +770,8 @@
     "forty": 4.41,
     "year": 2025,
     "college": "Missouri",
-    "team": "New England Patriots"
+    "team": "New England Patriots",
+    "source": "combine"
   },
   {
     "name": "Matthew Golden",
@@ -693,7 +779,8 @@
     "forty": 4.29,
     "year": 2025,
     "college": "Texas",
-    "team": "New York Giants"
+    "team": "New York Giants",
+    "source": "combine"
   },
   {
     "name": "Isaiah Bond",
@@ -701,7 +788,8 @@
     "forty": 4.39,
     "year": 2025,
     "college": "Texas",
-    "team": "Minnesota Vikings"
+    "team": "Minnesota Vikings",
+    "source": "combine"
   },
   {
     "name": "Jaylin Noel",
@@ -709,7 +797,8 @@
     "forty": 4.39,
     "year": 2025,
     "college": "Iowa State",
-    "team": "Pittsburgh Steelers"
+    "team": "Pittsburgh Steelers",
+    "source": "combine"
   },
   {
     "name": "Arian Smith",
@@ -717,7 +806,8 @@
     "forty": 4.36,
     "year": 2025,
     "college": "Georgia",
-    "team": "Buffalo Bills"
+    "team": "Buffalo Bills",
+    "source": "combine"
   },
   {
     "name": "Dont'e Thornton Jr.",
@@ -725,15 +815,17 @@
     "forty": 4.3,
     "year": 2025,
     "college": "Tennessee",
-    "team": "Denver Broncos"
+    "team": "Denver Broncos",
+    "source": "combine"
   },
   {
     "name": "Tre Harris",
     "position": "WR",
     "forty": 4.54,
     "year": 2025,
-    "college": "Mississippi",
-    "team": "Philadelphia Eagles"
+    "college": "Ole Miss",
+    "team": "Philadelphia Eagles",
+    "source": "combine"
   },
   {
     "name": "Gunnar Helm",
@@ -741,7 +833,8 @@
     "forty": 4.84,
     "year": 2025,
     "college": "Texas",
-    "team": "Atlanta Falcons"
+    "team": "Atlanta Falcons",
+    "source": "combine"
   },
   {
     "name": "Harold Fannin Jr.",
@@ -749,7 +842,8 @@
     "forty": 4.71,
     "year": 2025,
     "college": "Bowling Green",
-    "team": "Dallas Cowboys"
+    "team": "Dallas Cowboys",
+    "source": "combine"
   },
   {
     "name": "DJ Giddens",
@@ -757,7 +851,8 @@
     "forty": 4.43,
     "year": 2025,
     "college": "Kansas State",
-    "team": "Green Bay Packers"
+    "team": "Green Bay Packers",
+    "source": "combine"
   },
   {
     "name": "Donovan Edwards",
@@ -765,7 +860,8 @@
     "forty": 4.44,
     "year": 2025,
     "college": "Michigan",
-    "team": "Houston Texans"
+    "team": "Houston Texans",
+    "source": "combine"
   },
   {
     "name": "Jaylin Lane",
@@ -773,7 +869,8 @@
     "forty": 4.34,
     "year": 2025,
     "college": "Virginia Tech",
-    "team": "Jacksonville Jaguars"
+    "team": "Jacksonville Jaguars",
+    "source": "combine"
   },
   {
     "name": "Tai Felton",
@@ -781,7 +878,8 @@
     "forty": 4.37,
     "year": 2025,
     "college": "Maryland",
-    "team": "Baltimore Ravens"
+    "team": "Baltimore Ravens",
+    "source": "combine"
   },
   {
     "name": "Tahj Brooks",
@@ -789,7 +887,8 @@
     "forty": 4.52,
     "year": 2025,
     "college": "Texas Tech",
-    "team": "Indianapolis Colts"
+    "team": "Indianapolis Colts",
+    "source": "combine"
   },
   {
     "name": "RJ Harvey",
@@ -797,7 +896,8 @@
     "forty": 4.4,
     "year": 2025,
     "college": "UCF",
-    "team": "Miami Dolphins"
+    "team": "Miami Dolphins",
+    "source": "combine"
   },
   {
     "name": "Jarquez Hunter",
@@ -805,7 +905,8 @@
     "forty": 4.44,
     "year": 2025,
     "college": "Auburn",
-    "team": "Chicago Bears"
+    "team": "Chicago Bears",
+    "source": "combine"
   },
   {
     "name": "Cam Ward",
@@ -813,7 +914,8 @@
     "forty": 4.63,
     "year": 2025,
     "college": "Miami",
-    "team": "New York Giants"
+    "team": "New York Giants",
+    "source": "combine"
   },
   {
     "name": "Shedeur Sanders",
@@ -821,7 +923,8 @@
     "forty": 4.74,
     "year": 2025,
     "college": "Colorado",
-    "team": "Cleveland Browns"
+    "team": "Cleveland Browns",
+    "source": "combine"
   },
   {
     "name": "Isaac Guerendo",
@@ -829,7 +932,8 @@
     "forty": 4.33,
     "year": 2024,
     "college": "Louisville",
-    "team": "San Francisco 49ers"
+    "team": "San Francisco 49ers",
+    "source": "combine"
   },
   {
     "name": "Blake Corum",
@@ -837,7 +941,8 @@
     "forty": 4.53,
     "year": 2024,
     "college": "Michigan",
-    "team": "Los Angeles Rams"
+    "team": "Los Angeles Rams",
+    "source": "combine"
   },
   {
     "name": "Jaylen Wright",
@@ -845,7 +950,8 @@
     "forty": 4.38,
     "year": 2024,
     "college": "Tennessee",
-    "team": "Miami Dolphins"
+    "team": "Miami Dolphins",
+    "source": "combine"
   },
   {
     "name": "Tyrone Tracy",
@@ -853,7 +959,8 @@
     "forty": 4.48,
     "year": 2024,
     "college": "Purdue",
-    "team": "New York Giants"
+    "team": "New York Giants",
+    "source": "combine"
   },
   {
     "name": "Brian Thomas Jr.",
@@ -861,7 +968,8 @@
     "forty": 4.33,
     "year": 2024,
     "college": "LSU",
-    "team": "Jacksonville Jaguars"
+    "team": "Jacksonville Jaguars",
+    "source": "combine"
   },
   {
     "name": "Adonai Mitchell",
@@ -869,7 +977,8 @@
     "forty": 4.34,
     "year": 2024,
     "college": "Texas",
-    "team": "Indianapolis Colts"
+    "team": "Indianapolis Colts",
+    "source": "combine"
   },
   {
     "name": "Xavier Legette",
@@ -877,7 +986,8 @@
     "forty": 4.39,
     "year": 2024,
     "college": "South Carolina",
-    "team": "Carolina Panthers"
+    "team": "Carolina Panthers",
+    "source": "combine"
   },
   {
     "name": "Ladd McConkey",
@@ -885,7 +995,8 @@
     "forty": 4.39,
     "year": 2024,
     "college": "Georgia",
-    "team": "Los Angeles Chargers"
+    "team": "Los Angeles Chargers",
+    "source": "combine"
   },
   {
     "name": "Troy Franklin",
@@ -893,7 +1004,8 @@
     "forty": 4.41,
     "year": 2024,
     "college": "Oregon",
-    "team": "Denver Broncos"
+    "team": "Denver Broncos",
+    "source": "combine"
   },
   {
     "name": "Keon Coleman",
@@ -901,7 +1013,8 @@
     "forty": 4.61,
     "year": 2024,
     "college": "Florida State",
-    "team": "Buffalo Bills"
+    "team": "Buffalo Bills",
+    "source": "combine"
   },
   {
     "name": "Ricky Pearsall",
@@ -909,7 +1022,8 @@
     "forty": 4.41,
     "year": 2024,
     "college": "Florida",
-    "team": "San Francisco 49ers"
+    "team": "San Francisco 49ers",
+    "source": "combine"
   },
   {
     "name": "Ben Sinnott",
@@ -917,7 +1031,8 @@
     "forty": 4.68,
     "year": 2024,
     "college": "Kansas State",
-    "team": "Washington Commanders"
+    "team": "Washington Commanders",
+    "source": "combine"
   },
   {
     "name": "Bucky Irving",
@@ -925,7 +1040,8 @@
     "forty": 4.55,
     "year": 2024,
     "college": "Oregon",
-    "team": "Tampa Bay Buccaneers"
+    "team": "Tampa Bay Buccaneers",
+    "source": "combine"
   },
   {
     "name": "Audric Estime",
@@ -933,7 +1049,8 @@
     "forty": 4.71,
     "year": 2024,
     "college": "Notre Dame",
-    "team": "Denver Broncos"
+    "team": "Denver Broncos",
+    "source": "combine"
   },
   {
     "name": "Bo Nix",
@@ -941,7 +1058,8 @@
     "forty": 4.58,
     "year": 2024,
     "college": "Oregon",
-    "team": "Denver Broncos"
+    "team": "Denver Broncos",
+    "source": "combine"
   },
   {
     "name": "Michael Penix Jr.",
@@ -949,7 +1067,8 @@
     "forty": 4.66,
     "year": 2024,
     "college": "Washington",
-    "team": "Atlanta Falcons"
+    "team": "Atlanta Falcons",
+    "source": "combine"
   },
   {
     "name": "Chase Brown",
@@ -957,7 +1076,8 @@
     "forty": 4.43,
     "year": 2023,
     "college": "Illinois",
-    "team": "Cincinnati Bengals"
+    "team": "Cincinnati Bengals",
+    "source": "combine"
   },
   {
     "name": "Zach Charbonnet",
@@ -965,7 +1085,8 @@
     "forty": 4.53,
     "year": 2023,
     "college": "UCLA",
-    "team": "Seattle Seahawks"
+    "team": "Seattle Seahawks",
+    "source": "combine"
   },
   {
     "name": "Tank Bigsby",
@@ -973,7 +1094,8 @@
     "forty": 4.56,
     "year": 2023,
     "college": "Auburn",
-    "team": "Jacksonville Jaguars"
+    "team": "Jacksonville Jaguars",
+    "source": "combine"
   },
   {
     "name": "Tyjae Spears",
@@ -981,7 +1103,8 @@
     "forty": 4.54,
     "year": 2023,
     "college": "Tulane",
-    "team": "Tennessee Titans"
+    "team": "Tennessee Titans",
+    "source": "combine"
   },
   {
     "name": "Jalin Hyatt",
@@ -989,7 +1112,8 @@
     "forty": 4.4,
     "year": 2023,
     "college": "Tennessee",
-    "team": "New York Giants"
+    "team": "New York Giants",
+    "source": "combine"
   },
   {
     "name": "Trey Palmer",
@@ -997,7 +1121,8 @@
     "forty": 4.33,
     "year": 2023,
     "college": "Nebraska",
-    "team": "Tampa Bay Buccaneers"
+    "team": "Tampa Bay Buccaneers",
+    "source": "combine"
   },
   {
     "name": "Marvin Mims",
@@ -1005,15 +1130,17 @@
     "forty": 4.38,
     "year": 2023,
     "college": "Oklahoma",
-    "team": "Denver Broncos"
+    "team": "Denver Broncos",
+    "source": "combine"
   },
   {
     "name": "Jonathan Mingo",
     "position": "WR",
     "forty": 4.46,
     "year": 2023,
-    "college": "Mississippi",
-    "team": "Carolina Panthers"
+    "college": "Ole Miss",
+    "team": "Carolina Panthers",
+    "source": "combine"
   },
   {
     "name": "Nathaniel Dell",
@@ -1021,7 +1148,8 @@
     "forty": 4.49,
     "year": 2023,
     "college": "Houston",
-    "team": "Houston Texans"
+    "team": "Houston Texans",
+    "source": "combine"
   },
   {
     "name": "Josh Downs",
@@ -1029,7 +1157,8 @@
     "forty": 4.48,
     "year": 2023,
     "college": "North Carolina",
-    "team": "Indianapolis Colts"
+    "team": "Indianapolis Colts",
+    "source": "combine"
   },
   {
     "name": "Jayden Reed",
@@ -1037,7 +1166,8 @@
     "forty": 4.45,
     "year": 2023,
     "college": "Michigan State",
-    "team": "Green Bay Packers"
+    "team": "Green Bay Packers",
+    "source": "combine"
   },
   {
     "name": "Tucker Kraft",
@@ -1045,7 +1175,8 @@
     "forty": 4.69,
     "year": 2023,
     "college": "South Dakota State",
-    "team": "Green Bay Packers"
+    "team": "Green Bay Packers",
+    "source": "combine"
   },
   {
     "name": "Luke Musgrave",
@@ -1053,7 +1184,8 @@
     "forty": 4.61,
     "year": 2023,
     "college": "Oregon State",
-    "team": "Green Bay Packers"
+    "team": "Green Bay Packers",
+    "source": "combine"
   },
   {
     "name": "Michael Mayer",
@@ -1061,7 +1193,8 @@
     "forty": 4.7,
     "year": 2023,
     "college": "Notre Dame",
-    "team": "Las Vegas Raiders"
+    "team": "Las Vegas Raiders",
+    "source": "combine"
   },
   {
     "name": "Keaton Mitchell",
@@ -1069,7 +1202,8 @@
     "forty": 4.37,
     "year": 2023,
     "college": "East Carolina",
-    "team": "Baltimore Ravens"
+    "team": "Baltimore Ravens",
+    "source": "combine"
   },
   {
     "name": "Roschon Johnson",
@@ -1077,7 +1211,8 @@
     "forty": 4.58,
     "year": 2023,
     "college": "Texas",
-    "team": "Chicago Bears"
+    "team": "Chicago Bears",
+    "source": "combine"
   },
   {
     "name": "James Cook",
@@ -1085,7 +1220,8 @@
     "forty": 4.42,
     "year": 2022,
     "college": "Georgia",
-    "team": "Buffalo Bills"
+    "team": "Buffalo Bills",
+    "source": "combine"
   },
   {
     "name": "Dameon Pierce",
@@ -1093,7 +1229,8 @@
     "forty": 4.59,
     "year": 2022,
     "college": "Florida",
-    "team": "Houston Texans"
+    "team": "Houston Texans",
+    "source": "combine"
   },
   {
     "name": "Rachaad White",
@@ -1101,7 +1238,8 @@
     "forty": 4.48,
     "year": 2022,
     "college": "Arizona State",
-    "team": "Tampa Bay Buccaneers"
+    "team": "Tampa Bay Buccaneers",
+    "source": "combine"
   },
   {
     "name": "Christian Watson",
@@ -1109,7 +1247,8 @@
     "forty": 4.36,
     "year": 2022,
     "college": "North Dakota State",
-    "team": "Green Bay Packers"
+    "team": "Green Bay Packers",
+    "source": "combine"
   },
   {
     "name": "Tyquan Thornton",
@@ -1117,7 +1256,8 @@
     "forty": 4.28,
     "year": 2022,
     "college": "Baylor",
-    "team": "New England Patriots"
+    "team": "New England Patriots",
+    "source": "combine"
   },
   {
     "name": "Alec Pierce",
@@ -1125,7 +1265,8 @@
     "forty": 4.41,
     "year": 2022,
     "college": "Cincinnati",
-    "team": "Indianapolis Colts"
+    "team": "Indianapolis Colts",
+    "source": "combine"
   },
   {
     "name": "Jahan Dotson",
@@ -1133,7 +1274,8 @@
     "forty": 4.43,
     "year": 2022,
     "college": "Penn State",
-    "team": "Washington Commanders"
+    "team": "Washington Commanders",
+    "source": "combine"
   },
   {
     "name": "Skyy Moore",
@@ -1141,7 +1283,8 @@
     "forty": 4.41,
     "year": 2022,
     "college": "Western Michigan",
-    "team": "Kansas City Chiefs"
+    "team": "Kansas City Chiefs",
+    "source": "combine"
   },
   {
     "name": "Kenny Pickett",
@@ -1149,7 +1292,8 @@
     "forty": 4.73,
     "year": 2022,
     "college": "Pittsburgh",
-    "team": "Pittsburgh Steelers"
+    "team": "Pittsburgh Steelers",
+    "source": "combine"
   },
   {
     "name": "Greg Dulcich",
@@ -1157,7 +1301,8 @@
     "forty": 4.69,
     "year": 2022,
     "college": "UCLA",
-    "team": "Denver Broncos"
+    "team": "Denver Broncos",
+    "source": "combine"
   },
   {
     "name": "Tyler Allgeier",
@@ -1165,7 +1310,8 @@
     "forty": 4.6,
     "year": 2022,
     "college": "BYU",
-    "team": "Atlanta Falcons"
+    "team": "Atlanta Falcons",
+    "source": "combine"
   },
   {
     "name": "Jerome Ford",
@@ -1173,7 +1319,8 @@
     "forty": 4.46,
     "year": 2022,
     "college": "Cincinnati",
-    "team": "Cleveland Browns"
+    "team": "Cleveland Browns",
+    "source": "combine"
   },
   {
     "name": "Javonte Williams",
@@ -1181,7 +1328,8 @@
     "forty": 4.57,
     "year": 2021,
     "college": "North Carolina",
-    "team": "Denver Broncos"
+    "team": "Denver Broncos",
+    "source": "combine"
   },
   {
     "name": "Kadarius Toney",
@@ -1189,7 +1337,8 @@
     "forty": 4.38,
     "year": 2021,
     "college": "Florida",
-    "team": "New York Giants"
+    "team": "New York Giants",
+    "source": "combine"
   },
   {
     "name": "Elijah Mitchell",
@@ -1197,7 +1346,8 @@
     "forty": 4.35,
     "year": 2021,
     "college": "Louisiana-Lafayette",
-    "team": "San Francisco 49ers"
+    "team": "San Francisco 49ers",
+    "source": "combine"
   },
   {
     "name": "Rondale Moore",
@@ -1205,15 +1355,17 @@
     "forty": 4.32,
     "year": 2021,
     "college": "Purdue",
-    "team": "Arizona Cardinals"
+    "team": "Arizona Cardinals",
+    "source": "combine"
   },
   {
     "name": "Elijah Moore",
     "position": "WR",
     "forty": 4.35,
     "year": 2021,
-    "college": "Mississippi",
-    "team": "New York Jets"
+    "college": "Ole Miss",
+    "team": "New York Jets",
+    "source": "combine"
   },
   {
     "name": "Rashod Bateman",
@@ -1221,7 +1373,8 @@
     "forty": 4.43,
     "year": 2021,
     "college": "Minnesota",
-    "team": "Baltimore Ravens"
+    "team": "Baltimore Ravens",
+    "source": "combine"
   },
   {
     "name": "Rhamondre Stevenson",
@@ -1229,7 +1382,8 @@
     "forty": 4.64,
     "year": 2021,
     "college": "Oklahoma",
-    "team": "New England Patriots"
+    "team": "New England Patriots",
+    "source": "combine"
   },
   {
     "name": "Tutu Atwell",
@@ -1237,7 +1391,8 @@
     "forty": 4.39,
     "year": 2021,
     "college": "Louisville",
-    "team": "Los Angeles Rams"
+    "team": "Los Angeles Rams",
+    "source": "combine"
   },
   {
     "name": "Nico Collins",
@@ -1245,7 +1400,8 @@
     "forty": 4.45,
     "year": 2021,
     "college": "Michigan",
-    "team": "Houston Texans"
+    "team": "Houston Texans",
+    "source": "combine"
   },
   {
     "name": "Khalil Herbert",
@@ -1253,7 +1409,8 @@
     "forty": 4.5,
     "year": 2021,
     "college": "Virginia Tech",
-    "team": "Chicago Bears"
+    "team": "Chicago Bears",
+    "source": "combine"
   },
   {
     "name": "Kenneth Gainwell",
@@ -1261,7 +1418,8 @@
     "forty": 4.47,
     "year": 2021,
     "college": "Memphis",
-    "team": "Philadelphia Eagles"
+    "team": "Philadelphia Eagles",
+    "source": "combine"
   },
   {
     "name": "Dontayvion Wicks",
@@ -1269,7 +1427,8 @@
     "forty": 4.37,
     "year": 2023,
     "college": "Virginia",
-    "team": "Green Bay Packers"
+    "team": "Green Bay Packers",
+    "source": "combine"
   },
   {
     "name": "Marquise Goodwin",
@@ -1277,7 +1436,8 @@
     "forty": 4.27,
     "year": 2013,
     "college": "Texas",
-    "team": "Buffalo Bills"
+    "team": "Buffalo Bills",
+    "source": "combine"
   },
   {
     "name": "James Washington",
@@ -1285,7 +1445,8 @@
     "forty": 4.54,
     "year": 2018,
     "college": "Oklahoma State",
-    "team": "Pittsburgh Steelers"
+    "team": "Pittsburgh Steelers",
+    "source": "combine"
   },
   {
     "name": "Parris Campbell",
@@ -1293,7 +1454,8 @@
     "forty": 4.31,
     "year": 2019,
     "college": "Ohio State",
-    "team": "Indianapolis Colts"
+    "team": "Indianapolis Colts",
+    "source": "combine"
   },
   {
     "name": "Antonio Gibson",
@@ -1301,7 +1463,8 @@
     "forty": 4.39,
     "year": 2020,
     "college": "Memphis",
-    "team": "Washington Commanders"
+    "team": "Washington Commanders",
+    "source": "combine"
   },
   {
     "name": "James Proche",
@@ -1309,7 +1472,8 @@
     "forty": 4.42,
     "year": 2020,
     "college": "SMU",
-    "team": "Baltimore Ravens"
+    "team": "Baltimore Ravens",
+    "source": "combine"
   },
   {
     "name": "Darnell Mooney",
@@ -1317,7 +1481,8 @@
     "forty": 4.38,
     "year": 2020,
     "college": "Tulane",
-    "team": "Chicago Bears"
+    "team": "Chicago Bears",
+    "source": "combine"
   },
   {
     "name": "Simi Fehoko",
@@ -1325,7 +1490,8 @@
     "forty": 4.37,
     "year": 2021,
     "college": "Stanford",
-    "team": "Dallas Cowboys"
+    "team": "Dallas Cowboys",
+    "source": "combine"
   },
   {
     "name": "Khalil Shakir",
@@ -1333,7 +1499,8 @@
     "forty": 4.43,
     "year": 2022,
     "college": "Boise State",
-    "team": "Buffalo Bills"
+    "team": "Buffalo Bills",
+    "source": "combine"
   },
   {
     "name": "Jaelon Darden",
@@ -1341,7 +1508,8 @@
     "forty": 4.46,
     "year": 2021,
     "college": "North Texas",
-    "team": "Tampa Bay Buccaneers"
+    "team": "Tampa Bay Buccaneers",
+    "source": "combine"
   },
   {
     "name": "Frank Gore",
@@ -1349,7 +1517,8 @@
     "forty": 4.58,
     "year": 2005,
     "college": "Miami",
-    "team": "San Francisco 49ers"
+    "team": "San Francisco 49ers",
+    "source": "combine"
   },
   {
     "name": "Phillip Lindsay",
@@ -1357,7 +1526,8 @@
     "forty": 4.39,
     "year": 2018,
     "college": "Colorado",
-    "team": "Denver Broncos"
+    "team": "Denver Broncos",
+    "source": "combine"
   },
   {
     "name": "James Robinson",
@@ -1365,7 +1535,8 @@
     "forty": 4.64,
     "year": 2020,
     "college": "Illinois State",
-    "team": "Jacksonville UDFA"
+    "team": "Jacksonville UDFA",
+    "source": "combine"
   },
   {
     "name": "Tony Pollard",
@@ -1373,7 +1544,8 @@
     "forty": 4.44,
     "year": 2019,
     "college": "Memphis",
-    "team": "Dallas Cowboys"
+    "team": "Dallas Cowboys",
+    "source": "combine"
   },
   {
     "name": "Pierre Strong Jr.",
@@ -1381,7 +1553,8 @@
     "forty": 4.37,
     "year": 2022,
     "college": "South Dakota State",
-    "team": "New England Patriots"
+    "team": "New England Patriots",
+    "source": "combine"
   },
   {
     "name": "Tyler Badie",
@@ -1389,7 +1562,8 @@
     "forty": 4.45,
     "year": 2022,
     "college": "Missouri",
-    "team": "Baltimore Ravens"
+    "team": "Baltimore Ravens",
+    "source": "combine"
   },
   {
     "name": "Jake Ferguson",
@@ -1397,7 +1571,8 @@
     "forty": 4.76,
     "year": 2022,
     "college": "Wisconsin",
-    "team": "Dallas Cowboys"
+    "team": "Dallas Cowboys",
+    "source": "combine"
   },
   {
     "name": "Isaiah Likely",
@@ -1405,7 +1580,8 @@
     "forty": 4.72,
     "year": 2022,
     "college": "Coastal Carolina",
-    "team": "Baltimore Ravens"
+    "team": "Baltimore Ravens",
+    "source": "combine"
   },
   {
     "name": "Chig Okonkwo",
@@ -1413,7 +1589,8 @@
     "forty": 4.52,
     "year": 2022,
     "college": "Maryland",
-    "team": "Tennessee Titans"
+    "team": "Tennessee Titans",
+    "source": "combine"
   },
   {
     "name": "Trey McBride",
@@ -1421,7 +1598,8 @@
     "forty": 4.56,
     "year": 2022,
     "college": "Colorado State",
-    "team": "Arizona Cardinals"
+    "team": "Arizona Cardinals",
+    "source": "combine"
   },
   {
     "name": "Desmond Ridder",
@@ -1429,7 +1607,8 @@
     "forty": 4.52,
     "year": 2022,
     "college": "Cincinnati",
-    "team": "Atlanta Falcons"
+    "team": "Atlanta Falcons",
+    "source": "combine"
   },
   {
     "name": "Bailey Zappe",
@@ -1437,7 +1616,8 @@
     "forty": 4.86,
     "year": 2022,
     "college": "Western Kentucky",
-    "team": "New England Patriots"
+    "team": "New England Patriots",
+    "source": "combine"
   },
   {
     "name": "Malik Willis",
@@ -1445,7 +1625,8 @@
     "forty": 4.47,
     "year": 2022,
     "college": "Liberty",
-    "team": "Tennessee Titans"
+    "team": "Tennessee Titans",
+    "source": "combine"
   },
   {
     "name": "Sam Howell",
@@ -1453,7 +1634,8 @@
     "forty": 4.82,
     "year": 2022,
     "college": "North Carolina",
-    "team": "Washington Commanders"
+    "team": "Washington Commanders",
+    "source": "combine"
   },
   {
     "name": "Rico Dowdle",
@@ -1461,7 +1643,8 @@
     "forty": 4.49,
     "year": 2020,
     "college": "South Carolina",
-    "team": "Dallas Cowboys"
+    "team": "Dallas Cowboys",
+    "source": "combine"
   },
   {
     "name": "Jordan Mason",
@@ -1469,7 +1652,8 @@
     "forty": 4.52,
     "year": 2022,
     "college": "Georgia Tech",
-    "team": "San Francisco 49ers"
+    "team": "San Francisco 49ers",
+    "source": "combine"
   },
   {
     "name": "Raheem Mostert",
@@ -1477,7 +1661,8 @@
     "forty": 4.34,
     "year": 2015,
     "college": "Purdue",
-    "team": "Miami UDFA"
+    "team": "Miami UDFA",
+    "source": "combine"
   },
   {
     "name": "Jamaal Williams",
@@ -1485,7 +1670,8 @@
     "forty": 4.59,
     "year": 2017,
     "college": "BYU",
-    "team": "Green Bay Packers"
+    "team": "Green Bay Packers",
+    "source": "combine"
   },
   {
     "name": "Rex Burkhead",
@@ -1493,7 +1679,8 @@
     "forty": 4.73,
     "year": 2013,
     "college": "Nebraska",
-    "team": "Cincinnati Bengals"
+    "team": "Cincinnati Bengals",
+    "source": "combine"
   },
   {
     "name": "Adam Thielen",
@@ -1501,7 +1688,8 @@
     "forty": 4.45,
     "year": 2013,
     "college": "Minnesota State",
-    "team": "Minnesota UDFA"
+    "team": "Minnesota UDFA",
+    "source": "combine"
   },
   {
     "name": "Scotty Miller",
@@ -1509,7 +1697,8 @@
     "forty": 4.39,
     "year": 2019,
     "college": "Bowling Green",
-    "team": "Tampa Bay Buccaneers"
+    "team": "Tampa Bay Buccaneers",
+    "source": "combine"
   },
   {
     "name": "KJ Hamler",
@@ -1517,7 +1706,8 @@
     "forty": 4.32,
     "year": 2020,
     "college": "Penn State",
-    "team": "Denver Broncos"
+    "team": "Denver Broncos",
+    "source": "combine"
   },
   {
     "name": "JuJu Smith-Schuster",
@@ -1525,7 +1715,8 @@
     "forty": 4.54,
     "year": 2017,
     "college": "USC",
-    "team": "Pittsburgh Steelers"
+    "team": "Pittsburgh Steelers",
+    "source": "combine"
   },
   {
     "name": "Calvin Ridley",
@@ -1533,7 +1724,8 @@
     "forty": 4.43,
     "year": 2018,
     "college": "Alabama",
-    "team": "Atlanta Falcons"
+    "team": "Atlanta Falcons",
+    "source": "combine"
   },
   {
     "name": "DJ Moore",
@@ -1541,7 +1733,8 @@
     "forty": 4.42,
     "year": 2018,
     "college": "Maryland",
-    "team": "Carolina Panthers"
+    "team": "Carolina Panthers",
+    "source": "combine"
   },
   {
     "name": "Antonio Callaway",
@@ -1549,7 +1742,8 @@
     "forty": 4.41,
     "year": 2018,
     "college": "Florida",
-    "team": "Cleveland Browns"
+    "team": "Cleveland Browns",
+    "source": "combine"
   },
   {
     "name": "Zay Jones",
@@ -1557,7 +1751,8 @@
     "forty": 4.45,
     "year": 2017,
     "college": "East Carolina",
-    "team": "Buffalo Bills"
+    "team": "Buffalo Bills",
+    "source": "combine"
   },
   {
     "name": "Curtis Samuel",
@@ -1565,7 +1760,8 @@
     "forty": 4.31,
     "year": 2016,
     "college": "Ohio State",
-    "team": "Carolina Panthers"
+    "team": "Carolina Panthers",
+    "source": "combine"
   },
   {
     "name": "Will Fuller",
@@ -1573,7 +1769,8 @@
     "forty": 4.32,
     "year": 2016,
     "college": "Notre Dame",
-    "team": "Houston Texans"
+    "team": "Houston Texans",
+    "source": "combine"
   },
   {
     "name": "Corey Davis",
@@ -1581,7 +1778,8 @@
     "forty": 4.47,
     "year": 2017,
     "college": "Western Michigan",
-    "team": "Tennessee Titans"
+    "team": "Tennessee Titans",
+    "source": "combine"
   },
   {
     "name": "Chris Godwin",
@@ -1589,7 +1787,8 @@
     "forty": 4.42,
     "year": 2017,
     "college": "Penn State",
-    "team": "Tampa Bay Buccaneers"
+    "team": "Tampa Bay Buccaneers",
+    "source": "combine"
   },
   {
     "name": "JJ Arcega-Whiteside",
@@ -1597,7 +1796,8 @@
     "forty": 4.49,
     "year": 2019,
     "college": "Stanford",
-    "team": "Philadelphia Eagles"
+    "team": "Philadelphia Eagles",
+    "source": "combine"
   },
   {
     "name": "Miles Boykin",
@@ -1605,7 +1805,8 @@
     "forty": 4.42,
     "year": 2019,
     "college": "Notre Dame",
-    "team": "Baltimore Ravens"
+    "team": "Baltimore Ravens",
+    "source": "combine"
   },
   {
     "name": "Parris Campbell",
@@ -1613,7 +1814,8 @@
     "forty": 4.31,
     "year": 2019,
     "college": "Ohio State",
-    "team": "Indianapolis Colts"
+    "team": "Indianapolis Colts",
+    "source": "combine"
   },
   {
     "name": "Diontae Johnson",
@@ -1621,7 +1823,8 @@
     "forty": 4.53,
     "year": 2019,
     "college": "Toledo",
-    "team": "Pittsburgh Steelers"
+    "team": "Pittsburgh Steelers",
+    "source": "combine"
   },
   {
     "name": "Hunter Renfrow",
@@ -1629,7 +1832,8 @@
     "forty": 4.59,
     "year": 2019,
     "college": "Clemson",
-    "team": "Oakland Raiders"
+    "team": "Oakland Raiders",
+    "source": "combine"
   },
   {
     "name": "Preston Williams",
@@ -1637,7 +1841,8 @@
     "forty": 4.54,
     "year": 2019,
     "college": "Colorado State",
-    "team": "Miami UDFA"
+    "team": "Miami UDFA",
+    "source": "combine"
   },
   {
     "name": "Darius Slayton",
@@ -1645,7 +1850,8 @@
     "forty": 4.39,
     "year": 2019,
     "college": "Auburn",
-    "team": "New York Giants"
+    "team": "New York Giants",
+    "source": "combine"
   },
   {
     "name": "Jakobi Meyers",
@@ -1653,7 +1859,8 @@
     "forty": 4.63,
     "year": 2019,
     "college": "NC State",
-    "team": "New England UDFA"
+    "team": "New England UDFA",
+    "source": "combine"
   },
   {
     "name": "Laviska Shenault Jr.",
@@ -1661,7 +1868,8 @@
     "forty": 4.58,
     "year": 2020,
     "college": "Colorado",
-    "team": "Jacksonville Jaguars"
+    "team": "Jacksonville Jaguars",
+    "source": "combine"
   },
   {
     "name": "Chase Claypool",
@@ -1669,7 +1877,8 @@
     "forty": 4.42,
     "year": 2020,
     "college": "Notre Dame",
-    "team": "Pittsburgh Steelers"
+    "team": "Pittsburgh Steelers",
+    "source": "combine"
   },
   {
     "name": "Michael Pittman Jr.",
@@ -1677,7 +1886,8 @@
     "forty": 4.52,
     "year": 2020,
     "college": "USC",
-    "team": "Indianapolis Colts"
+    "team": "Indianapolis Colts",
+    "source": "combine"
   },
   {
     "name": "Van Jefferson",
@@ -1685,7 +1895,8 @@
     "forty": 4.43,
     "year": 2020,
     "college": "Florida",
-    "team": "Los Angeles Rams"
+    "team": "Los Angeles Rams",
+    "source": "combine"
   },
   {
     "name": "Gabriel Davis",
@@ -1693,7 +1904,8 @@
     "forty": 4.54,
     "year": 2020,
     "college": "UCF",
-    "team": "Buffalo Bills"
+    "team": "Buffalo Bills",
+    "source": "combine"
   },
   {
     "name": "Denzel Mims",
@@ -1701,7 +1913,8 @@
     "forty": 4.38,
     "year": 2020,
     "college": "Baylor",
-    "team": "New York Jets"
+    "team": "New York Jets",
+    "source": "combine"
   },
   {
     "name": "Antonio Brown",
@@ -1709,7 +1922,8 @@
     "forty": 4.56,
     "year": 2010,
     "college": "Central Michigan",
-    "team": "Pittsburgh Steelers"
+    "team": "Pittsburgh Steelers",
+    "source": "combine"
   },
   {
     "name": "Randall Cobb",
@@ -1717,7 +1931,8 @@
     "forty": 4.46,
     "year": 2011,
     "college": "Kentucky",
-    "team": "Green Bay Packers"
+    "team": "Green Bay Packers",
+    "source": "combine"
   },
   {
     "name": "Pierre Garcon",
@@ -1725,7 +1940,8 @@
     "forty": 4.43,
     "year": 2008,
     "college": "Mount Union",
-    "team": "Indianapolis Colts"
+    "team": "Indianapolis Colts",
+    "source": "combine"
   },
   {
     "name": "Victor Cruz",
@@ -1733,7 +1949,8 @@
     "forty": 4.53,
     "year": 2010,
     "college": "UMass",
-    "team": "New York Giants UDFA"
+    "team": "New York Giants UDFA",
+    "source": "combine"
   },
   {
     "name": "Wes Welker",
@@ -1741,7 +1958,8 @@
     "forty": 4.65,
     "year": 2004,
     "college": "Texas Tech",
-    "team": "New England UDFA"
+    "team": "New England UDFA",
+    "source": "combine"
   },
   {
     "name": "Julian Edelman",
@@ -1749,7 +1967,8 @@
     "forty": 4.52,
     "year": 2009,
     "college": "Kent State",
-    "team": "New England Patriots"
+    "team": "New England Patriots",
+    "source": "combine"
   },
   {
     "name": "Robert Woods",
@@ -1757,7 +1976,8 @@
     "forty": 4.51,
     "year": 2013,
     "college": "USC",
-    "team": "Buffalo Bills"
+    "team": "Buffalo Bills",
+    "source": "combine"
   },
   {
     "name": "Tyler Lockett",
@@ -1765,7 +1985,8 @@
     "forty": 4.4,
     "year": 2015,
     "college": "Kansas State",
-    "team": "Seattle Seahawks"
+    "team": "Seattle Seahawks",
+    "source": "combine"
   },
   {
     "name": "Doug Baldwin",
@@ -1773,7 +1994,8 @@
     "forty": 4.53,
     "year": 2011,
     "college": "Stanford",
-    "team": "Seattle UDFA"
+    "team": "Seattle UDFA",
+    "source": "combine"
   },
   {
     "name": "Golden Tate",
@@ -1781,7 +2003,8 @@
     "forty": 4.42,
     "year": 2010,
     "college": "Notre Dame",
-    "team": "Seattle Seahawks"
+    "team": "Seattle Seahawks",
+    "source": "combine"
   },
   {
     "name": "Nelson Agholor",
@@ -1789,7 +2012,8 @@
     "forty": 4.42,
     "year": 2015,
     "college": "USC",
-    "team": "Philadelphia Eagles"
+    "team": "Philadelphia Eagles",
+    "source": "combine"
   },
   {
     "name": "Brandin Cooks",
@@ -1797,7 +2021,8 @@
     "forty": 4.33,
     "year": 2014,
     "college": "Oregon State",
-    "team": "New Orleans Saints"
+    "team": "New Orleans Saints",
+    "source": "combine"
   },
   {
     "name": "Allen Robinson",
@@ -1805,7 +2030,8 @@
     "forty": 4.6,
     "year": 2014,
     "college": "Penn State",
-    "team": "Jacksonville Jaguars"
+    "team": "Jacksonville Jaguars",
+    "source": "combine"
   },
   {
     "name": "Jarvis Landry",
@@ -1813,7 +2039,8 @@
     "forty": 4.61,
     "year": 2014,
     "college": "LSU",
-    "team": "Miami Dolphins"
+    "team": "Miami Dolphins",
+    "source": "combine"
   },
   {
     "name": "Marqise Lee",
@@ -1821,7 +2048,8 @@
     "forty": 4.47,
     "year": 2014,
     "college": "USC",
-    "team": "Jacksonville Jaguars"
+    "team": "Jacksonville Jaguars",
+    "source": "combine"
   },
   {
     "name": "Kelvin Benjamin",
@@ -1829,7 +2057,8 @@
     "forty": 4.61,
     "year": 2014,
     "college": "Florida State",
-    "team": "Carolina Panthers"
+    "team": "Carolina Panthers",
+    "source": "combine"
   },
   {
     "name": "Mike Evans",
@@ -1837,6 +2066,7 @@
     "forty": 4.53,
     "year": 2014,
     "college": "Texas A&M",
-    "team": "Tampa Bay Buccaneers"
+    "team": "Tampa Bay Buccaneers",
+    "source": "combine"
   }
 ]
