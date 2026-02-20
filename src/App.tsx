@@ -6,6 +6,7 @@ import SpeedSort from './SpeedSort';
 import BenchSort from './BenchSort';
 import QuickRound from './QuickRound';
 import SchoolMatch from './SchoolMatch';
+import DraftSort from './DraftSort';
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -276,25 +277,31 @@ export default function App() {
         </div>
 
         <div className="flex flex-col items-center gap-4 lg:gap-6 w-full max-w-5xl mb-6 lg:mb-8">
-          {/* Speed Sort variants — PRIMARY */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:gap-6 w-full max-w-4xl">
+          {/* Sort Games — PRIMARY */}
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-6 w-full max-w-5xl">
             <button onClick={() => setMode('speedsort')}
-              className="py-8 px-6 lg:py-12 lg:px-10 bg-card hover:bg-primary/20 rounded-2xl text-center transition-all hover:scale-105 animate-pulse-glow border-2 border-primary/40 hover:border-primary flex flex-col items-center">
-              <div className="text-5xl lg:text-7xl font-black text-white mb-2 lg:mb-3 leading-none w-full text-center">40</div>
-              <div className="text-2xl lg:text-3xl font-black text-primary mb-1 lg:mb-2">Speed Sort</div>
-              <div className="text-gray-400 text-base lg:text-lg">Sort fastest → slowest · 3 lives</div>
+              className="py-8 px-6 lg:py-12 lg:px-8 bg-card hover:bg-primary/20 rounded-2xl text-center transition-all hover:scale-105 animate-pulse-glow border-2 border-primary/40 hover:border-primary flex flex-col items-center">
+              <div className="text-5xl lg:text-6xl font-black text-white mb-2 lg:mb-3 leading-none w-full text-center">40</div>
+              <div className="text-xl lg:text-2xl font-black text-primary mb-1 lg:mb-2">Speed Sort</div>
+              <div className="text-gray-400 text-sm lg:text-base">Sort fastest → slowest</div>
             </button>
             <button onClick={() => setMode('benchsort')}
-              className="py-8 px-6 lg:py-12 lg:px-10 bg-card hover:bg-accent/20 rounded-2xl text-center transition-all hover:scale-105 animate-pulse-glow border-2 border-accent/40 hover:border-accent flex flex-col items-center">
-              <div className="text-5xl lg:text-7xl font-black text-white mb-2 lg:mb-3 leading-none w-full text-center">225</div>
-              <div className="text-2xl lg:text-3xl font-black text-accent mb-1 lg:mb-2">Bench Sort</div>
-              <div className="text-gray-400 text-base lg:text-lg">Sort most → fewest reps · 3 lives</div>
+              className="py-8 px-6 lg:py-12 lg:px-8 bg-card hover:bg-accent/20 rounded-2xl text-center transition-all hover:scale-105 animate-pulse-glow border-2 border-accent/40 hover:border-accent flex flex-col items-center">
+              <div className="text-5xl lg:text-6xl font-black text-white mb-2 lg:mb-3 leading-none w-full text-center">225</div>
+              <div className="text-xl lg:text-2xl font-black text-accent mb-1 lg:mb-2">Bench Sort</div>
+              <div className="text-gray-400 text-sm lg:text-base">Sort most → fewest reps</div>
+            </button>
+            <button onClick={() => setMode('draftsort')}
+              className="py-8 px-6 lg:py-12 lg:px-8 bg-card hover:bg-green-500/20 rounded-2xl text-center transition-all hover:scale-105 animate-pulse-glow border-2 border-green-500/40 hover:border-green-500 flex flex-col items-center">
+              <div className="text-5xl lg:text-6xl font-black text-white mb-2 lg:mb-3 leading-none w-full text-center">📋</div>
+              <div className="text-xl lg:text-2xl font-black text-green-400 mb-1 lg:mb-2">Draft Sort</div>
+              <div className="text-gray-400 text-sm lg:text-base">Sort by draft round</div>
             </button>
             <button onClick={() => setMode('schoolmatch')}
-              className="py-8 px-6 lg:py-12 lg:px-10 bg-card hover:bg-highlight/20 rounded-2xl text-center transition-all hover:scale-105 animate-pulse-glow border-2 border-highlight/40 hover:border-highlight flex flex-col items-center">
-              <div className="text-5xl lg:text-7xl font-black text-white mb-2 lg:mb-3 leading-none w-full text-center">🎓</div>
-              <div className="text-2xl lg:text-3xl font-black text-highlight mb-1 lg:mb-2">School Match</div>
-              <div className="text-gray-400 text-base lg:text-lg">Match 10 players to colleges</div>
+              className="py-8 px-6 lg:py-12 lg:px-8 bg-card hover:bg-highlight/20 rounded-2xl text-center transition-all hover:scale-105 animate-pulse-glow border-2 border-highlight/40 hover:border-highlight flex flex-col items-center">
+              <div className="text-5xl lg:text-6xl font-black text-white mb-2 lg:mb-3 leading-none w-full text-center">🎓</div>
+              <div className="text-xl lg:text-2xl font-black text-highlight mb-1 lg:mb-2">School Match</div>
+              <div className="text-gray-400 text-sm lg:text-base">Match players to colleges</div>
             </button>
           </div>
 
@@ -363,6 +370,11 @@ export default function App() {
   // School Match mode
   if (mode === 'schoolmatch') {
     return <SchoolMatch allPlayers={allPlayers} onQuit={() => setMode('menu')} />;
+  }
+
+  // Draft Sort mode
+  if (mode === 'draftsort') {
+    return <DraftSort onQuit={() => setMode('menu')} />;
   }
 
   // Game Over — wide layout (for endless mode)

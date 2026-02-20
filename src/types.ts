@@ -16,6 +16,16 @@ export interface BenchPlayer {
   team: string;
 }
 
+export interface DraftPlayer {
+  name: string;
+  position: string;
+  draftRound: number;
+  draftPick: number;
+  draftYear: number;
+  college: string;
+  team: string;
+}
+
 export interface GuessResult {
   player: Player;
   guess: number;
@@ -33,5 +43,5 @@ export interface QuickRoundResult {
   detail: string;
 }
 
-export type GameMode = 'menu' | 'quick' | 'endless' | 'position' | 'speedsort' | 'benchsort' | 'schoolmatch';
+export type GameMode = 'menu' | 'quick' | 'endless' | 'position' | 'speedsort' | 'benchsort' | 'schoolmatch' | 'draftsort';
 export type Position = 'WR' | 'RB' | 'TE' | 'QB';

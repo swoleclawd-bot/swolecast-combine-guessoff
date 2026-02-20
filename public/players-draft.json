@@ -1,0 +1,191 @@
+[
+  {
+    "name": "Saquon Barkley",
+    "position": "RB",
+    "draftRound": 1,
+    "draftPick": 2,
+    "draftYear": 2018,
+    "college": "Penn State",
+    "team": "New York Giants"
+  },
+  {
+    "name": "Ja'Marr Chase",
+    "position": "WR",
+    "draftRound": 1,
+    "draftPick": 5,
+    "draftYear": 2021,
+    "college": "LSU",
+    "team": "Cincinnati Bengals"
+  },
+  {
+    "name": "Justin Jefferson",
+    "position": "WR",
+    "draftRound": 1,
+    "draftPick": 22,
+    "draftYear": 2020,
+    "college": "LSU",
+    "team": "Minnesota Vikings"
+  },
+  {
+    "name": "Breece Hall",
+    "position": "RB",
+    "draftRound": 2,
+    "draftPick": 36,
+    "draftYear": 2022,
+    "college": "Iowa State",
+    "team": "New York Jets"
+  },
+  {
+    "name": "AJ Brown",
+    "position": "WR",
+    "draftRound": 2,
+    "draftPick": 51,
+    "draftYear": 2019,
+    "college": "Ole Miss",
+    "team": "Tennessee Titans"
+  },
+  {
+    "name": "DK Metcalf",
+    "position": "WR",
+    "draftRound": 2,
+    "draftPick": 64,
+    "draftYear": 2019,
+    "college": "Ole Miss",
+    "team": "Seattle Seahawks"
+  },
+  {
+    "name": "Cooper Kupp",
+    "position": "WR",
+    "draftRound": 3,
+    "draftPick": 69,
+    "draftYear": 2017,
+    "college": "Eastern Washington",
+    "team": "Los Angeles Rams"
+  },
+  {
+    "name": "David Montgomery",
+    "position": "RB",
+    "draftRound": 3,
+    "draftPick": 73,
+    "draftYear": 2019,
+    "college": "Iowa State",
+    "team": "Chicago Bears"
+  },
+  {
+    "name": "Russell Wilson",
+    "position": "QB",
+    "draftRound": 3,
+    "draftPick": 75,
+    "draftYear": 2012,
+    "college": "Wisconsin",
+    "team": "Seattle Seahawks"
+  },
+  {
+    "name": "Kirk Cousins",
+    "position": "QB",
+    "draftRound": 4,
+    "draftPick": 102,
+    "draftYear": 2012,
+    "college": "Michigan State",
+    "team": "Washington Redskins"
+  },
+  {
+    "name": "Dak Prescott",
+    "position": "QB",
+    "draftRound": 4,
+    "draftPick": 135,
+    "draftYear": 2016,
+    "college": "Mississippi State",
+    "team": "Dallas Cowboys"
+  },
+  {
+    "name": "Dalton Schultz",
+    "position": "TE",
+    "draftRound": 4,
+    "draftPick": 137,
+    "draftYear": 2018,
+    "college": "Stanford",
+    "team": "Dallas Cowboys"
+  },
+  {
+    "name": "George Kittle",
+    "position": "TE",
+    "draftRound": 5,
+    "draftPick": 146,
+    "draftYear": 2017,
+    "college": "Iowa",
+    "team": "San Francisco 49ers"
+  },
+  {
+    "name": "Richard Sherman",
+    "position": "CB",
+    "draftRound": 5,
+    "draftPick": 154,
+    "draftYear": 2011,
+    "college": "Stanford",
+    "team": "Seattle Seahawks"
+  },
+  {
+    "name": "Tyreek Hill",
+    "position": "WR",
+    "draftRound": 5,
+    "draftPick": 165,
+    "draftYear": 2016,
+    "college": "West Alabama",
+    "team": "Kansas City Chiefs"
+  },
+  {
+    "name": "Alfred Morris",
+    "position": "RB",
+    "draftRound": 6,
+    "draftPick": 173,
+    "draftYear": 2012,
+    "college": "Florida Atlantic",
+    "team": "Washington Redskins"
+  },
+  {
+    "name": "Antonio Brown",
+    "position": "WR",
+    "draftRound": 6,
+    "draftPick": 195,
+    "draftYear": 2010,
+    "college": "Central Michigan",
+    "team": "Pittsburgh Steelers"
+  },
+  {
+    "name": "Tom Brady",
+    "position": "QB",
+    "draftRound": 6,
+    "draftPick": 199,
+    "draftYear": 2000,
+    "college": "Michigan",
+    "team": "New England Patriots"
+  },
+  {
+    "name": "Julian Edelman",
+    "position": "WR",
+    "draftRound": 7,
+    "draftPick": 232,
+    "draftYear": 2009,
+    "college": "Kent State",
+    "team": "New England Patriots"
+  },
+  {
+    "name": "Marques Colston",
+    "position": "WR",
+    "draftRound": 7,
+    "draftPick": 252,
+    "draftYear": 2006,
+    "college": "Hofstra",
+    "team": "New Orleans Saints"
+  },
+  {
+    "name": "Brock Purdy",
+    "position": "QB",
+    "draftRound": 7,
+    "draftPick": 262,
+    "draftYear": 2022,
+    "college": "Iowa State",
+    "team": "San Francisco 49ers"
+  }
+]
