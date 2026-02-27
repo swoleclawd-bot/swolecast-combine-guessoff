@@ -7,7 +7,7 @@ import BenchSort from './BenchSort';
 import QuickRound from './QuickRound';
 import SchoolMatch from './SchoolMatch';
 import DraftSort from './DraftSort';
-import Leaderboard, { normalizeGameMode, recordLeaderboardScore } from './Leaderboard';
+import Leaderboard, { normalizeGameMode, recordLeaderboardScore, getPlayerName, setPlayerName } from './Leaderboard';
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -133,7 +133,20 @@ export default function App() {
   const [positionSelectMode, setPositionSelectMode] = useState(false);
   const [showLeaderboard, setShowLeaderboard] = useState(false);
   const [currentLeaderboardEntryId, setCurrentLeaderboardEntryId] = useState<string | null>(null);
+  const [playerName, setPlayerNameState] = useState('');
+  const [editingName, setEditingName] = useState(false);
+  const [nameInput, setNameInput] = useState('');
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  // Load player name from localStorage on mount
+  useEffect(() => {
+    const saved = getPlayerName();
+    setPlayerNameState(saved);
+    // If no name set yet, prompt for one
+    if (!saved || saved === 'Player') {
+      setEditingName(true);
+    }
+  }, []);
 
   useEffect(() => {
     fetch('/players.json').then(r => r.json()).then((data: Player[]) => {
@@ -295,6 +308,52 @@ export default function App() {
             <span className="text-accent">COMBINE GAMES</span> 💪
           </h1>
           <p className="text-highlight mt-2 lg:mt-4 text-lg lg:text-2xl italic font-medium animate-glow-pulse">No Research, No Filter, All Vibes</p>
+        </div>
+
+        {/* Player Name Bar */}
+        <div className="w-full max-w-md mb-4 lg:mb-6">
+          {editingName ? (
+            <div className="flex gap-2 items-center bg-card border-2 border-accent/50 rounded-xl p-3">
+              <span className="text-gray-400 text-sm shrink-0">Your name:</span>
+              <input
+                type="text"
+                value={nameInput}
+                onChange={e => setNameInput(e.target.value.slice(0, 20))}
+                onKeyDown={e => {
+                  if (e.key === 'Enter' && nameInput.trim()) {
+                    const saved = setPlayerName(nameInput.trim());
+                    setPlayerNameState(saved);
+                    setEditingName(false);
+                  }
+                }}
+                placeholder="Enter your name..."
+                autoFocus
+                className="flex-1 bg-transparent border-none outline-none text-white font-bold text-lg placeholder-gray-600"
+                maxLength={20}
+              />
+              <button
+                onClick={() => {
+                  if (nameInput.trim()) {
+                    const saved = setPlayerName(nameInput.trim());
+                    setPlayerNameState(saved);
+                    setEditingName(false);
+                  }
+                }}
+                className="px-4 py-2 bg-accent rounded-lg font-bold text-sm hover:bg-accent/80 min-h-[36px]"
+              >
+                Save
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => { setNameInput(playerName); setEditingName(true); }}
+              className="w-full flex items-center justify-center gap-2 bg-card/50 border border-gray-700 rounded-xl px-4 py-2 hover:border-accent/50 transition-colors"
+            >
+              <span className="text-gray-400 text-sm">Playing as</span>
+              <span className="text-white font-bold">{playerName}</span>
+              <span className="text-gray-500 text-xs">✏️</span>
+            </button>
+          )}
         </div>
 
         <div className="flex flex-col items-center gap-4 lg:gap-6 w-full max-w-5xl mb-6 lg:mb-8">

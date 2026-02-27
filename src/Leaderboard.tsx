@@ -85,8 +85,7 @@ export function ensurePlayerName(): string {
   if (!isBrowser()) return 'Player';
   const existing = localStorage.getItem(PLAYER_NAME_KEY);
   if (existing && existing.trim()) return existing;
-  const entered = window.prompt('Enter your player name for the leaderboard:', 'Player') || 'Player';
-  return setPlayerName(entered);
+  return 'Player';
 }
 
 export function normalizeGameMode(mode: string): LeaderboardGameMode {
