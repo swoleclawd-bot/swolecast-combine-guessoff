@@ -1,5 +1,5 @@
 import { kv } from '@vercel/kv';
-import { MAX_LEADERBOARD_ENTRIES, getLeaderboardKey, isReadGameMode, parseStoredEntry } from './_lib/leaderboard';
+import { MAX_LEADERBOARD_ENTRIES, getLeaderboardKey, isReadGameMode, parseStoredEntry, type StoredLeaderboardEntry } from './_lib/leaderboard.js';
 
 type RequestLike = {
   method?: string;
@@ -31,8 +31,8 @@ export default async function handler(req: RequestLike, res: ResponseLike): Prom
   const values = await kv.zrange<string[]>(key, 0, MAX_LEADERBOARD_ENTRIES - 1, { rev: true });
 
   const scores = values
-    .map(parseStoredEntry)
-    .filter((entry): entry is NonNullable<typeof entry> => entry !== null)
+    .map((v) => parseStoredEntry(v))
+    .filter((entry): entry is StoredLeaderboardEntry => entry !== null)
     .map((entry, index) => ({
       playerName: entry.playerName,
       score: entry.score,

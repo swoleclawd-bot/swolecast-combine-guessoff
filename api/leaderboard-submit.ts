@@ -6,7 +6,7 @@ import {
   isStoredGameMode,
   sanitizePlayerName,
   sanitizeScore,
-} from './_lib/leaderboard';
+} from './_lib/leaderboard.js';
 
 type RequestLike = {
   method?: string;
