@@ -15,7 +15,7 @@ function shuffle<T>(arr: T[]): T[] {
 interface SchoolMatchProps {
   allPlayers: Player[];
   onQuit: () => void;
-  onRecordScore: (score: number) => string;
+  onRecordScore: (score: number) => Promise<string>;
 }
 
 interface TierResult {
@@ -81,6 +81,7 @@ export default function SchoolMatch({ allPlayers, onQuit, onRecordScore }: Schoo
   const [shareText, setShareText] = useState('');
   const [copied, setCopied] = useState(false);
   const [leaderboardEntryId, setLeaderboardEntryId] = useState<string | null>(null);
+  const [leaderboardRefreshKey, setLeaderboardRefreshKey] = useState(0);
   const scoreRecordedRef = useRef(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -277,7 +278,11 @@ export default function SchoolMatch({ allPlayers, onQuit, onRecordScore }: Schoo
     if (!gameOver || scoreRecordedRef.current || tierResults.length === 0) return;
     const totalPoints = tierResults.reduce((sum, r) => sum + r.points, 0);
     scoreRecordedRef.current = true;
-    setLeaderboardEntryId(onRecordScore(totalPoints));
+    // Await the submit, then refresh the leaderboard
+    onRecordScore(totalPoints).then(id => {
+      setLeaderboardEntryId(id);
+      setLeaderboardRefreshKey(k => k + 1);
+    });
   }, [gameOver, onRecordScore, tierResults]);
 
   const handleShare = async () => {
@@ -405,7 +410,7 @@ export default function SchoolMatch({ allPlayers, onQuit, onRecordScore }: Schoo
             className="flex-1 py-3 lg:py-4 bg-card border border-white/10 rounded-2xl font-bold text-base lg:text-lg hover:bg-card/80 transition-all min-h-[44px]">🏠 Menu</button>
         </div>
         <div className="w-full mt-4">
-          <Leaderboard compact mode="School Match" currentEntryId={leaderboardEntryId} title="School Match Leaderboard" />
+          <Leaderboard compact mode="School Match" currentEntryId={leaderboardEntryId} title="School Match Leaderboard" refreshKey={leaderboardRefreshKey} />
         </div>
       </div>
     );

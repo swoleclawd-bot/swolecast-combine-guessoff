@@ -23,7 +23,7 @@ function shuffle<T>(arr: T[]): T[] {
 
 interface DraftSortProps {
   onQuit: () => void;
-  onRecordScore: (score: number) => string;
+  onRecordScore: (score: number) => Promise<string>;
 }
 
 type RoundSlots = { [round: number]: DraftPlayer[] };
@@ -215,7 +215,7 @@ export default function DraftSort({ onQuit, onRecordScore }: DraftSortProps) {
   useEffect(() => {
     if (!revealed || scoreRecordedRef.current) return;
     scoreRecordedRef.current = true;
-    setLeaderboardEntryId(onRecordScore(score));
+    onRecordScore(score).then(id => setLeaderboardEntryId(id));
   }, [onRecordScore, revealed, score]);
 
   if (!allPlayers.length) {

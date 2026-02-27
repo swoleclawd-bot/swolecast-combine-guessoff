@@ -17,7 +17,7 @@ type PositionFilter = 'All' | 'QB' | 'RB' | 'WR' | 'TE';
 interface SpeedSortProps {
   allPlayers: Player[];
   onQuit: () => void;
-  onRecordScore: (score: number) => string;
+  onRecordScore: (score: number) => Promise<string>;
 }
 
 type SlotState = (Player | null)[];
@@ -190,7 +190,7 @@ export default function SpeedSort({ allPlayers, onQuit, onRecordScore }: SpeedSo
   useEffect(() => {
     if (!gameOver || scoreRecordedRef.current) return;
     scoreRecordedRef.current = true;
-    setLeaderboardEntryId(onRecordScore(score));
+    onRecordScore(score).then(id => setLeaderboardEntryId(id));
   }, [gameOver, onRecordScore, score]);
 
   if (gameOver) {

@@ -187,8 +187,9 @@ export default function App() {
     setGameOver(true);
     const modeLabel = mode === 'quick' ? 'Quick Round' : mode === 'position' ? `${posFilter} Challenge` : 'Endless';
     setShareText(`I scored ${score} points on the Swolecast Combine Games ${modeLabel}! 🏋️ Think you Know Ball? swolecast.com`);
-    const entry = recordLeaderboardScore('Endless', score);
-    setCurrentLeaderboardEntryId(entry.id);
+    recordLeaderboardScore('Endless', score).then(entry => {
+      setCurrentLeaderboardEntryId(entry.id);
+    });
   }, [score, mode, posFilter]);
 
   const handleSubmit = useCallback(() => {
@@ -437,32 +438,32 @@ export default function App() {
 
   // Quick Round mode
   if (mode === 'quick') {
-    return <QuickRound fortyPlayers={allPlayers} benchPlayers={benchPlayers} onQuit={() => setMode('menu')} onRecordScore={(gameMode, finalScore) => recordLeaderboardScore(normalizeGameMode(gameMode), finalScore).id} />;
+    return <QuickRound fortyPlayers={allPlayers} benchPlayers={benchPlayers} onQuit={() => setMode('menu')} onRecordScore={async (gameMode, finalScore) => (await recordLeaderboardScore(normalizeGameMode(gameMode), finalScore)).id} />;
   }
 
   // Position Challenge mode
   if (mode === 'position') {
-    return <QuickRound fortyPlayers={allPlayers} benchPlayers={benchPlayers} posFilter={posFilter || undefined} onQuit={() => setMode('menu')} onRecordScore={(gameMode, finalScore) => recordLeaderboardScore(normalizeGameMode(gameMode), finalScore).id} />;
+    return <QuickRound fortyPlayers={allPlayers} benchPlayers={benchPlayers} posFilter={posFilter || undefined} onQuit={() => setMode('menu')} onRecordScore={async (gameMode, finalScore) => (await recordLeaderboardScore(normalizeGameMode(gameMode), finalScore)).id} />;
   }
 
   // Speed Sort mode
   if (mode === 'speedsort') {
-    return <SpeedSort allPlayers={allPlayers} onQuit={() => setMode('menu')} onRecordScore={(finalScore) => recordLeaderboardScore('Speed Sort', finalScore).id} />;
+    return <SpeedSort allPlayers={allPlayers} onQuit={() => setMode('menu')} onRecordScore={async (finalScore) => (await recordLeaderboardScore('Speed Sort', finalScore)).id} />;
   }
 
   // Bench Sort mode
   if (mode === 'benchsort') {
-    return <BenchSort onQuit={() => setMode('menu')} onRecordScore={(finalScore) => recordLeaderboardScore('Bench Sort', finalScore).id} />;
+    return <BenchSort onQuit={() => setMode('menu')} onRecordScore={async (finalScore) => (await recordLeaderboardScore('Bench Sort', finalScore)).id} />;
   }
 
   // School Match mode
   if (mode === 'schoolmatch') {
-    return <SchoolMatch allPlayers={allPlayers} onQuit={() => setMode('menu')} onRecordScore={(finalScore) => recordLeaderboardScore('School Match', finalScore).id} />;
+    return <SchoolMatch allPlayers={allPlayers} onQuit={() => setMode('menu')} onRecordScore={async (finalScore) => (await recordLeaderboardScore('School Match', finalScore)).id} />;
   }
 
   // Draft Sort mode
   if (mode === 'draftsort') {
-    return <DraftSort onQuit={() => setMode('menu')} onRecordScore={(finalScore) => recordLeaderboardScore('Draft Sort', finalScore).id} />;
+    return <DraftSort onQuit={() => setMode('menu')} onRecordScore={async (finalScore) => (await recordLeaderboardScore('Draft Sort', finalScore)).id} />;
   }
 
   // Game Over — wide layout (for endless mode)

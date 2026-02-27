@@ -123,9 +123,9 @@ function writeLeaderboard(entries: LeaderboardEntry[]): void {
   localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(entries));
 }
 
-async function submitLeaderboardScore(entry: LeaderboardEntry): Promise<void> {
+export async function submitLeaderboardScore(entry: LeaderboardEntry): Promise<boolean> {
   try {
-    await fetch('/api/leaderboard-submit', {
+    const res = await fetch('/api/leaderboard-submit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -134,8 +134,9 @@ async function submitLeaderboardScore(entry: LeaderboardEntry): Promise<void> {
         score: entry.score,
       }),
     });
+    return res.ok;
   } catch {
-    // Local storage remains the offline fallback if the network/API is unavailable.
+    return false;
   }
 }
 
@@ -167,7 +168,7 @@ export function rankForEntry(entries: LeaderboardEntry[], entry: LeaderboardEntr
   return scoped.findIndex((e) => e.id === entry.id) + 1;
 }
 
-export function recordLeaderboardScore(gameMode: LeaderboardGameMode, score: number): LeaderboardEntry {
+export async function recordLeaderboardScore(gameMode: LeaderboardGameMode, score: number): Promise<LeaderboardEntry> {
   const playerName = ensurePlayerName();
   const entry: LeaderboardEntry = {
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
@@ -180,7 +181,7 @@ export function recordLeaderboardScore(gameMode: LeaderboardGameMode, score: num
   const entries = readLeaderboard();
   entries.push(entry);
   writeLeaderboard(entries);
-  void submitLeaderboardScore(entry);
+  await submitLeaderboardScore(entry);
 
   return entry;
 }
@@ -190,9 +191,10 @@ interface LeaderboardProps {
   mode?: LeaderboardTabMode;
   currentEntryId?: string | null;
   title?: string;
+  refreshKey?: number;
 }
 
-export default function Leaderboard({ compact = false, mode, currentEntryId, title }: LeaderboardProps) {
+export default function Leaderboard({ compact = false, mode, currentEntryId, title, refreshKey }: LeaderboardProps) {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
   const [activeTab, setActiveTab] = useState<LeaderboardTabMode>(mode || 'All Games');
   const [playerName, setPlayerNameState] = useState('Player');
@@ -222,7 +224,7 @@ export default function Leaderboard({ compact = false, mode, currentEntryId, tit
 
   useEffect(() => {
     void loadLeaderboard(activeTab);
-  }, [activeTab, loadLeaderboard]);
+  }, [activeTab, loadLeaderboard, refreshKey]);
 
   const sortedAll = useMemo(
     () => [...entries].sort((a, b) => b.score - a.score || new Date(b.date).getTime() - new Date(a.date).getTime()),

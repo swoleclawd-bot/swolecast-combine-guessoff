@@ -24,7 +24,7 @@ type PositionFilter = 'All' | 'QB' | 'RB' | 'WR' | 'TE';
 
 interface BenchSortProps {
   onQuit: () => void;
-  onRecordScore: (score: number) => string;
+  onRecordScore: (score: number) => Promise<string>;
 }
 
 type SlotState = (BenchPlayer | null)[];
@@ -203,7 +203,7 @@ export default function BenchSort({ onQuit, onRecordScore }: BenchSortProps) {
   useEffect(() => {
     if (!gameOver || scoreRecordedRef.current) return;
     scoreRecordedRef.current = true;
-    setLeaderboardEntryId(onRecordScore(score));
+    onRecordScore(score).then(id => setLeaderboardEntryId(id));
   }, [gameOver, onRecordScore, score]);
 
   if (!allPlayers.length) return <div className="flex items-center justify-center min-h-screen text-xl lg:text-3xl font-bold px-4 text-center">Loading bench press data... 💪</div>;

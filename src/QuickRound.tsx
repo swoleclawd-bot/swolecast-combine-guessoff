@@ -44,7 +44,7 @@ interface QuickRoundProps {
   benchPlayers: BenchPlayer[];
   posFilter?: Position;
   onQuit: (score: number, rounds: number, modeName: string) => void;
-  onRecordScore: (gameMode: string, score: number) => string;
+  onRecordScore: (gameMode: string, score: number) => Promise<string>;
 }
 
 const TOTAL_ROUNDS = 10;
@@ -271,7 +271,7 @@ export default function QuickRound({ fortyPlayers, benchPlayers, posFilter, onQu
   useEffect(() => {
     if (!gameOver || scoreRecordedRef.current) return;
     scoreRecordedRef.current = true;
-    setLeaderboardEntryId(onRecordScore(leaderboardMode, score));
+    onRecordScore(leaderboardMode, score).then(id => setLeaderboardEntryId(id));
   }, [gameOver, leaderboardMode, onRecordScore, score]);
 
   if (!rounds.length) return <div className="flex items-center justify-center min-h-screen text-xl lg:text-3xl font-bold px-4 text-center">Loading... ⚡</div>;
