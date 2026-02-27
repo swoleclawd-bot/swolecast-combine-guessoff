@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import type { Player } from './types';
 import { playSuccess, playFail } from './sounds';
+import Leaderboard from './Leaderboard';
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -16,11 +17,12 @@ type PositionFilter = 'All' | 'QB' | 'RB' | 'WR' | 'TE';
 interface SpeedSortProps {
   allPlayers: Player[];
   onQuit: () => void;
+  onRecordScore: (score: number) => string;
 }
 
 type SlotState = (Player | null)[];
 
-export default function SpeedSort({ allPlayers, onQuit }: SpeedSortProps) {
+export default function SpeedSort({ allPlayers, onQuit, onRecordScore }: SpeedSortProps) {
   const [posFilter, setPosFilter] = useState<PositionFilter>('All');
   const [, setRoundPlayers] = useState<Player[]>([]);
   const [slots, setSlots] = useState<SlotState>([null, null, null]);
@@ -37,6 +39,8 @@ export default function SpeedSort({ allPlayers, onQuit }: SpeedSortProps) {
   const [slotResults, setSlotResults] = useState<boolean[]>([]);
   const [shareMsg, setShareMsg] = useState('');
   const [copied, setCopied] = useState(false);
+  const [leaderboardEntryId, setLeaderboardEntryId] = useState<string | null>(null);
+  const scoreRecordedRef = useRef(false);
   const dragItem = useRef<{ source: 'available' | 'slot'; index: number } | null>(null);
 
   const filteredPlayers = posFilter === 'All' ? allPlayers : allPlayers.filter(p => p.position === posFilter);
@@ -183,6 +187,12 @@ export default function SpeedSort({ allPlayers, onQuit }: SpeedSortProps) {
 
   const slotLabels = ['🥇 FASTEST', '🥈 MIDDLE', '🥉 SLOWEST'];
 
+  useEffect(() => {
+    if (!gameOver || scoreRecordedRef.current) return;
+    scoreRecordedRef.current = true;
+    setLeaderboardEntryId(onRecordScore(score));
+  }, [gameOver, onRecordScore, score]);
+
   if (gameOver) {
     const text = shareMsg || `I scored ${score} points on the Swolecast Combine Games Speed Sort! 🏋️ Think you Know Ball? swolecast.com`;
     if (!shareMsg) setShareMsg(text);
@@ -206,10 +216,13 @@ export default function SpeedSort({ allPlayers, onQuit }: SpeedSortProps) {
           {copied ? '✅ Copied!' : '📤 Share'}
         </button>
         <div className="flex gap-3 lg:gap-4 mt-3 lg:mt-4">
-          <button onClick={() => { setScore(0); setRound(0); setLives(3); setStreak(0); setGameOver(false); setShareMsg(''); setCopied(false); startRound(); }}
+          <button onClick={() => { setScore(0); setRound(0); setLives(3); setStreak(0); setGameOver(false); setShareMsg(''); setCopied(false); setLeaderboardEntryId(null); scoreRecordedRef.current = false; startRound(); }}
             className="px-6 py-3 lg:px-8 lg:py-4 bg-primary rounded-xl font-bold text-lg lg:text-xl hover:bg-primary/80 transition-all hover:scale-105 min-h-[44px]">🔄 Play Again</button>
           <button onClick={() => onQuit()}
             className="px-6 py-3 lg:px-8 lg:py-4 bg-card rounded-xl font-bold text-lg lg:text-xl hover:bg-card/80 transition-all hover:scale-105 min-h-[44px]">🏠 Menu</button>
+        </div>
+        <div className="w-full max-w-2xl mt-5">
+          <Leaderboard compact mode="Speed Sort" currentEntryId={leaderboardEntryId} title="Speed Sort Leaderboard" />
         </div>
       </div>
     );

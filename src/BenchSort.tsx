@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { playSuccess, playFail } from './sounds';
+import Leaderboard from './Leaderboard';
 
 export interface BenchPlayer {
   name: string;
@@ -23,11 +24,12 @@ type PositionFilter = 'All' | 'QB' | 'RB' | 'WR' | 'TE';
 
 interface BenchSortProps {
   onQuit: () => void;
+  onRecordScore: (score: number) => string;
 }
 
 type SlotState = (BenchPlayer | null)[];
 
-export default function BenchSort({ onQuit }: BenchSortProps) {
+export default function BenchSort({ onQuit, onRecordScore }: BenchSortProps) {
   const [allPlayers, setAllPlayers] = useState<BenchPlayer[]>([]);
   const [posFilter, setPosFilter] = useState<PositionFilter>('All');
   const [slots, setSlots] = useState<SlotState>([null, null, null]);
@@ -44,6 +46,8 @@ export default function BenchSort({ onQuit }: BenchSortProps) {
   const [slotResults, setSlotResults] = useState<boolean[]>([]);
   const [shareMsg, setShareMsg] = useState('');
   const [copied, setCopied] = useState(false);
+  const [leaderboardEntryId, setLeaderboardEntryId] = useState<string | null>(null);
+  const scoreRecordedRef = useRef(false);
   const dragItem = useRef<{ source: 'available' | 'slot'; index: number } | null>(null);
 
   useEffect(() => {
@@ -196,6 +200,12 @@ export default function BenchSort({ onQuit }: BenchSortProps) {
 
   const slotLabels = ['💪 MOST REPS', '🏋️ MIDDLE', '🤏 FEWEST REPS'];
 
+  useEffect(() => {
+    if (!gameOver || scoreRecordedRef.current) return;
+    scoreRecordedRef.current = true;
+    setLeaderboardEntryId(onRecordScore(score));
+  }, [gameOver, onRecordScore, score]);
+
   if (!allPlayers.length) return <div className="flex items-center justify-center min-h-screen text-xl lg:text-3xl font-bold px-4 text-center">Loading bench press data... 💪</div>;
 
   if (gameOver) {
@@ -221,10 +231,13 @@ export default function BenchSort({ onQuit }: BenchSortProps) {
           {copied ? '✅ Copied!' : '📤 Share'}
         </button>
         <div className="flex gap-3 lg:gap-4 mt-3 lg:mt-4">
-          <button onClick={() => { setScore(0); setRound(0); setLives(3); setStreak(0); setGameOver(false); setShareMsg(''); setCopied(false); startRound(); }}
+          <button onClick={() => { setScore(0); setRound(0); setLives(3); setStreak(0); setGameOver(false); setShareMsg(''); setCopied(false); setLeaderboardEntryId(null); scoreRecordedRef.current = false; startRound(); }}
             className="px-6 py-3 lg:px-8 lg:py-4 bg-primary rounded-xl font-bold text-lg lg:text-xl hover:bg-primary/80 transition-all hover:scale-105 min-h-[44px]">🔄 Play Again</button>
           <button onClick={() => onQuit()}
             className="px-6 py-3 lg:px-8 lg:py-4 bg-card rounded-xl font-bold text-lg lg:text-xl hover:bg-card/80 transition-all hover:scale-105 min-h-[44px]">🏠 Menu</button>
+        </div>
+        <div className="w-full max-w-2xl mt-5">
+          <Leaderboard compact mode="Bench Sort" currentEntryId={leaderboardEntryId} title="Bench Sort Leaderboard" />
         </div>
       </div>
     );

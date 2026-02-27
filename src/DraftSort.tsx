@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { playSuccess, playFail } from './sounds';
+import Leaderboard from './Leaderboard';
 
 export interface DraftPlayer {
   name: string;
@@ -22,11 +23,12 @@ function shuffle<T>(arr: T[]): T[] {
 
 interface DraftSortProps {
   onQuit: () => void;
+  onRecordScore: (score: number) => string;
 }
 
 type RoundSlots = { [round: number]: DraftPlayer[] };
 
-export default function DraftSort({ onQuit }: DraftSortProps) {
+export default function DraftSort({ onQuit, onRecordScore }: DraftSortProps) {
   const [allPlayers, setAllPlayers] = useState<DraftPlayer[]>([]);
   const [available, setAvailable] = useState<DraftPlayer[]>([]);
   const [roundSlots, setRoundSlots] = useState<RoundSlots>({ 1: [], 2: [], 3: [], 4: [], 5: [], 6: [], 7: [] });
@@ -35,6 +37,8 @@ export default function DraftSort({ onQuit }: DraftSortProps) {
   const [score, setScore] = useState(0);
   const [copied, setCopied] = useState(false);
   const [slotCorrectness, setSlotCorrectness] = useState<{ [round: number]: boolean[] }>({});
+  const [leaderboardEntryId, setLeaderboardEntryId] = useState<string | null>(null);
+  const scoreRecordedRef = useRef(false);
   const dragItem = useRef<{ source: 'available' | number; index: number; player: DraftPlayer } | null>(null);
 
   useEffect(() => {
@@ -51,6 +55,8 @@ export default function DraftSort({ onQuit }: DraftSortProps) {
     setRevealed(false);
     setScore(0);
     setSlotCorrectness({});
+    setLeaderboardEntryId(null);
+    scoreRecordedRef.current = false;
   }, [allPlayers]);
 
   const handleDragStart = (source: 'available' | number, index: number, player: DraftPlayer) => {
@@ -206,6 +212,12 @@ export default function DraftSort({ onQuit }: DraftSortProps) {
 
   const totalCorrect = Object.values(slotCorrectness).flat().filter(Boolean).length;
 
+  useEffect(() => {
+    if (!revealed || scoreRecordedRef.current) return;
+    scoreRecordedRef.current = true;
+    setLeaderboardEntryId(onRecordScore(score));
+  }, [onRecordScore, revealed, score]);
+
   if (!allPlayers.length) {
     return (
       <div className="flex items-center justify-center min-h-screen text-xl lg:text-3xl font-bold px-4 text-center">
@@ -286,6 +298,9 @@ export default function DraftSort({ onQuit }: DraftSortProps) {
             className="py-3 px-6 bg-card hover:bg-card/80 rounded-xl font-bold text-base transition-all min-h-[48px]">
             🏠 Menu
           </button>
+        </div>
+        <div className="w-full max-w-4xl mx-auto pb-6">
+          <Leaderboard compact mode="Draft Sort" currentEntryId={leaderboardEntryId} title="Draft Sort Leaderboard" />
         </div>
       </div>
     );

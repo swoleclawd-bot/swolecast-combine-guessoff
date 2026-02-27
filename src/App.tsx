@@ -7,6 +7,7 @@ import BenchSort from './BenchSort';
 import QuickRound from './QuickRound';
 import SchoolMatch from './SchoolMatch';
 import DraftSort from './DraftSort';
+import Leaderboard, { normalizeGameMode, recordLeaderboardScore } from './Leaderboard';
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -130,6 +131,8 @@ export default function App() {
   const [showConfetti, setShowConfetti] = useState(false);
   const [copied, setCopied] = useState(false);
   const [positionSelectMode, setPositionSelectMode] = useState(false);
+  const [showLeaderboard, setShowLeaderboard] = useState(false);
+  const [currentLeaderboardEntryId, setCurrentLeaderboardEntryId] = useState<string | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
@@ -162,6 +165,7 @@ export default function App() {
     setShareText('');
     setShowConfetti(false);
     setCopied(false);
+    setCurrentLeaderboardEntryId(null);
     setMode(m);
     setPosFilter(pos || null);
   }, [allPlayers]);
@@ -170,6 +174,8 @@ export default function App() {
     setGameOver(true);
     const modeLabel = mode === 'quick' ? 'Quick Round' : mode === 'position' ? `${posFilter} Challenge` : 'Endless';
     setShareText(`I scored ${score} points on the Swolecast Combine Games ${modeLabel}! 🏋️ Think you Know Ball? swolecast.com`);
+    const entry = recordLeaderboardScore('Endless', score);
+    setCurrentLeaderboardEntryId(entry.id);
   }, [score, mode, posFilter]);
 
   const handleSubmit = useCallback(() => {
@@ -264,6 +270,21 @@ export default function App() {
 
   // Menu
   if (mode === 'menu') {
+    if (showLeaderboard) {
+      return (
+        <div className="min-h-screen flex flex-col items-center p-4 lg:p-8 max-w-5xl mx-auto w-full">
+          <div className="w-full flex justify-between items-center mb-4 lg:mb-6">
+            <div className="flex items-center gap-2">
+              <img src="/swolecast-logo.png" alt="Swolecast" className="h-10 lg:h-12" />
+              <span className="text-sm uppercase tracking-widest text-gray-500 font-bold">COMBINE GAMES</span>
+            </div>
+            <button onClick={() => setShowLeaderboard(false)} className="px-4 py-2 bg-card rounded-lg font-bold hover:bg-card/80 min-h-[44px]">← Back</button>
+          </div>
+          <Leaderboard title="Swolecast Leaderboard" />
+        </div>
+      );
+    }
+
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4 lg:p-8">
         <div className="text-center mb-6 lg:mb-12">
@@ -279,6 +300,12 @@ export default function App() {
         <div className="flex flex-col items-center gap-4 lg:gap-6 w-full max-w-5xl mb-6 lg:mb-8">
           {/* Sort Games — PRIMARY */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-6 w-full max-w-5xl">
+            <button onClick={() => setMode('schoolmatch')}
+              className="py-8 px-6 lg:py-12 lg:px-8 bg-card hover:bg-highlight/20 rounded-2xl text-center transition-all hover:scale-105 animate-pulse-glow border-2 border-highlight/40 hover:border-highlight flex flex-col items-center">
+              <div className="text-5xl lg:text-6xl font-black text-white mb-2 lg:mb-3 leading-none w-full text-center">🎓</div>
+              <div className="text-xl lg:text-2xl font-black text-highlight mb-1 lg:mb-2">School Match</div>
+              <div className="text-gray-400 text-sm lg:text-base">Match players to colleges</div>
+            </button>
             <button onClick={() => setMode('speedsort')}
               className="py-8 px-6 lg:py-12 lg:px-8 bg-card hover:bg-primary/20 rounded-2xl text-center transition-all hover:scale-105 animate-pulse-glow border-2 border-primary/40 hover:border-primary flex flex-col items-center">
               <div className="text-5xl lg:text-6xl font-black text-white mb-2 lg:mb-3 leading-none w-full text-center">40</div>
@@ -296,12 +323,6 @@ export default function App() {
               <div className="text-5xl lg:text-6xl font-black text-white mb-2 lg:mb-3 leading-none w-full text-center">📋</div>
               <div className="text-xl lg:text-2xl font-black text-green-400 mb-1 lg:mb-2">Draft Sort</div>
               <div className="text-gray-400 text-sm lg:text-base">Sort by draft round</div>
-            </button>
-            <button onClick={() => setMode('schoolmatch')}
-              className="py-8 px-6 lg:py-12 lg:px-8 bg-card hover:bg-highlight/20 rounded-2xl text-center transition-all hover:scale-105 animate-pulse-glow border-2 border-highlight/40 hover:border-highlight flex flex-col items-center">
-              <div className="text-5xl lg:text-6xl font-black text-white mb-2 lg:mb-3 leading-none w-full text-center">🎓</div>
-              <div className="text-xl lg:text-2xl font-black text-highlight mb-1 lg:mb-2">School Match</div>
-              <div className="text-gray-400 text-sm lg:text-base">Match players to colleges</div>
             </button>
           </div>
 
@@ -335,6 +356,14 @@ export default function App() {
               </div>
             </button>
           </div>
+
+          <div className="w-full">
+            <button onClick={() => setShowLeaderboard(true)}
+              className="w-full py-4 px-6 bg-card hover:bg-primary/20 rounded-2xl border-2 border-primary/30 hover:border-primary transition-all hover:scale-[1.01]">
+              <div className="text-xl lg:text-2xl font-black text-highlight mb-1">Leaderboard</div>
+              <div className="text-gray-400 text-sm lg:text-base">Top 10 by mode + All Games combined</div>
+            </button>
+          </div>
         </div>
 
         <p className="text-center text-gray-600 text-xs lg:text-sm max-w-md mt-2 lg:mt-4 px-4">
@@ -349,32 +378,32 @@ export default function App() {
 
   // Quick Round mode
   if (mode === 'quick') {
-    return <QuickRound fortyPlayers={allPlayers} benchPlayers={benchPlayers} onQuit={() => setMode('menu')} />;
+    return <QuickRound fortyPlayers={allPlayers} benchPlayers={benchPlayers} onQuit={() => setMode('menu')} onRecordScore={(gameMode, finalScore) => recordLeaderboardScore(normalizeGameMode(gameMode), finalScore).id} />;
   }
 
   // Position Challenge mode
   if (mode === 'position') {
-    return <QuickRound fortyPlayers={allPlayers} benchPlayers={benchPlayers} posFilter={posFilter || undefined} onQuit={() => setMode('menu')} />;
+    return <QuickRound fortyPlayers={allPlayers} benchPlayers={benchPlayers} posFilter={posFilter || undefined} onQuit={() => setMode('menu')} onRecordScore={(gameMode, finalScore) => recordLeaderboardScore(normalizeGameMode(gameMode), finalScore).id} />;
   }
 
   // Speed Sort mode
   if (mode === 'speedsort') {
-    return <SpeedSort allPlayers={allPlayers} onQuit={() => setMode('menu')} />;
+    return <SpeedSort allPlayers={allPlayers} onQuit={() => setMode('menu')} onRecordScore={(finalScore) => recordLeaderboardScore('Speed Sort', finalScore).id} />;
   }
 
   // Bench Sort mode
   if (mode === 'benchsort') {
-    return <BenchSort onQuit={() => setMode('menu')} />;
+    return <BenchSort onQuit={() => setMode('menu')} onRecordScore={(finalScore) => recordLeaderboardScore('Bench Sort', finalScore).id} />;
   }
 
   // School Match mode
   if (mode === 'schoolmatch') {
-    return <SchoolMatch allPlayers={allPlayers} onQuit={() => setMode('menu')} />;
+    return <SchoolMatch allPlayers={allPlayers} onQuit={() => setMode('menu')} onRecordScore={(finalScore) => recordLeaderboardScore('School Match', finalScore).id} />;
   }
 
   // Draft Sort mode
   if (mode === 'draftsort') {
-    return <DraftSort onQuit={() => setMode('menu')} />;
+    return <DraftSort onQuit={() => setMode('menu')} onRecordScore={(finalScore) => recordLeaderboardScore('Draft Sort', finalScore).id} />;
   }
 
   // Game Over — wide layout (for endless mode)
@@ -452,6 +481,10 @@ export default function App() {
             className="px-6 py-3 lg:px-8 lg:py-4 bg-primary rounded-xl font-bold text-lg lg:text-xl hover:bg-primary/80 transition-all hover:scale-105 min-h-[44px]">🔄 Play Again</button>
           <button onClick={() => setMode('menu')}
             className="px-6 py-3 lg:px-8 lg:py-4 bg-card rounded-xl font-bold text-lg lg:text-xl hover:bg-card/80 transition-all hover:scale-105 min-h-[44px]">🏠 Menu</button>
+        </div>
+
+        <div className="w-full mt-6 lg:mt-8">
+          <Leaderboard compact mode="Endless" currentEntryId={currentLeaderboardEntryId} title="Endless Leaderboard" />
         </div>
       </div>
     );

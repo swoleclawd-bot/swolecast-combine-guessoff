@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm run build)",
+      "Bash(npm run dev)",
+      "Bash(cat *)",
+      "Bash(ls *)",
+      "Bash(find *)",
+      "Bash(grep *)",
+      "Bash(head *)",
+      "Bash(tail *)",
+      "Bash(wc *)",
+      "Bash(git *)",
+      "Bash(node *)",
+      "Bash(python3 *)",
+      "Bash(openclaw *)",
+      "Bash(mkdir *)",
+      "Read",
+      "Write",
+      "Edit"
+    ]
+  }
+}

@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect, useRef } from 'react';
 import type { Player, BenchPlayer, QuickRoundResult, Position } from './types';
 import { playSuccess, playFail, playTick } from './sounds';
+import Leaderboard from './Leaderboard';
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -43,6 +44,7 @@ interface QuickRoundProps {
   benchPlayers: BenchPlayer[];
   posFilter?: Position;
   onQuit: (score: number, rounds: number, modeName: string) => void;
+  onRecordScore: (gameMode: string, score: number) => string;
 }
 
 const TOTAL_ROUNDS = 10;
@@ -50,7 +52,7 @@ const TIMER_GUESS40 = 7;
 const TIMER_COMBINED_REPS = 10;
 const TIMER_SPEED_SORT = 15;
 
-export default function QuickRound({ fortyPlayers, benchPlayers, posFilter, onQuit }: QuickRoundProps) {
+export default function QuickRound({ fortyPlayers, benchPlayers, posFilter, onQuit, onRecordScore }: QuickRoundProps) {
   const [rounds, setRounds] = useState<MiniGame[]>([]);
   const [currentRound, setCurrentRound] = useState(0);
   const [timeLeft, setTimeLeft] = useState(TIMER_GUESS40);
@@ -61,6 +63,8 @@ export default function QuickRound({ fortyPlayers, benchPlayers, posFilter, onQu
   const [shareMsg, setShareMsg] = useState('');
   const [copied, setCopied] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
+  const [leaderboardEntryId, setLeaderboardEntryId] = useState<string | null>(null);
+  const scoreRecordedRef = useRef(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Guess40 state
@@ -262,6 +266,13 @@ export default function QuickRound({ fortyPlayers, benchPlayers, posFilter, onQu
   };
 
   const modeName = posFilter ? `${posFilter} CHALLENGE` : 'QUICK ROUND';
+  const leaderboardMode = posFilter ? 'Position Challenge' : 'Quick Round';
+
+  useEffect(() => {
+    if (!gameOver || scoreRecordedRef.current) return;
+    scoreRecordedRef.current = true;
+    setLeaderboardEntryId(onRecordScore(leaderboardMode, score));
+  }, [gameOver, leaderboardMode, onRecordScore, score]);
 
   if (!rounds.length) return <div className="flex items-center justify-center min-h-screen text-xl lg:text-3xl font-bold px-4 text-center">Loading... ⚡</div>;
 
@@ -330,10 +341,13 @@ export default function QuickRound({ fortyPlayers, benchPlayers, posFilter, onQu
           </button>
         </div>
         <div className="flex gap-3 lg:gap-4 mt-3 w-full max-w-md">
-          <button onClick={() => { setGameOver(false); setResults([]); setScore(0); setCurrentRound(0); window.location.reload(); }}
+          <button onClick={() => { setGameOver(false); setResults([]); setScore(0); setCurrentRound(0); setLeaderboardEntryId(null); scoreRecordedRef.current = false; window.location.reload(); }}
             className="flex-1 py-3 lg:py-4 bg-card border border-white/10 rounded-2xl font-bold text-base lg:text-lg hover:bg-card/80 transition-all min-h-[44px]">🔄 Play Again</button>
           <button onClick={() => onQuit(score, results.length, posFilter ? `${posFilter} Challenge` : 'Quick Round')}
             className="flex-1 py-3 lg:py-4 bg-card border border-white/10 rounded-2xl font-bold text-base lg:text-lg hover:bg-card/80 transition-all min-h-[44px]">🏠 Menu</button>
+        </div>
+        <div className="w-full mt-4">
+          <Leaderboard compact mode={leaderboardMode} currentEntryId={leaderboardEntryId} title={`${leaderboardMode} Leaderboard`} />
         </div>
       </div>
     );

@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type { Player } from './types';
 import { playSuccess, playFail, playTick } from './sounds';
+import Leaderboard from './Leaderboard';
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -14,6 +15,7 @@ function shuffle<T>(arr: T[]): T[] {
 interface SchoolMatchProps {
   allPlayers: Player[];
   onQuit: () => void;
+  onRecordScore: (score: number) => string;
 }
 
 interface TierResult {
@@ -58,7 +60,7 @@ function getDifficulty(college: string): Difficulty {
   return 'hard';
 }
 
-export default function SchoolMatch({ allPlayers, onQuit }: SchoolMatchProps) {
+export default function SchoolMatch({ allPlayers, onQuit, onRecordScore }: SchoolMatchProps) {
   const [currentTier, setCurrentTier] = useState<Difficulty>('easy');
   const [tierResults, setTierResults] = useState<TierResult[]>([]);
   const [gamePlayers, setGamePlayers] = useState<Player[]>([]);
@@ -74,29 +76,60 @@ export default function SchoolMatch({ allPlayers, onQuit }: SchoolMatchProps) {
   const [tierComplete, setTierComplete] = useState(false);
   const [shareText, setShareText] = useState('');
   const [copied, setCopied] = useState(false);
+  const [leaderboardEntryId, setLeaderboardEntryId] = useState<string | null>(null);
+  const scoreRecordedRef = useRef(false);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   // Get players for a specific difficulty tier
   const getPlayersForTier = useCallback((tier: Difficulty): Player[] => {
     const tierPlayers = allPlayers.filter(p => getDifficulty(p.college) === tier);
-    
-    // Filter to unique colleges
-    const collegeMap = new Map<string, Player>();
-    const shuffled = shuffle(tierPlayers);
-    
-    for (const p of shuffled) {
-      if (!collegeMap.has(p.college) && collegeMap.size < TOTAL_PER_TIER) {
-        collegeMap.set(p.college, p);
+
+    const groupedByCollege = new Map<string, Player[]>();
+    for (const player of tierPlayers) {
+      const existing = groupedByCollege.get(player.college) || [];
+      existing.push(player);
+      groupedByCollege.set(player.college, existing);
+    }
+
+    const selected: Player[] = [];
+    const tierColleges = shuffle(Array.from(groupedByCollege.keys()));
+    for (const college of tierColleges) {
+      if (selected.length >= TOTAL_PER_TIER) break;
+      const options = groupedByCollege.get(college) || [];
+      selected.push(options[Math.floor(Math.random() * options.length)]);
+    }
+
+    // Occasionally swap in 1-2 players from adjacent tiers to vary matchups.
+    if (Math.random() < 0.35) {
+      const adjacentTier: Difficulty[] =
+        tier === 'easy' ? ['medium'] : tier === 'medium' ? ['easy', 'hard'] : ['medium'];
+      const swapPool = shuffle(allPlayers).filter((p) =>
+        adjacentTier.includes(getDifficulty(p.college)) &&
+        !selected.some((s) => s.name === p.name || s.college === p.college)
+      );
+      const swapCount = Math.min(1 + Math.floor(Math.random() * 2), swapPool.length);
+      for (let i = 0; i < swapCount; i++) {
+        const replaceAt = Math.floor(Math.random() * selected.length);
+        selected[replaceAt] = swapPool[i];
       }
     }
-    
-    return Array.from(collegeMap.values());
+
+    return selected;
+  }, [allPlayers]);
+
+  const getDecoySchools = useCallback((playersInTier: Player[]): string[] => {
+    const usedSchools = new Set(playersInTier.map((p) => p.college));
+    const decoyPool = shuffle(
+      Array.from(new Set(allPlayers.map((p) => p.college))).filter((school) => !usedSchools.has(school))
+    );
+    const count = Math.min(1 + Math.floor(Math.random() * 2), decoyPool.length);
+    return decoyPool.slice(0, count);
   }, [allPlayers]);
 
   // Initialize/reset for a tier
   const initializeTier = useCallback((tier: Difficulty) => {
     const players = getPlayersForTier(tier);
-    const schools = shuffle(players.map(p => p.college));
+    const schools = shuffle([...players.map(p => p.college), ...getDecoySchools(players)]);
     
     setCurrentTier(tier);
     setGamePlayers(players);
@@ -109,7 +142,7 @@ export default function SchoolMatch({ allPlayers, onQuit }: SchoolMatchProps) {
     setStartTime(Date.now());
     setElapsedTime(0);
     setTierComplete(false);
-  }, [getPlayersForTier]);
+  }, [getDecoySchools, getPlayersForTier]);
 
   // Start game
   useEffect(() => {
@@ -224,8 +257,17 @@ export default function SchoolMatch({ allPlayers, onQuit }: SchoolMatchProps) {
     setGameOver(false);
     setShareText('');
     setCopied(false);
+    setLeaderboardEntryId(null);
+    scoreRecordedRef.current = false;
     initializeTier('easy');
   };
+
+  useEffect(() => {
+    if (!gameOver || scoreRecordedRef.current || tierResults.length === 0) return;
+    const totalPoints = tierResults.reduce((sum, r) => sum + r.points, 0);
+    scoreRecordedRef.current = true;
+    setLeaderboardEntryId(onRecordScore(totalPoints));
+  }, [gameOver, onRecordScore, tierResults]);
 
   const handleShare = async () => {
     if (navigator.share) {
@@ -350,6 +392,9 @@ export default function SchoolMatch({ allPlayers, onQuit }: SchoolMatchProps) {
             className="flex-1 py-3 lg:py-4 bg-primary border border-white/10 rounded-2xl font-bold text-base lg:text-lg hover:bg-primary/80 transition-all min-h-[44px]">🔄 Play Again</button>
           <button onClick={onQuit}
             className="flex-1 py-3 lg:py-4 bg-card border border-white/10 rounded-2xl font-bold text-base lg:text-lg hover:bg-card/80 transition-all min-h-[44px]">🏠 Menu</button>
+        </div>
+        <div className="w-full mt-4">
+          <Leaderboard compact mode="School Match" currentEntryId={leaderboardEntryId} title="School Match Leaderboard" />
         </div>
       </div>
     );
