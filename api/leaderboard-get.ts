@@ -1,26 +1,13 @@
-import { list } from '@vercel/blob';
-import type { LeaderboardData, StoredLeaderboardEntry } from './_lib/leaderboard.js';
+import type { StoredLeaderboardEntry } from './_lib/leaderboard.js';
 import { isReadGameMode } from './_lib/leaderboard.js';
+import { getLeaderboardData } from './_lib/blob-store.js';
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-
-const BLOB_NAME = 'leaderboard.json';
-
-async function getLeaderboardData(): Promise<LeaderboardData> {
-  try {
-    const blobs = await list({ prefix: BLOB_NAME });
-    const blob = blobs.blobs.find(b => b.pathname === BLOB_NAME);
-    if (!blob) return { entries: [] };
-    const res = await fetch(blob.url);
-    return (await res.json()) as LeaderboardData;
-  } catch {
-    return { entries: [] };
-  }
-}
 
 export default async function handler(req: VercelRequest, res: VercelResponse): Promise<void> {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate');
   if (req.method === 'OPTIONS') { res.status(200).end(); return; }
 
   if (req.method !== 'GET') {
@@ -36,25 +23,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
     return;
   }
 
-  const data = await getLeaderboardData();
-  
-  let filtered: StoredLeaderboardEntry[];
-  if (mode === 'all') {
-    filtered = data.entries;
-  } else {
-    filtered = data.entries.filter(e => e.gameMode === mode);
+  try {
+    const data = await getLeaderboardData();
+    
+    let filtered: StoredLeaderboardEntry[];
+    if (mode === 'all') {
+      filtered = data.entries;
+    } else {
+      filtered = data.entries.filter(e => e.gameMode === mode);
+    }
+
+    filtered.sort((a, b) => b.score - a.score);
+    filtered = filtered.slice(0, 50);
+
+    const scores = filtered.map((entry, index) => ({
+      playerName: entry.playerName,
+      score: entry.score,
+      date: entry.date,
+      gameMode: entry.gameMode,
+      rank: index + 1,
+    }));
+
+    res.status(200).json({ scores });
+  } catch (err) {
+    console.error('Leaderboard get error:', err);
+    res.status(500).json({ error: 'Internal server error' });
   }
-
-  filtered.sort((a, b) => b.score - a.score);
-  filtered = filtered.slice(0, 50);
-
-  const scores = filtered.map((entry, index) => ({
-    playerName: entry.playerName,
-    score: entry.score,
-    date: entry.date,
-    gameMode: entry.gameMode,
-    rank: index + 1,
-  }));
-
-  res.status(200).json({ scores });
 }

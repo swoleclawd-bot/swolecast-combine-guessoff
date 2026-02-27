@@ -1,31 +1,7 @@
-import { list, put } from '@vercel/blob';
-import type { LeaderboardData } from './_lib/leaderboard.js';
 import { isStoredGameMode, sanitizePlayerName, sanitizeScore, createEntry, MAX_LEADERBOARD_ENTRIES } from './_lib/leaderboard.js';
+import { getLeaderboardData, saveLeaderboardData } from './_lib/blob-store.js';
 
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-
-const BLOB_NAME = 'leaderboard.json';
-
-async function getLeaderboardData(): Promise<LeaderboardData> {
-  try {
-    const blobs = await list({ prefix: BLOB_NAME });
-    const blob = blobs.blobs.find(b => b.pathname === BLOB_NAME);
-    if (!blob) return { entries: [] };
-    const res = await fetch(blob.url);
-    return (await res.json()) as LeaderboardData;
-  } catch {
-    return { entries: [] };
-  }
-}
-
-async function saveLeaderboardData(data: LeaderboardData): Promise<void> {
-  await put(BLOB_NAME, JSON.stringify(data), {
-    access: 'public',
-    addRandomSuffix: false,
-    allowOverwrite: true,
-    contentType: 'application/json',
-  });
-}
 
 export default async function handler(req: VercelRequest, res: VercelResponse): Promise<void> {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -67,7 +43,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
     const entry = createEntry(playerName, gameMode, score);
     data.entries.push(entry);
 
-    // Keep only top entries per mode to prevent unbounded growth
+    // Keep only top entries per mode
     const byMode = new Map<string, typeof data.entries>();
     for (const e of data.entries) {
       const arr = byMode.get(e.gameMode) || [];
@@ -84,7 +60,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
 
     await saveLeaderboardData(data);
 
-    // Calculate rank
     const modeEntries = trimmed.filter(e => e.gameMode === gameMode);
     modeEntries.sort((a, b) => b.score - a.score);
     const rank = modeEntries.findIndex(e => e.id === entry.id) + 1;
