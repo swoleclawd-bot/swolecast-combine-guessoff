@@ -21,16 +21,16 @@ export interface StoredLeaderboardEntry {
   date: string;
 }
 
+export interface LeaderboardData {
+  entries: StoredLeaderboardEntry[];
+}
+
 export function isStoredGameMode(value: string): value is StoredGameMode {
   return VALID_GAME_MODES.includes(value as StoredGameMode);
 }
 
 export function isReadGameMode(value: string): value is ReadGameMode {
   return value === 'all' || isStoredGameMode(value);
-}
-
-export function getLeaderboardKey(mode: ReadGameMode): string {
-  return `leaderboard:${mode}`;
 }
 
 export function sanitizePlayerName(value: unknown): string | null {
@@ -45,35 +45,7 @@ export function sanitizeScore(value: unknown): number | null {
   return Math.max(0, Math.round(value));
 }
 
-export function parseStoredEntry(value: unknown): StoredLeaderboardEntry | null {
-  if (!value || typeof value !== 'string') return null;
-
-  try {
-    const parsed = JSON.parse(value) as Partial<StoredLeaderboardEntry>;
-    if (
-      typeof parsed.id !== 'string' ||
-      typeof parsed.playerName !== 'string' ||
-      typeof parsed.gameMode !== 'string' ||
-      typeof parsed.score !== 'number' ||
-      typeof parsed.date !== 'string' ||
-      !isStoredGameMode(parsed.gameMode)
-    ) {
-      return null;
-    }
-
-    return {
-      id: parsed.id,
-      playerName: parsed.playerName,
-      gameMode: parsed.gameMode,
-      score: parsed.score,
-      date: parsed.date,
-    };
-  } catch {
-    return null;
-  }
-}
-
-export function createStoredEntry(playerName: string, gameMode: StoredGameMode, score: number): StoredLeaderboardEntry {
+export function createEntry(playerName: string, gameMode: StoredGameMode, score: number): StoredLeaderboardEntry {
   return {
     id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
     playerName,

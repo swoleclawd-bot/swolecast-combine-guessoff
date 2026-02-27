@@ -1,87 +1,90 @@
-import { kv } from '@vercel/kv';
-import {
-  MAX_LEADERBOARD_ENTRIES,
-  createStoredEntry,
-  getLeaderboardKey,
-  isStoredGameMode,
-  sanitizePlayerName,
-  sanitizeScore,
-} from './_lib/leaderboard.js';
+import { list, put, getDownloadUrl } from '@vercel/blob';
+import type { LeaderboardData } from './_lib/leaderboard.js';
+import { isStoredGameMode, sanitizePlayerName, sanitizeScore, createEntry, MAX_LEADERBOARD_ENTRIES } from './_lib/leaderboard.js';
 
-type RequestLike = {
-  method?: string;
-  body?: unknown;
-};
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-type ResponseLike = {
-  status: (statusCode: number) => ResponseLike;
-  json: (body: unknown) => void;
-  setHeader: (name: string, value: string) => void;
-};
+const BLOB_NAME = 'leaderboard.json';
 
-async function trimSortedSet(key: string): Promise<void> {
-  const total = await kv.zcard(key);
-  if (total <= MAX_LEADERBOARD_ENTRIES) return;
-
-  const stop = total - MAX_LEADERBOARD_ENTRIES - 1;
-  await kv.zremrangebyrank(key, 0, stop);
+async function getLeaderboardData(): Promise<LeaderboardData> {
+  try {
+    const blobs = await list({ prefix: BLOB_NAME });
+    const blob = blobs.blobs.find(b => b.pathname === BLOB_NAME);
+    if (!blob) return { entries: [] };
+    const res = await fetch(blob.downloadUrl || getDownloadUrl(blob.url));
+    return (await res.json()) as LeaderboardData;
+  } catch {
+    return { entries: [] };
+  }
 }
 
-export default async function handler(req: RequestLike, res: ResponseLike): Promise<void> {
+async function saveLeaderboardData(data: LeaderboardData): Promise<void> {
+  await put(BLOB_NAME, JSON.stringify(data), {
+    access: 'public',
+    addRandomSuffix: false,
+  });
+}
+
+export default async function handler(req: VercelRequest, res: VercelResponse): Promise<void> {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') { res.status(200).end(); return; }
+
   if (req.method !== 'POST') {
-    res.setHeader('Allow', 'POST');
     res.status(405).json({ error: 'Method not allowed' });
     return;
   }
 
-  const parsedBody =
-    typeof req.body === 'string'
-      ? (() => {
-          try {
-            return JSON.parse(req.body) as unknown;
-          } catch {
-            return {};
-          }
-        })()
-      : req.body;
-
-  const body = (parsedBody && typeof parsedBody === 'object' ? parsedBody : {}) as {
-    playerName?: unknown;
-    gameMode?: unknown;
-    score?: unknown;
-  };
-
-  const playerName = sanitizePlayerName(body.playerName);
-  const score = sanitizeScore(body.score);
-  const rawMode = typeof body.gameMode === 'string' ? body.gameMode : '';
-
-  if (!playerName) {
-    res.status(400).json({ error: 'Invalid playerName (required, max 20 chars)' });
+  const body = req.body as Record<string, unknown> | undefined;
+  if (!body) {
+    res.status(400).json({ error: 'Missing body' });
     return;
   }
 
+  const playerName = sanitizePlayerName(body.playerName);
+  if (!playerName) {
+    res.status(400).json({ error: 'Invalid playerName (1-20 chars)' });
+    return;
+  }
+
+  const gameMode = typeof body.gameMode === 'string' ? body.gameMode : '';
+  if (!isStoredGameMode(gameMode)) {
+    res.status(400).json({ error: 'Invalid gameMode' });
+    return;
+  }
+
+  const score = sanitizeScore(body.score);
   if (score === null) {
     res.status(400).json({ error: 'Invalid score' });
     return;
   }
 
-  if (!isStoredGameMode(rawMode)) {
-    res.status(400).json({ error: 'Invalid gameMode' });
-    return;
+  const data = await getLeaderboardData();
+  const entry = createEntry(playerName, gameMode, score);
+  data.entries.push(entry);
+
+  // Keep only top entries per mode to prevent unbounded growth
+  const byMode = new Map<string, typeof data.entries>();
+  for (const e of data.entries) {
+    const arr = byMode.get(e.gameMode) || [];
+    arr.push(e);
+    byMode.set(e.gameMode, arr);
   }
+  
+  const trimmed: typeof data.entries = [];
+  for (const [, entries] of byMode) {
+    entries.sort((a, b) => b.score - a.score);
+    trimmed.push(...entries.slice(0, MAX_LEADERBOARD_ENTRIES));
+  }
+  data.entries = trimmed;
 
-  const entry = createStoredEntry(playerName, rawMode, score);
-  const member = JSON.stringify(entry);
+  await saveLeaderboardData(data);
 
-  const modeKey = getLeaderboardKey(rawMode);
-  const allKey = getLeaderboardKey('all');
+  // Calculate rank for this entry
+  const modeEntries = trimmed.filter(e => e.gameMode === gameMode);
+  modeEntries.sort((a, b) => b.score - a.score);
+  const rank = modeEntries.findIndex(e => e.id === entry.id) + 1;
 
-  await Promise.all([
-    kv.zadd(modeKey, { score: entry.score, member }),
-    kv.zadd(allKey, { score: entry.score, member }),
-  ]);
-
-  await Promise.all([trimSortedSet(modeKey), trimSortedSet(allKey)]);
-
-  res.status(200).json({ ok: true, entry });
+  res.status(200).json({ success: true, rank, entry });
 }

@@ -1,20 +1,29 @@
-import { kv } from '@vercel/kv';
-import { MAX_LEADERBOARD_ENTRIES, getLeaderboardKey, isReadGameMode, parseStoredEntry, type StoredLeaderboardEntry } from './_lib/leaderboard.js';
+import { list, getDownloadUrl } from '@vercel/blob';
+import type { LeaderboardData, StoredLeaderboardEntry } from './_lib/leaderboard.js';
+import { isReadGameMode } from './_lib/leaderboard.js';
 
-type RequestLike = {
-  method?: string;
-  query?: Record<string, string | string[] | undefined>;
-};
+import type { VercelRequest, VercelResponse } from '@vercel/node';
 
-type ResponseLike = {
-  status: (statusCode: number) => ResponseLike;
-  json: (body: unknown) => void;
-  setHeader: (name: string, value: string) => void;
-};
+const BLOB_NAME = 'leaderboard.json';
 
-export default async function handler(req: RequestLike, res: ResponseLike): Promise<void> {
+async function getLeaderboardData(): Promise<LeaderboardData> {
+  try {
+    const blobs = await list({ prefix: BLOB_NAME });
+    const blob = blobs.blobs.find(b => b.pathname === BLOB_NAME);
+    if (!blob) return { entries: [] };
+    const res = await fetch(blob.downloadUrl || getDownloadUrl(blob.url));
+    return (await res.json()) as LeaderboardData;
+  } catch {
+    return { entries: [] };
+  }
+}
+
+export default async function handler(req: VercelRequest, res: VercelResponse): Promise<void> {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
+  if (req.method === 'OPTIONS') { res.status(200).end(); return; }
+
   if (req.method !== 'GET') {
-    res.setHeader('Allow', 'GET');
     res.status(405).json({ error: 'Method not allowed' });
     return;
   }
@@ -22,24 +31,31 @@ export default async function handler(req: RequestLike, res: ResponseLike): Prom
   const rawMode = req.query?.mode;
   const mode = Array.isArray(rawMode) ? rawMode[0] : rawMode || 'all';
 
-  if (!isReadGameMode(mode)) {
+  if (!mode || !isReadGameMode(mode)) {
     res.status(400).json({ error: 'Invalid mode' });
     return;
   }
 
-  const key = getLeaderboardKey(mode);
-  const values = await kv.zrange<string[]>(key, 0, MAX_LEADERBOARD_ENTRIES - 1, { rev: true });
+  const data = await getLeaderboardData();
+  
+  let filtered: StoredLeaderboardEntry[];
+  if (mode === 'all') {
+    filtered = data.entries;
+  } else {
+    filtered = data.entries.filter(e => e.gameMode === mode);
+  }
 
-  const scores = values
-    .map((v) => parseStoredEntry(v))
-    .filter((entry): entry is StoredLeaderboardEntry => entry !== null)
-    .map((entry, index) => ({
-      playerName: entry.playerName,
-      score: entry.score,
-      date: entry.date,
-      gameMode: entry.gameMode,
-      rank: index + 1,
-    }));
+  // Sort by score descending, take top 50
+  filtered.sort((a, b) => b.score - a.score);
+  filtered = filtered.slice(0, 50);
+
+  const scores = filtered.map((entry, index) => ({
+    playerName: entry.playerName,
+    score: entry.score,
+    date: entry.date,
+    gameMode: entry.gameMode,
+    rank: index + 1,
+  }));
 
   res.status(200).json({ scores });
 }
