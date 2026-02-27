@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 export type LeaderboardGameMode =
   | 'Speed Sort'
@@ -15,12 +15,24 @@ export interface LeaderboardEntry {
   gameMode: LeaderboardGameMode;
   score: number;
   date: string;
+  rank?: number;
+}
+
+type LeaderboardTabMode = 'All Games' | LeaderboardGameMode;
+type ApiGameMode = 'all' | 'speedsort' | 'benchsort' | 'draftsort' | 'schoolmatch' | 'quick' | 'endless' | 'positionchallenge';
+
+interface LeaderboardApiScore {
+  playerName: string;
+  score: number;
+  date: string;
+  rank: number;
+  gameMode?: ApiGameMode;
 }
 
 const LEADERBOARD_KEY = 'swolecast-leaderboard';
 const PLAYER_NAME_KEY = 'swolecast-player-name';
 
-const GAME_MODE_TABS: Array<'All Games' | LeaderboardGameMode> = [
+const GAME_MODE_TABS: LeaderboardTabMode[] = [
   'All Games',
   'Speed Sort',
   'Bench Sort',
@@ -33,6 +45,27 @@ const GAME_MODE_TABS: Array<'All Games' | LeaderboardGameMode> = [
 
 function isBrowser(): boolean {
   return typeof window !== 'undefined' && typeof localStorage !== 'undefined';
+}
+
+function toApiGameMode(mode: LeaderboardTabMode): ApiGameMode {
+  if (mode === 'All Games') return 'all';
+  if (mode === 'Speed Sort') return 'speedsort';
+  if (mode === 'Bench Sort') return 'benchsort';
+  if (mode === 'Draft Sort') return 'draftsort';
+  if (mode === 'School Match') return 'schoolmatch';
+  if (mode === 'Quick Round') return 'quick';
+  if (mode === 'Endless') return 'endless';
+  return 'positionchallenge';
+}
+
+function fromApiGameMode(mode: string): LeaderboardGameMode {
+  if (mode === 'speedsort') return 'Speed Sort';
+  if (mode === 'benchsort') return 'Bench Sort';
+  if (mode === 'draftsort') return 'Draft Sort';
+  if (mode === 'schoolmatch') return 'School Match';
+  if (mode === 'quick') return 'Quick Round';
+  if (mode === 'endless') return 'Endless';
+  return 'Position Challenge';
 }
 
 export function getPlayerName(): string {
@@ -57,12 +90,12 @@ export function ensurePlayerName(): string {
 }
 
 export function normalizeGameMode(mode: string): LeaderboardGameMode {
-  if (mode === 'Speed Sort') return 'Speed Sort';
-  if (mode === 'Bench Sort') return 'Bench Sort';
-  if (mode === 'Draft Sort') return 'Draft Sort';
-  if (mode === 'School Match') return 'School Match';
-  if (mode === 'Quick Round') return 'Quick Round';
-  if (mode === 'Endless') return 'Endless';
+  if (mode === 'Speed Sort' || mode === 'speedsort') return 'Speed Sort';
+  if (mode === 'Bench Sort' || mode === 'benchsort') return 'Bench Sort';
+  if (mode === 'Draft Sort' || mode === 'draftsort') return 'Draft Sort';
+  if (mode === 'School Match' || mode === 'schoolmatch') return 'School Match';
+  if (mode === 'Quick Round' || mode === 'quick') return 'Quick Round';
+  if (mode === 'Endless' || mode === 'endless') return 'Endless';
   return 'Position Challenge';
 }
 
@@ -91,6 +124,43 @@ function writeLeaderboard(entries: LeaderboardEntry[]): void {
   localStorage.setItem(LEADERBOARD_KEY, JSON.stringify(entries));
 }
 
+async function submitLeaderboardScore(entry: LeaderboardEntry): Promise<void> {
+  try {
+    await fetch('/api/leaderboard-submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        playerName: entry.playerName,
+        gameMode: toApiGameMode(entry.gameMode),
+        score: entry.score,
+      }),
+    });
+  } catch {
+    // Local storage remains the offline fallback if the network/API is unavailable.
+  }
+}
+
+async function fetchGlobalLeaderboard(mode: LeaderboardTabMode): Promise<LeaderboardEntry[]> {
+  const response = await fetch(`/api/leaderboard-get?mode=${encodeURIComponent(toApiGameMode(mode))}`);
+  if (!response.ok) {
+    throw new Error(`Leaderboard fetch failed: ${response.status}`);
+  }
+
+  const payload = (await response.json()) as { scores?: LeaderboardApiScore[] };
+  const scores = Array.isArray(payload.scores) ? payload.scores : [];
+
+  return scores
+    .filter((row) => typeof row.playerName === 'string' && typeof row.score === 'number' && typeof row.date === 'string')
+    .map((row, index) => ({
+      id: `${row.playerName}-${row.date}-${index}`,
+      playerName: row.playerName,
+      score: row.score,
+      date: row.date,
+      rank: row.rank,
+      gameMode: row.gameMode ? fromApiGameMode(row.gameMode) : mode === 'All Games' ? 'Endless' : mode,
+    }));
+}
+
 export function rankForEntry(entries: LeaderboardEntry[], entry: LeaderboardEntry): number {
   const scoped = entries
     .filter((e) => e.gameMode === entry.gameMode)
@@ -107,32 +177,53 @@ export function recordLeaderboardScore(gameMode: LeaderboardGameMode, score: num
     score,
     date: new Date().toISOString(),
   };
+
   const entries = readLeaderboard();
   entries.push(entry);
   writeLeaderboard(entries);
+  void submitLeaderboardScore(entry);
+
   return entry;
 }
 
 interface LeaderboardProps {
   compact?: boolean;
-  mode?: 'All Games' | LeaderboardGameMode;
+  mode?: LeaderboardTabMode;
   currentEntryId?: string | null;
   title?: string;
 }
 
 export default function Leaderboard({ compact = false, mode, currentEntryId, title }: LeaderboardProps) {
   const [entries, setEntries] = useState<LeaderboardEntry[]>([]);
-  const [activeTab, setActiveTab] = useState<'All Games' | LeaderboardGameMode>(mode || 'All Games');
+  const [activeTab, setActiveTab] = useState<LeaderboardTabMode>(mode || 'All Games');
   const [playerName, setPlayerNameState] = useState('Player');
+  const [loading, setLoading] = useState(true);
+
+  const loadLeaderboard = useCallback(async (tab: LeaderboardTabMode) => {
+    setLoading(true);
+    try {
+      const globalEntries = await fetchGlobalLeaderboard(tab);
+      setEntries(globalEntries);
+    } catch {
+      setEntries(readLeaderboard());
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    setEntries(readLeaderboard());
     setPlayerNameState(getPlayerName());
   }, []);
 
   useEffect(() => {
-    if (mode) setActiveTab(mode);
+    if (mode) {
+      setActiveTab(mode);
+    }
   }, [mode]);
+
+  useEffect(() => {
+    void loadLeaderboard(activeTab);
+  }, [activeTab, loadLeaderboard]);
 
   const sortedAll = useMemo(
     () => [...entries].sort((a, b) => b.score - a.score || new Date(b.date).getTime() - new Date(a.date).getTime()),
@@ -141,7 +232,7 @@ export default function Leaderboard({ compact = false, mode, currentEntryId, tit
 
   const list = useMemo(() => {
     const source = activeTab === 'All Games' ? sortedAll : sortedAll.filter((e) => e.gameMode === activeTab);
-    return source.slice(0, 10);
+    return source.slice(0, 50);
   }, [activeTab, sortedAll]);
 
   const currentEntry = useMemo(() => entries.find((e) => e.id === currentEntryId) || null, [entries, currentEntryId]);
@@ -159,7 +250,7 @@ export default function Leaderboard({ compact = false, mode, currentEntryId, tit
   return (
     <div className="w-full bg-card/90 border border-primary/30 rounded-2xl p-4 lg:p-6">
       <div className="flex items-center justify-between gap-2 mb-3">
-        <h3 className="text-xl lg:text-2xl font-black text-highlight">{title || 'Leaderboard'}</h3>
+        <h3 className="text-xl lg:text-2xl font-black text-highlight">{title || '🌐 Global Leaderboard'}</h3>
         <button
           onClick={handleRename}
           className="px-3 py-1.5 rounded-lg border border-accent/40 text-xs lg:text-sm font-bold text-accent hover:bg-accent/10 min-h-[36px]"
@@ -195,11 +286,14 @@ export default function Leaderboard({ compact = false, mode, currentEntryId, tit
       )}
 
       <div className="space-y-2">
-        {list.length === 0 ? (
+        {loading ? (
+          <div className="text-gray-500 text-sm">Loading global scores...</div>
+        ) : list.length === 0 ? (
           <div className="text-gray-500 text-sm">No scores yet. Finish a game to set the board.</div>
         ) : (
           list.map((entry, i) => {
-            const isTop = i < 3;
+            const displayedRank = entry.rank || i + 1;
+            const isTop = displayedRank <= 3;
             const isCurrent = entry.id === currentEntryId;
             return (
               <div
@@ -214,7 +308,7 @@ export default function Leaderboard({ compact = false, mode, currentEntryId, tit
               >
                 <div className="min-w-0">
                   <div className={`font-bold truncate ${isTop ? 'text-highlight' : 'text-white'}`}>
-                    #{i + 1} {entry.playerName}
+                    #{displayedRank} {entry.playerName}
                   </div>
                   <div className="text-xs text-gray-400 truncate">
                     {entry.gameMode} · {new Date(entry.date).toLocaleDateString()}
