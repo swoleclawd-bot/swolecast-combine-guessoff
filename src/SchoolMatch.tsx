@@ -48,8 +48,12 @@ const MEDIUM_SCHOOLS = new Set([
 // Everything else = Hard (small schools, FCS, obscure)
 // If not in EASY or MEDIUM, it's HARD
 
-const TOTAL_PER_TIER = 10;
-const REQUIRED_TO_ADVANCE = 8;
+// Per-tier config: players to match, total schools shown, required correct to advance
+const TIER_CONFIG: Record<Difficulty, { players: number; schools: number; required: number }> = {
+  easy:   { players: 10, schools: 10, required: 8 },
+  medium: { players: 10, schools: 12, required: 8 },
+  hard:   { players: 12, schools: 16, required: 10 },
+};
 const TIMER_SECONDS = 60;
 
 type Difficulty = 'easy' | 'medium' | 'hard';
@@ -82,6 +86,7 @@ export default function SchoolMatch({ allPlayers, onQuit, onRecordScore }: Schoo
 
   // Get players for a specific difficulty tier
   const getPlayersForTier = useCallback((tier: Difficulty): Player[] => {
+    const config = TIER_CONFIG[tier];
     const tierPlayers = allPlayers.filter(p => getDifficulty(p.college) === tier);
 
     const groupedByCollege = new Map<string, Player[]>();
@@ -94,7 +99,7 @@ export default function SchoolMatch({ allPlayers, onQuit, onRecordScore }: Schoo
     const selected: Player[] = [];
     const tierColleges = shuffle(Array.from(groupedByCollege.keys()));
     for (const college of tierColleges) {
-      if (selected.length >= TOTAL_PER_TIER) break;
+      if (selected.length >= config.players) break;
       const options = groupedByCollege.get(college) || [];
       selected.push(options[Math.floor(Math.random() * options.length)]);
     }
@@ -117,19 +122,25 @@ export default function SchoolMatch({ allPlayers, onQuit, onRecordScore }: Schoo
     return selected;
   }, [allPlayers]);
 
-  const getDecoySchools = useCallback((playersInTier: Player[]): string[] => {
+  const getDecoySchools = useCallback((playersInTier: Player[], tier: Difficulty): string[] => {
+    const config = TIER_CONFIG[tier];
+    const numDecoys = config.schools - playersInTier.length;
+    if (numDecoys <= 0) return [];
+    
     const usedSchools = new Set(playersInTier.map((p) => p.college));
-    const decoyPool = shuffle(
-      Array.from(new Set(allPlayers.map((p) => p.college))).filter((school) => !usedSchools.has(school))
-    );
-    const count = Math.min(1 + Math.floor(Math.random() * 2), decoyPool.length);
-    return decoyPool.slice(0, count);
+    // For hard mode, mix in some major schools as decoys to make it trickier
+    const allSchools = Array.from(new Set(allPlayers.map((p) => p.college))).filter((school) => !usedSchools.has(school));
+    const decoyPool = tier === 'hard' 
+      ? shuffle(allSchools)  // all schools eligible as decoys in hard mode
+      : shuffle(allSchools.filter(s => getDifficulty(s) === tier || getDifficulty(s) === 'medium'));
+    return decoyPool.slice(0, numDecoys);
   }, [allPlayers]);
 
   // Initialize/reset for a tier
   const initializeTier = useCallback((tier: Difficulty) => {
     const players = getPlayersForTier(tier);
-    const schools = shuffle([...players.map(p => p.college), ...getDecoySchools(players)]);
+    // Sort schools alphabetically — players stay random
+    const schools = [...players.map(p => p.college), ...getDecoySchools(players, tier)].sort((a, b) => a.localeCompare(b));
     
     setCurrentTier(tier);
     setGamePlayers(players);
@@ -198,7 +209,7 @@ export default function SchoolMatch({ allPlayers, onQuit, onRecordScore }: Schoo
       }
     }
     
-    if (correct >= REQUIRED_TO_ADVANCE) playSuccess();
+    if (correct >= TIER_CONFIG[currentTier].required) playSuccess();
     else playFail();
     
     setCorrectCount(correct);
@@ -207,14 +218,14 @@ export default function SchoolMatch({ allPlayers, onQuit, onRecordScore }: Schoo
   const handleNextTier = useCallback(() => {
     // Calculate points: 10 per correct + speed bonus (max 50 if under 30s)
     const speedBonus = Math.max(0, Math.floor((TIMER_SECONDS - elapsedTime) * (50 / 30)));
-    const points = correctCount * 10 + (correctCount >= REQUIRED_TO_ADVANCE ? speedBonus : 0);
+    const points = correctCount * 10 + (correctCount >= TIER_CONFIG[currentTier].required ? speedBonus : 0);
     
     const result: TierResult = {
       tier: currentTier,
       correct: correctCount,
-      total: TOTAL_PER_TIER,
+      total: TIER_CONFIG[currentTier].players,
       timeSeconds: elapsedTime,
-      passed: correctCount >= REQUIRED_TO_ADVANCE,
+      passed: correctCount >= TIER_CONFIG[currentTier].required,
       points,
     };
     
@@ -222,7 +233,7 @@ export default function SchoolMatch({ allPlayers, onQuit, onRecordScore }: Schoo
     setTierResults(newResults);
     
     // Check if passed and can advance
-    if (correctCount >= REQUIRED_TO_ADVANCE) {
+    if (correctCount >= TIER_CONFIG[currentTier].required) {
       if (currentTier === 'easy') {
         initializeTier('medium');
       } else if (currentTier === 'medium') {
@@ -374,7 +385,7 @@ export default function SchoolMatch({ allPlayers, onQuit, onRecordScore }: Schoo
           </div>
 
           <div className="text-center text-gray-500 text-xs lg:text-sm mb-4">
-            Need {REQUIRED_TO_ADVANCE}/{TOTAL_PER_TIER} correct to advance • Speed bonus for fast finishes
+            Need {TIER_CONFIG[currentTier].required}/{TIER_CONFIG[currentTier].players} correct to advance • Speed bonus for fast finishes
           </div>
 
           <div className="text-center text-gray-600 text-xs">swolecast.com · Live a Little 🤙</div>
@@ -416,7 +427,7 @@ export default function SchoolMatch({ allPlayers, onQuit, onRecordScore }: Schoo
           <span className={`font-black text-sm lg:text-base uppercase ${tierColors[currentTier]}`}>
             {currentTier === 'easy' ? '📗' : currentTier === 'medium' ? '📙' : '📕'} {currentTier}
           </span>
-          <span className="text-gray-400 text-xs lg:text-sm">{matches.size}/{TOTAL_PER_TIER}</span>
+          <span className="text-gray-400 text-xs lg:text-sm">{matches.size}/{TIER_CONFIG[currentTier].players}</span>
         </div>
       </div>
 
@@ -458,7 +469,7 @@ export default function SchoolMatch({ allPlayers, onQuit, onRecordScore }: Schoo
                 ? <span>Now tap <span className="text-accent font-bold">{selectedPlayer}'s</span> school</span>
                 : 'Tap a player, then tap their school'}
             </p>
-            <p className="text-gray-500 text-xs mt-1">Need {REQUIRED_TO_ADVANCE}/{TOTAL_PER_TIER} to advance</p>
+            <p className="text-gray-500 text-xs mt-1">Need {TIER_CONFIG[currentTier].required}/{TIER_CONFIG[currentTier].players} to advance</p>
           </div>
         )}
 
@@ -561,30 +572,30 @@ export default function SchoolMatch({ allPlayers, onQuit, onRecordScore }: Schoo
                   : 'bg-gray-700 text-gray-500 cursor-not-allowed'
                 }`}
             >
-              🎯 LOCK IT IN {matches.size < TOTAL_PER_TIER && `(${matches.size}/${TOTAL_PER_TIER})`}
+              🎯 LOCK IT IN {matches.size < TIER_CONFIG[currentTier].players && `(${matches.size}/${TIER_CONFIG[currentTier].players})`}
             </button>
             <p className="hidden lg:block text-center text-gray-500 text-sm mt-2">Press <kbd className="px-2 py-0.5 bg-card rounded text-gray-400">Enter</kbd> to submit</p>
           </div>
         ) : (
           <div className="mt-4 lg:mt-6 text-center">
-            <div className={`text-2xl lg:text-4xl font-black mb-2 ${correctCount >= REQUIRED_TO_ADVANCE ? 'text-green-400 animate-knows-ball' : 'text-red-400'}`}>
-              {correctCount}/{TOTAL_PER_TIER} CORRECT
+            <div className={`text-2xl lg:text-4xl font-black mb-2 ${correctCount >= TIER_CONFIG[currentTier].required ? 'text-green-400 animate-knows-ball' : 'text-red-400'}`}>
+              {correctCount}/{TIER_CONFIG[currentTier].players} CORRECT
             </div>
             <div className="text-lg lg:text-xl text-gray-400 mb-3">
               ⏱️ Completed in <span className="text-highlight font-bold">{elapsedTime}s</span>
             </div>
-            {correctCount >= REQUIRED_TO_ADVANCE ? (
+            {correctCount >= TIER_CONFIG[currentTier].required ? (
               <div className="text-green-400 font-bold mb-4">
                 {currentTier === 'hard' ? '🏆 ALL TIERS COMPLETE!' : `✓ Advancing to ${currentTier === 'easy' ? 'MEDIUM' : 'HARD'}...`}
               </div>
             ) : (
               <div className="text-red-400 font-bold mb-4">
-                ✗ Need {REQUIRED_TO_ADVANCE} to advance
+                ✗ Need {TIER_CONFIG[currentTier].required} to advance
               </div>
             )}
             <button onClick={handleNextTier}
               className="px-8 py-4 lg:px-12 lg:py-5 bg-accent hover:bg-accent/80 rounded-2xl text-xl lg:text-2xl font-black transition-all hover:scale-105 min-h-[52px]">
-              {correctCount >= REQUIRED_TO_ADVANCE && currentTier !== 'hard' ? '➡️ NEXT TIER' : '📊 See Results'}
+              {correctCount >= TIER_CONFIG[currentTier].required && currentTier !== 'hard' ? '➡️ NEXT TIER' : '📊 See Results'}
             </button>
             <p className="hidden lg:block text-gray-500 text-sm mt-2">Press <kbd className="px-2 py-0.5 bg-card rounded text-gray-400">Space</kbd></p>
           </div>

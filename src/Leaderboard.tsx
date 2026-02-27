@@ -293,28 +293,31 @@ export default function Leaderboard({ compact = false, mode, currentEntryId, tit
         ) : (
           list.map((entry, i) => {
             const displayedRank = entry.rank || i + 1;
+            const isFirst = displayedRank === 1;
             const isTop = displayedRank <= 3;
             const isCurrent = entry.id === currentEntryId;
             return (
               <div
                 key={entry.id}
-                className={`rounded-lg border px-3 py-2 flex items-center justify-between text-sm lg:text-base ${
-                  isCurrent
-                    ? 'border-cyan-400 bg-cyan-500/10'
-                    : isTop
-                      ? 'border-highlight/50 bg-highlight/10'
-                      : 'border-gray-700 bg-bg/40'
-                }`}
+                className={`rounded-lg border px-3 flex items-center justify-between ${
+                  isFirst
+                    ? 'border-highlight bg-gradient-to-r from-highlight/20 to-highlight/5 py-3 lg:py-4 mb-1'
+                    : isCurrent
+                      ? 'border-cyan-400 bg-cyan-500/10 py-2'
+                      : isTop
+                        ? 'border-highlight/50 bg-highlight/10 py-2'
+                        : 'border-gray-700 bg-bg/40 py-2'
+                } ${isFirst ? 'text-base lg:text-lg' : 'text-sm lg:text-base'}`}
               >
                 <div className="min-w-0">
-                  <div className={`font-bold truncate ${isTop ? 'text-highlight' : 'text-white'}`}>
-                    #{displayedRank} {entry.playerName}
+                  <div className={`font-bold truncate ${isFirst ? 'text-highlight text-lg lg:text-xl' : isTop ? 'text-highlight' : 'text-white'}`}>
+                    {isFirst ? '🏆 ' : `#${displayedRank} `}{entry.playerName}
                   </div>
                   <div className="text-xs text-gray-400 truncate">
                     {entry.gameMode} · {new Date(entry.date).toLocaleDateString()}
                   </div>
                 </div>
-                <div className="font-black text-lg text-accent">{entry.score}</div>
+                <div className={`font-black text-accent ${isFirst ? 'text-2xl lg:text-3xl' : 'text-lg'}`}>{entry.score}</div>
               </div>
             );
           })
