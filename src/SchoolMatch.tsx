@@ -462,11 +462,11 @@ export default function SchoolMatch({ allPlayers, onQuit, onRecordScore }: Schoo
       )}
 
       {/* Main game area */}
-      <div className="flex-1 flex flex-col items-center p-3 lg:p-6 max-w-6xl mx-auto w-full">
+      <div className="flex-1 flex flex-col items-center p-2 lg:p-4 max-w-6xl mx-auto w-full">
         {/* Timer and instructions */}
         {!revealed && (
-          <div className="text-center mb-4 lg:mb-6">
-            <div className={`text-3xl lg:text-5xl font-black mb-2 ${timeLeft <= 10 ? 'text-red-500 animate-pulse' : 'text-highlight'}`}>
+          <div className="text-center mb-2 lg:mb-4">
+            <div className={`text-2xl lg:text-4xl font-black mb-1 ${timeLeft <= 10 ? 'text-red-500 animate-pulse' : 'text-highlight'}`}>
               {timeLeft}s
             </div>
             <p className="text-gray-400 text-sm lg:text-base">
@@ -484,9 +484,9 @@ export default function SchoolMatch({ allPlayers, onQuit, onRecordScore }: Schoo
         </div>
 
         {/* Two column layout: Players | Schools */}
-        <div className="grid grid-cols-2 gap-3 lg:gap-6 w-full max-w-4xl">
+        <div className="grid grid-cols-2 gap-2 lg:gap-4 w-full max-w-4xl">
           {/* Players column */}
-          <div className="space-y-2 lg:space-y-3">
+          <div className="space-y-1.5 lg:space-y-2">
             <div className="text-center text-xs lg:text-sm font-bold text-gray-500 uppercase mb-2">Players</div>
             {gamePlayers.map((player) => {
               const isMatched = matches.has(player.name);
@@ -500,7 +500,7 @@ export default function SchoolMatch({ allPlayers, onQuit, onRecordScore }: Schoo
                 <div 
                   key={player.name}
                   onClick={() => !revealed && handlePlayerClick(player.name)}
-                  className={`relative bg-card border-2 rounded-xl p-3 lg:p-4 cursor-pointer transition-all select-none
+                  className={`relative bg-card border-2 rounded-lg p-2 lg:p-3 cursor-pointer transition-all select-none
                     ${revealed 
                       ? isCorrect ? 'border-green-500 bg-green-500/20' 
                         : isWrong || noGuess ? 'border-red-500 bg-red-500/20'
@@ -534,7 +534,7 @@ export default function SchoolMatch({ allPlayers, onQuit, onRecordScore }: Schoo
           </div>
 
           {/* Schools column */}
-          <div className="space-y-2 lg:space-y-3">
+          <div className="space-y-1.5 lg:space-y-2">
             <div className="text-center text-xs lg:text-sm font-bold text-gray-500 uppercase mb-2">Schools</div>
             {shuffledSchools.map((school) => {
               const isUsed = matchedSchools.has(school);
@@ -544,7 +544,7 @@ export default function SchoolMatch({ allPlayers, onQuit, onRecordScore }: Schoo
                 <div 
                   key={school}
                   onClick={() => handleSchoolClick(school)}
-                  className={`bg-card border-2 rounded-xl p-3 lg:p-4 cursor-pointer transition-all select-none
+                  className={`bg-card border-2 rounded-lg p-2 lg:p-3 cursor-pointer transition-all select-none
                     ${revealed
                       ? isCorrectMatch 
                         ? 'border-green-500 bg-green-500/20' 
