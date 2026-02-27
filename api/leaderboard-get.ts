@@ -1,4 +1,4 @@
-import { list, getDownloadUrl } from '@vercel/blob';
+import { list } from '@vercel/blob';
 import type { LeaderboardData, StoredLeaderboardEntry } from './_lib/leaderboard.js';
 import { isReadGameMode } from './_lib/leaderboard.js';
 
@@ -11,7 +11,7 @@ async function getLeaderboardData(): Promise<LeaderboardData> {
     const blobs = await list({ prefix: BLOB_NAME });
     const blob = blobs.blobs.find(b => b.pathname === BLOB_NAME);
     if (!blob) return { entries: [] };
-    const res = await fetch(blob.downloadUrl || getDownloadUrl(blob.url));
+    const res = await fetch(blob.url);
     return (await res.json()) as LeaderboardData;
   } catch {
     return { entries: [] };
@@ -45,7 +45,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
     filtered = data.entries.filter(e => e.gameMode === mode);
   }
 
-  // Sort by score descending, take top 50
   filtered.sort((a, b) => b.score - a.score);
   filtered = filtered.slice(0, 50);
 
