@@ -34,7 +34,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse): 
     }
 
     filtered.sort((a, b) => b.score - a.score);
-    filtered = filtered.slice(0, 50);
+    filtered = filtered.slice(0, 25);
 
     const scores = filtered.map((entry, index) => ({
       playerName: entry.playerName,

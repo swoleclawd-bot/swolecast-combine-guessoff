@@ -1,4 +1,4 @@
-export const MAX_LEADERBOARD_ENTRIES = 50;
+export const MAX_LEADERBOARD_ENTRIES = 25;
 
 export const VALID_GAME_MODES = [
   'speedsort',

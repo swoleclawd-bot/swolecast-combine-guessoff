@@ -233,7 +233,7 @@ export default function Leaderboard({ compact = false, mode, currentEntryId, tit
 
   const list = useMemo(() => {
     const source = activeTab === 'All Games' ? sortedAll : sortedAll.filter((e) => e.gameMode === activeTab);
-    return source.slice(0, 50);
+    return source.slice(0, 25);
   }, [activeTab, sortedAll]);
 
   const currentEntry = useMemo(() => entries.find((e) => e.id === currentEntryId) || null, [entries, currentEntryId]);
